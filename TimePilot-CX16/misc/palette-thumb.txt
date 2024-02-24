@@ -1,0 +1,21 @@
+# This file contains the palette info for Time Pilot Icon
+# Each entry below is the image color followed by the 
+# palette index launcher uses to render that color.  That
+# is, the nearest X16 color from the normal palette.
+
+000000 0  # Black
+F00000 2  # Red
+00C000 5  # Green
+0050F0 6  # Blue
+F0F000 7  # Yellow
+F08000 8  # Orange
+C000C0 4  # Magenta
+00C0F0 3  # Cyan
+808080 12 # Gray
+F0F0F0 1  # White
+800000 2  # Dark red
+608000 5  # Olive green
+0000A0 6  # Dark Blue
+B0B000 7  # Dark Yellow
+123400 6  # Sky and Prop
+432100 5  # prop

@@ -1,0 +1,4 @@
+TIME-PILOT.ABM is created using this command:
+python.exe .\mkvram.py -o time-pilot.abm -p .\palette-thumb.txt -g ".\time-pilot-thumb.png 1:1:8:::::::0"
+
+mkvram.py --help will explain what the parameters mean
