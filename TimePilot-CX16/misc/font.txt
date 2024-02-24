@@ -1,0 +1,4 @@
+The Time Pilot CX16 font is created using this command:
+python.exe .\mkvram.py -o tpfont.vrm -p .\palette.txt -a 1F0B0 -g ".\font.png 8:8:1:1:1:1:1:1"
+
+mkvram.py --help will explain what the parameters mean

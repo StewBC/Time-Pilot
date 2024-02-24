@@ -1,0 +1,46 @@
+# These sprites are converted to the Time Pilot CX16 VRAM file using the command:
+# python.exe .\mkvram.py -i .\convert.txt -p .\palette.txt -a 12c00 -o tpspr.vrm
+# mkvram.py --help will explain what the parameters mean
+
+# Each file in this list has 1 frame in X, except where it is followed by a number.
+# In that casem, there are that number of frames in the file, horizontally
+# None of these files have vertical images
+
+cloud0.png
+astro0.png
+cloud1.png
+astro1.png
+ebullet.png
+sbullet.png 8
+bomb.png 2
+rocket.png 16
+boomerang.png 8
+progress.png
+pbullet.png
+parachute.png 4
+l1bomber.png 8
+stage.png
+timewarp.png 4
+player.png 32
+cloud2.png
+astro2.png
+number.png 6
+expl16x16.png 4
+expl32x16.png 4
+expl_boom11x11.png 4
+expl_sblt13x13.png 4
+expl_wep16x16.png 4
+l0enemy.png 16
+l1enemy.png 16
+l2enemy.png 9
+l3enemy.png 16
+l4enemy.png 4
+l0boss.png 8
+l1boss.png 8
+l2boss.png 8
+l3boss.png 8
+l4boss.png 2
+time.png
+pilot.png
+blank1_64x8.png
+blank2_64x8.png

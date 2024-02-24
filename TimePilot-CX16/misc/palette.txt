@@ -1,0 +1,43 @@
+# This file contains the palette info for Time Pilot CX16
+# Each entry below is the image color followed by the 
+# palette index the game uses to render that color.
+
+000000 0  # Black
+F00000 1  # Red
+00C000 2  # Green
+0050F0 3  # Blue
+F0F000 4  # Yellow
+F08000 5  # Orange
+C000C0 6  # Magenta
+00C0F0 7  # Cyan
+808080 8  # Red
+F0F0F0 9  # White
+800000 10 # Dark red
+608000 11 # Olive green
+0000A0 12 # Dark Blue
+B0B000 13 # Dark Yellow
+123400 14 # Sky and Prop
+432100 15 # prop
+
+
+# These are the colors the sprites use.  Two rows in the pallette
+# are used.  Row 1 (0..15 colors) are for text and row 2 (16..31)
+# are for the sprites.  The two palettes are identical, except
+# that the sprites one is dynamically altered a bit more for
+# the prop.  The text one is also altered for the sky.  Not all 
+# sprites are listed here but this shows how all colors are used
+
+# Prop      123400 432100
+# Enemy 0   608000 800000 B0B000 - prop 608000
+# Boss  0   f08000 f0f0f0 808080 - no prop
+# Enemy 1   00c000 f00000 608000 - prop 00c000 (maybe f0f0f0?)
+# Bomber    608000 800000 B0B000
+# Boss  1   808080 800000 f0f0f0 - prop is f0f0f0 (not 00c000 but maybe?)
+# Enemy 2   608000 800000 B0B000 - prop f0f0f0           
+# Boss  2   f08000 0050f0 f0f0f0 - prop is f0f0f0
+# Enemy 3   c0f000 800000 B0B000 - no prop
+# Boss  3   608000 00c0f0 f0f0f0 - no prop
+# Enemy 4   c0f000 f0f0f0 0050f0 - no prop        
+# Boss  4   0050f0 123400 0000a0 - cycle when hit
+# Player    f0f0f0 0050f0 c000c0
+# Expl's    f0f000 f00000 00c0f0

@@ -1,0 +1,7 @@
+.vscode/
+build/
+design.txt
+todo.txt
+*.obj
+*.pdb
+*.xcf
