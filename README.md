@@ -1,6 +1,8 @@
 # Time Pilot  
 Remake of the Time Pilot arcade game, released in 1982 by Konami.  
-  
+
+Video of Windows/Linux/macOS and Commander X16 versions on YouTube: https://youtu.be/EGAHTqTvGlY  
+    
 ## About Time Pilot from Wikipedia:  
 Time Pilot is a multidirectional shooter arcade video game designed by Yoshiki Okamoto and released by Konami in 1982. While engaging in aerial combat, the player-controlled jet flies across open airspace that scrolls indefinitely in all directions.  
   
