@@ -79,8 +79,11 @@ The misc/TIME_PILOT.INF file can go into LAUNCHER.DATA/.META and misc/TIME-PILOT
 ### Sprites  
 The sprites folder contains all of the images that get converted into the game-ready vram binaries.  See tools for how these conversions work.  
   
+### Audio  
+The audio folder contains the .wav files used to make the .pcm files in that same folder.  The .pcm files are packaged into bankxxx.au files in the assets folder using a mkaudio.py - see Tools below.  
+  
 ### Tools  
-The python file, misc/mkvram.py is the image conversion tool.  I used that to convert the sprites, font and X16 launch image to VRAM ready images (tpfont.vrm and tpspr.vrm for the game).  mkvram.py has built-in help, but also look at the text files convert.txt, font.txt and thumb.txt to see how to use mkvram.py to do the conversions.  The two palette*.txt files contain the mappings for image colors to pallet indices.  
+The python file, misc/mkvram.py is the image conversion tool.  I used that to convert the sprites, font and X16 launch image to VRAM ready images (tpfont.vrm and tpspr.vrm for the game).  mkvram.py has built-in help, but also look at the text files convert.txt, font.txt and thumb.txt to see how to use mkvram.py to do the conversions.  The two palette*.txt files contain the mappings for image colors to pallet indices.  tpfont.vrm and tpspr.vrm have moved from the root to the assets folder.  
   
 The python file misc/mkaudio.py is used to pack the PCM audio into the BANKxxx.au files that are found in the assets folder. Look at misc/auto.txt for an explanation of how the audio/*.pcm files were generated from the audio/*.wav files.  
   
