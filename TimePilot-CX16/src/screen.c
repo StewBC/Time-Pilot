@@ -14,6 +14,7 @@
 #include "erase.h"
 #include "screen.h"
 
+#include <cbm.h>
 #include <cx16.h>
 #include <stdlib.h>
 
@@ -33,6 +34,9 @@ void screenCleanup() {
     eraseSpriteRange(128);
     VERA.display.video |= 0b00100000;
     VERA.display.video &= 0b10101111;
+
+    // Enable switching upper/lower case
+    cbm_k_chrout(9);
 }
 
 //-----------------------------------------------------------------------------
@@ -120,6 +124,8 @@ void screenDrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t colo
 
 //-----------------------------------------------------------------------------
 void screenInit() {
+    // Disable switching upper/lower case
+    cbm_k_chrout(8);
     // Sprites and layers off
     VERA.display.video &= 0b1000111;
     videomode(VIDEOMODE_40x30);
