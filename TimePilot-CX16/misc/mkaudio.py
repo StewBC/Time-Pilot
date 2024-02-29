@@ -1,5 +1,5 @@
-# mkvram.py by Stefan Wessels, Feb 2024.
-# use python.exe .\mkvram.py --help to see detailed help
+# mkaudio.py by Stefan Wessels, Feb 2024.
+# use python.exe .\mkaudio.py --help to see detailed help
 
 import argparse, sys, textwrap
 
@@ -62,33 +62,24 @@ def file2dict(fileName):
 def main():
     inputDict = dict()
 
-    parser = argparse.ArgumentParser(description='process PCM aufio data into a Commander X16 ram bank chunks.',
+    parser = argparse.ArgumentParser(description='process PCM audio data into a Commander X16 ram bank chunks.',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=textwrap.dedent('''\
-            additional information:
-              conversion properties means the following information as a string, seperated by colon's,
-              with their default values shown in brackets:
-                frames in width                 (1) - how many cells are there in the input, in the width
-                frames in height                (1) - how many cells are there in the input, in the height
-                bit depth of output             (4) - 1, 4 or 8 bits per pixel in the output
-                frame is a cell                 (0) - when not zero, frames specify the input cell sizes
-                width offset - X                (0) - start at X in image
-                height offset - Y               (0) - start ay Y in image
-                input cell width padding        (0) - width of any frame between cells
-                input cell height padding       (0) - height of frame between cells
-                skip outputting duplicate cells (0) - omit outputting duplicate cells
-                output cells are a power of two (1) - output cells are padded at right, bottom to 8, 16, 32 or 64
-
-            examples:
-            1) -g "font.png 8:8:1:1:1:1:1:1"
-              a font file containing 128 characters in an 16x8 grid, each seperated by a single line frame -
-              from left to right: each character is 8x8, bit depth of output is 1 bpp, the sizes (8x8) are for
-              each sub cell (or character), start at (1,1) in the image to skip the frame, and each cell has
-              an extra 1 in width and height to account for the frame.  skip duplicates and power of two are
-              not specified and assume their default values of 0 and 1.
-            2) -g "logo.png 2:::::::::0"
-              The width of logo contains two cells horizontally (we don't specify the width).  All other values
-              use defaults, except power of two is off, so the width and height output are left as-is.
+            example usage:
+             -i ../misc/audio.txt -o ../assets/bank
+            this will process the files listed in audio.txt and concatenate them into files 
+            in assets with the file names having the format bankXXX.au, where XXX is a number
+            starting from the bank specified with -a (default 1).
+            audio.txt contains something like:
+            # file name         loops?
+            game_start.pcm
+            highscore.pcm         1
+            the output will show a table like below:
+            {0x01,0x153F,0x0C,0x0926,0},
+            {0x0C,0x0927,0x17,0x0577,1},
+            the 1st column is the starting bank, start address in bank, end bank,
+            end address in end bank and lastly whether the sample should loop.
+            the order of the table is the order of the files in audio.txt.
             '''))
     inputGroup = parser.add_argument_group('input arguments are one or both of:')
     inputGroup.add_argument('-i', '--input', metavar='input_file',
@@ -101,7 +92,7 @@ def main():
                         help='the address to start the pack at - Default is 1A000.')
     parser.set_defaults(address='1A000')
     parser.add_argument('-n', '--no-address', action='store_true',
-                        help="do not write a CBM address preamble to the output VRAM data blob.")
+                        help="do not write a CBM address preamble to the output AU files.")
     args = parser.parse_args()
 
     try:
