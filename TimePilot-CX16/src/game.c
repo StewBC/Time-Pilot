@@ -127,6 +127,7 @@ void gamePostFrame() {
     drawIndex = 0;
     invPlayerAngle = playerAngle ^ (32/2); // 32/2 not-16-bit
 
+    audioServiceAudio();
     waitvsync();
 }
 

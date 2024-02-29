@@ -16,6 +16,8 @@
 #include "text.h"
 
 #include <cbm.h>
+#include <cx16.h>
+#include <stdio.h>
 
 //-----------------------------------------------------------------------------
 // Each layer has an entry
@@ -798,6 +800,32 @@ const int8_t timeWarpDrawScript[] = {
 };
 
 //-----------------------------------------------------------------------------
+// Audio data
+// start bank, start offset, end bank, end offset, looping sample
+AudioData audioData[NUM_AUDIO_SOURCES] = {
+    {0x01,0x0000,0x01,0x153E,0}, // AUDIO_COINDROP
+    {0x01,0x153F,0x0C,0x0926,0}, // AUDIO_GAME_START
+    {0x0C,0x0927,0x17,0x0577,1}, // AUDIO_HIGHSCORE
+    {0x17,0x0578,0x19,0x035C,0}, // AUDIO_NEXT_LEVEL
+    {0x19,0x035D,0x19,0x0960,0}, // AUDIO_PLAYER_SHOOT
+    {0x19,0x0961,0x19,0x17D9,1}, // AUDIO_ROCKET_FLY
+    {0x19,0x17DA,0x1A,0x00BC,1}, // AUDIO_BOSSL0
+    {0x1A,0x00BD,0x1A,0x195D,1}, // AUDIO_BOSSL1
+    {0x1A,0x195E,0x1B,0x0101,1}, // AUDIO_BOSSL2
+    {0x1B,0x0102,0x1B,0x0A3B,1}, // AUDIO_BOSSL3
+    {0x1B,0x0A3C,0x1C,0x048C,0}, // AUDIO_WAPON_EXPLODE
+    {0x1C,0x048D,0x1C,0x1C8E,0}, // AUDIO_ENEMY_EXPLODE
+    {0x1C,0x1C8F,0x1D,0x05E8,0}, // AUDIO_ENEMY_SHOOT
+    {0x1D,0x05E9,0x1E,0x024F,0}, // AUDIO_BOMB
+    {0x1E,0x0250,0x1E,0x12A8,0}, // AUDIO_ROCKET_LAUNCH
+    {0x1E,0x12A9,0x1F,0x14CB,0}, // AUDIO_PICKUP
+    {0x1F,0x14CC,0x20,0x11FD,0}, // AUDIO_EXTRA_LIFE
+    {0x20,0x11FE,0x21,0x024B,0}, // AUDIO_WAVE_START
+    {0x21,0x024C,0x23,0x03D6,0}, // AUDIO_BIG_EXPLOSION
+    {0x23,0x03D7,0x2B,0x0E1C,0}, // AUDIO_TIMEWARP
+};
+
+//-----------------------------------------------------------------------------
 // Replay data
 uint8_t demoAttractBuffer[DEMO_ATTRACT_LENGTH] = {
     0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
@@ -896,38 +924,27 @@ uint8_t demoAttractBuffer[DEMO_ATTRACT_LENGTH] = {
 
 //-----------------------------------------------------------------------------
 void dataCleanup() {
-    uint8_t i;
-
-    for(i=0; i < NUM_AUDIO_SOURCES; i++) {
-        if(audioSourceHandles[i]) {
-        }
-        if(audioSourceBuffers[i]) {
-        }
-    }
 }
 
 //-----------------------------------------------------------------------------
 int8_t dataInit() {
-    uint8_t i;
+    uint8_t h, i;
+    char fileName[18];
+
 
     // Load the sprites ($13000)
     cbm_k_setlfs(0, 8, 1);
-    cbm_k_setnam("tpspr.vrm");
-    i = cbm_k_open();
+    cbm_k_setnam("assets/tpspr.vrm");
+    h = cbm_k_open();
     cbm_k_load(3, 0);
-    cbm_k_close(i);
+    cbm_k_close(h);
 
     // Load the font (from char 16 - $1F080)
     cbm_k_setlfs(0, 8, 1);
-    cbm_k_setnam("tpfont.vrm");
-    i = cbm_k_open();
+    cbm_k_setnam("assets/tpfont.vrm");
+    h = cbm_k_open();
     cbm_k_load(3, 0);
-    cbm_k_close(i);
-
-    // Set all handles and buffers to 0 (not init)
-    for(i = 0; i < NUM_AUDIO_SOURCES; i++) {
-        audioSourceHandles[i] = audioSourceBuffers[i] = 0;
-    }
+    cbm_k_close(h);
 
     // Set up but don't show yet
     // Up to 6 extra lives ships
@@ -941,7 +958,7 @@ int8_t dataInit() {
     }
     // TIME and PILOT as 2 sprites
     drawSetOtherSprite(UI_SPR_LOGO  , UI_LAYER_TIME , (PLAYFIELDW/2)*SCOLW-64, 16, 0);
-    drawSetOtherSprite(UI_SPR_LOGO+1, UI_LAYER_PILOT, (PLAYFIELDW/2)*SCOLW   , 16, 0);
+    drawSetOtherSprite(UI_SPR_LOGO+1, UI_LAYER_PILOT, (PLAYFIELDW/2)*SCOLW+8 , 16, 0);
     // The 2 progress bar blanks
     drawSetOtherSprite(UI_SPR_PROGRESS  , UI_LAYER_BLANK1, SCREENW-96, 24*SROWH, 0);
     drawSetOtherSprite(UI_SPR_PROGRESS+1, UI_LAYER_BLANK2, SCREENW-32, 24*SROWH, 0);
@@ -949,8 +966,22 @@ int8_t dataInit() {
     drawShowSprite(UI_SPR_PROGRESS  , 0b00001100);
     drawShowSprite(UI_SPR_PROGRESS+1, 0b00001100);
 
-    // Then load the sound if and while audio is init
-    if(audioIsInit) {
+    // Only because the audio loading takes so long
+    drawShowSprite(UI_SPR_LOGO, 0b00000100);
+    drawShowSprite(UI_SPR_LOGO+1, 0b00000100);
+
+    VERA.audio.rate = 0;
+    // Load the sounds
+    for(i = 0; i < audioData[NUM_AUDIO_SOURCES-1].end_bank; i++) {
+        printXY(0, 11, 6, 0, i & 15, "LOADING");
+        sprintf(fileName, "assets/bank%03d.au", i);
+        cbm_k_setlfs(0, 8, 1);
+        cbm_k_setnam(fileName);
+        h = cbm_k_open();
+        RAM_RAM_BANK = i;
+        cbm_k_load(0, 0);
+        RAM_RAM_BANK = 0;
+        cbm_k_close(h);
     }
 
     demoAttractLength = sizeof(demoAttractBuffer);

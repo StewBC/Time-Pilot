@@ -52,6 +52,7 @@ void uiGameOver() {
                 break;
             }
         }
+        audioServiceAudio();
         waitvsync();
     }
     x = 4;
@@ -83,6 +84,7 @@ void uiGameOver() {
         while(cbm_k_getin()) {;}
         while(x && uiLetterIndex < 3) {
             while(uiTimer--) {
+                audioServiceAudio();
                 waitvsync();
                 // Check for direct keyboard entry of initials
                 int8_t key = cbm_k_getin();
@@ -210,6 +212,7 @@ int8_t uiMain() {
                 uiIterations = 0;
                 uiJoyScan();
             }
+            audioServiceAudio();
             waitvsync();
         }
     }
@@ -220,6 +223,7 @@ int8_t uiMain() {
 void uiPause() {
     printXY(1, 11, 8, 0, TP_COLOR_RED, TEXT_PAUSE);
     while(1) {
+        audioServiceAudio();
         waitvsync();
         inputInUI();
         if(inputMaskDebounced & (INPUT_PAUSE | INPUT_QUIT)) {

@@ -1,8 +1,12 @@
-# Time Pilot for Commander X16 using llvm-mos to compile the C version  
-
-These instructions are for using the Commander X16 version.  Converting the art and building the code, and playing the game.  
+# Time Pilot for Commander X16  
+These instructions are for Converting the art and audio, building the code, and playing the game.  
   
-NOTE: At the time of writing this, there's no AUDIO for the cx16 version.  
+## About the Audio
+The CX16 version now supports sound by using almost the same sounds as the PC version.  These are PCM files.  Since I can only play 1 PCM file at a time, I have arranged the audio files in a priority order.  Higher priority sounds will interrupt lower priority sounds and lower priority sounds will simply not play while a higher priority sound is playing.  
+  
+This sound system is not satisfactory.  I shortened the samples so that a higher priority sample doesn't tie up the whole sound system for too long.  It doesn't sound awesome but it's better than nothing.  
+  
+Quite frankly, I am stunned that this works half as well as it does.  I did not expect to be able to play the game and feed the audio all from C code.  If I ever learn how to do SFX on this system, or if someone else does it for me, I will gladly replace this with a proper SFX system.
   
 ## Getting started  
 This workspace uses cmake and Ninja, so that does have to be installed.  
@@ -77,6 +81,8 @@ The sprites folder contains all of the images that get converted into the game-r
   
 ### Tools  
 The python file, misc/mkvram.py is the image conversion tool.  I used that to convert the sprites, font and X16 launch image to VRAM ready images (tpfont.vrm and tpspr.vrm for the game).  mkvram.py has built-in help, but also look at the text files convert.txt, font.txt and thumb.txt to see how to use mkvram.py to do the conversions.  The two palette*.txt files contain the mappings for image colors to pallet indices.  
+  
+The python file misc/mkaudio.py is used to pack the PCM audio into the BANKxxx.au files that are found in the assets folder. Look at misc/auto.txt for an explanation of how the audio/*.pcm files were generated from the audio/*.wav files.  
   
 ### Helpers  
 I added two excel documents that helped me calculate the appropriate coordinates to "launch" things around the screen (launch_point_calcs_cx16.xlsx), and the "rays" that the enemies use to steer towards the center of the screen (rays_table_calcs.xlsx).  

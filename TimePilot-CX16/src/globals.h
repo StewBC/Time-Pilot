@@ -238,34 +238,34 @@
 #define NUM_SCORES                  6
 
 // Audio
-#define AUDIO_BIG_EXPLOSION         0
-#define AUDIO_BOMB                  1
-#define AUDIO_BOOOMERANG            2
-#define AUDIO_BOSSL0                3
-#define AUDIO_BOSSL1                4
-#define AUDIO_BOSSL2                5
-#define AUDIO_BOSSL3                6
-#define AUDIO_BOSSL4                7
-#define AUDIO_COINDROP              8
-#define AUDIO_ENEMY_EXPLODE         9
-#define AUDIO_ENEMY_SHOOT           10
-#define AUDIO_ENEMY_SHOOT_SPACE     11
-#define AUDIO_EXTRA_LIFE            12
-#define AUDIO_GAME_START            13
-#define AUDIO_HIGHSCORE             14
-#define AUDIO_NEXT_LEVEL            15
-#define AUDIO_PICKUP                16
-#define AUDIO_PLAYER_SHOOT          17
-#define AUDIO_ROCKET_FLY            18
-#define AUDIO_ROCKET_LAUNCH         19
-#define AUDIO_STAGE_CLEAR           20
-#define AUDIO_TIMEWARP              21
-#define AUDIO_WAPON_EXPLODE         22
-#define AUDIO_WAVE_START            23
-#define NUM_AUDIO_SOURCES           24
+#define AUDIO_COINDROP              0
+#define AUDIO_GAME_START            1
+#define AUDIO_HIGHSCORE             2
+#define AUDIO_NEXT_LEVEL            3
+#define AUDIO_PLAYER_SHOOT          4
+#define AUDIO_ROCKET_FLY            5
+#define AUDIO_BOSSL0                6
+#define AUDIO_BOSSL1                7
+#define AUDIO_BOSSL2                8
+#define AUDIO_BOSSL3                9
+#define AUDIO_WAPON_EXPLODE         10
+#define AUDIO_ENEMY_EXPLODE         11
+#define AUDIO_ENEMY_SHOOT           12
+#define AUDIO_BOMB                  13
+#define AUDIO_ROCKET_LAUNCH         14
+#define AUDIO_PICKUP                15
+#define AUDIO_EXTRA_LIFE            16
+#define AUDIO_WAVE_START            17
+#define AUDIO_BIG_EXPLOSION         18
+#define AUDIO_TIMEWARP              19
+#define NUM_AUDIO_SOURCES           20
+
+#define AUDIO_BOOOMERANG            20
+#define AUDIO_ENEMY_SHOOT_SPACE     21
+#define AUDIO_STAGE_CLEAR           22
+#define AUDIO_BOSSL4                23
 
 // Global Variables
-
 // Timers
 extern uint16_t     aiSpawnTimer;
 extern int16_t      bulletTimer;
@@ -391,9 +391,13 @@ extern int8_t       demoRecordMode;
 extern uint8_t      demoAttractBuffer[DEMO_ATTRACT_LENGTH];
 
 // Audio
+extern uint8_t      audioCurrentBank;
+extern uint16_t     audioEndAddress;
+extern uint8_t      audioEndBank;
+extern uint16_t     audioIndex;
 extern int8_t       audioIsInit;
-extern int8_t       audioSourceBuffers[NUM_AUDIO_SOURCES];
-extern int8_t       audioSourceHandles[NUM_AUDIO_SOURCES];
+extern int8_t       audioIsPlaying;
+extern int8_t       audioLoopingSample;
 
 // Temp locals in the Things file
 extern uint8_t      colId0;

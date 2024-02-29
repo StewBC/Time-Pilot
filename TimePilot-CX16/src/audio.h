@@ -8,8 +8,8 @@
 #pragma once
 
 void audioCleanup();
-void audioConfigSource(int8_t source, int8_t flag, int8_t state);
 void audioInit();
 int8_t audioIsSourcePlaying(int8_t source);
 void audioPlaySource(int8_t source);
+void audioServiceAudio();
 void audioStopSource(int8_t source);

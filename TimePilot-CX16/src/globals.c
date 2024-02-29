@@ -9,145 +9,149 @@
 #include "globals.h"
 
 // Timers
-uint16_t     aiSpawnTimer;
-int16_t      bulletTimer;
-int16_t      bomberTimer;
-int16_t      levelBossTimer;
-int16_t      parachuteTimer;
-int16_t      playerExitTimer;
-int16_t      prePlayTimer;
-int16_t      scoreTimer;
-int16_t      introColorTimer;
-uint16_t     frameCounter;
+uint16_t    aiSpawnTimer;
+int16_t     bulletTimer;
+int16_t     bomberTimer;
+int16_t     levelBossTimer;
+int16_t     parachuteTimer;
+int16_t     playerExitTimer;
+int16_t     prePlayTimer;
+int16_t     scoreTimer;
+int16_t     introColorTimer;
+uint16_t    frameCounter;
 
 // General gameplay variables
-uint8_t      activePlayer;
-uint8_t      activeSky;
-uint8_t      activeStage;
-int8_t       aiEnemiesAlive;
-uint8_t      bomberHealth;
-uint16_t     enemiesKilled;
-uint8_t      enemyScore;
-uint16_t     exitGameMask;
-uint16_t     inputMask;
-uint16_t     inputMaskDebounced;
-uint16_t     inputMaskPrev;
-uint16_t     inputMaskRepeat;
-uint8_t      inputRepeatRate;
-int8_t       invPlayerAngle;
-int8_t       launchSide;
-uint8_t      levelBossHealth;
-uint8_t      numberOfAIFollowers;
-uint8_t      numberOfAIFollowersMax;
-uint8_t      numberOfEnemies;
-uint8_t      numberOfPlayers;
-uint8_t      numberOfPlayersAlive;
-uint8_t      numberOfRockets;
-uint8_t      numberOfTracked;
-uint8_t      numberOfTrackedMax;
-uint8_t      numberOfWaveEnemies;
-uint8_t      parachuteScore;
-uint8_t      playerAngle;
-uint16_t     playerExtraLife;
-int8_t       playerLives;
-uint16_t     playerNextExtraLife;
-uint16_t     playerScore;
-uint8_t      propState;
-int8_t       randomSeed;
-int16_t      readFrameStall;
-uint8_t      stageIntroState;
-int16_t      spawnX;
-int16_t      spawnY;
-int8_t       waveSpawnL;
-int8_t       waveSpawnR;
-int8_t       waveSpawnDir;
-int8_t       waveSpawnDuration;
-int8_t       waveSpawnIndex;
-int8_t       waveSpawnNumber;
+uint8_t     activePlayer;
+uint8_t     activeSky;
+uint8_t     activeStage;
+int8_t      aiEnemiesAlive;
+uint8_t     bomberHealth;
+uint16_t    enemiesKilled;
+uint8_t     enemyScore;
+uint16_t    exitGameMask;
+uint16_t    inputMask;
+uint16_t    inputMaskDebounced;
+uint16_t    inputMaskPrev;
+uint16_t    inputMaskRepeat;
+uint8_t     inputRepeatRate;
+int8_t      invPlayerAngle;
+int8_t      launchSide;
+uint8_t     levelBossHealth;
+uint8_t     numberOfAIFollowers;
+uint8_t     numberOfAIFollowersMax;
+uint8_t     numberOfEnemies;
+uint8_t     numberOfPlayers;
+uint8_t     numberOfPlayersAlive;
+uint8_t     numberOfRockets;
+uint8_t     numberOfTracked;
+uint8_t     numberOfTrackedMax;
+uint8_t     numberOfWaveEnemies;
+uint8_t     parachuteScore;
+uint8_t     playerAngle;
+uint16_t    playerExtraLife;
+int8_t      playerLives;
+uint16_t    playerNextExtraLife;
+uint16_t    playerScore;
+uint8_t     propState;
+int8_t      randomSeed;
+int16_t     readFrameStall;
+uint8_t     stageIntroState;
+int16_t     spawnX;
+int16_t     spawnY;
+int8_t      waveSpawnL;
+int8_t      waveSpawnR;
+int8_t      waveSpawnDir;
+int8_t      waveSpawnDuration;
+int8_t      waveSpawnIndex;
+int8_t      waveSpawnNumber;
 
 // Per-player Game State Variables
-uint8_t      playersActiveStage[2];
-uint16_t     playersEnemiesKilled[2];
-uint16_t     playersExtraLife[2];
-uint8_t      playersLevelBossHealth[2];
-uint8_t      playersLives[2];
-uint16_t     playersNextExtraLife[2];
-uint16_t     playersScore[2];
-uint8_t      playersStageIntroState[2];
+uint8_t     playersActiveStage[2];
+uint16_t    playersEnemiesKilled[2];
+uint16_t    playersExtraLife[2];
+uint8_t     playersLevelBossHealth[2];
+uint8_t     playersLives[2];
+uint16_t    playersNextExtraLife[2];
+uint16_t    playersScore[2];
+uint8_t     playersStageIntroState[2];
 
 // Print Buffer
-char         printBuffer[SCOL];
+char        printBuffer[SCOL];
 
 // High-score tracking and display
-uint16_t     highScore[5];
-uint16_t     highScoresDisplay;
+uint16_t    highScore[5];
+uint16_t    highScoresDisplay;
 
 // Stage Vars
-uint8_t      activeCollides[MAX_OBJECTS];
-uint8_t      activeColsig[MAX_OBJECTS];
-int8_t       activeExtra[MAX_OBJECTS];
-uint16_t     activeFlags[MAX_OBJECTS];
-int8_t       activeFrame[MAX_OBJECTS];
-int8_t       activeHeight[MAX_OBJECTS];
-uint8_t      activeLayer[MAX_OBJECTS];
-int16_t      activeMaxX[MAX_OBJECTS];
-int16_t      activeMaxY[MAX_OBJECTS];
-int16_t      activeMinX[MAX_OBJECTS];
-int16_t      activeMinY[MAX_OBJECTS];
-uint8_t      activeOffScreen[MAX_OBJECTS];
-int16_t      activeOldX[MAX_OBJECTS];
-int16_t      activeOldY[MAX_OBJECTS];
-int8_t       activeWidth[MAX_OBJECTS];
-uint16_t     activeXVelFrac[MAX_OBJECTS];
-uint16_t     activeYVelFrac[MAX_OBJECTS];
+uint8_t     activeCollides[MAX_OBJECTS];
+uint8_t     activeColsig[MAX_OBJECTS];
+int8_t      activeExtra[MAX_OBJECTS];
+uint16_t    activeFlags[MAX_OBJECTS];
+int8_t      activeFrame[MAX_OBJECTS];
+int8_t      activeHeight[MAX_OBJECTS];
+uint8_t     activeLayer[MAX_OBJECTS];
+int16_t     activeMaxX[MAX_OBJECTS];
+int16_t     activeMaxY[MAX_OBJECTS];
+int16_t     activeMinX[MAX_OBJECTS];
+int16_t     activeMinY[MAX_OBJECTS];
+uint8_t     activeOffScreen[MAX_OBJECTS];
+int16_t     activeOldX[MAX_OBJECTS];
+int16_t     activeOldY[MAX_OBJECTS];
+int8_t      activeWidth[MAX_OBJECTS];
+uint16_t    activeXVelFrac[MAX_OBJECTS];
+uint16_t    activeYVelFrac[MAX_OBJECTS];
 
-int8_t*      activeTimer = activeExtra;    // Alias for activeExtra - just for readability
-int8_t*      activeHeading = activeExtra;  // Alias for activeExtra
+int8_t*     activeTimer = activeExtra;    // Alias for activeExtra - just for readability
+int8_t*     activeHeading = activeExtra;  // Alias for activeExtra
 
 // One for each on-screen enemy
-int8_t       enemyHeading[ACTIVEFLAGS_ENEMYMASK+1];
-uint8_t      enemyID[ACTIVEFLAGS_ENEMYMASK+1];
-uint8_t      enemyWeapon[ACTIVEFLAGS_ENEMYMASK+1];
+int8_t      enemyHeading[ACTIVEFLAGS_ENEMYMASK+1];
+uint8_t     enemyID[ACTIVEFLAGS_ENEMYMASK+1];
+uint8_t     enemyWeapon[ACTIVEFLAGS_ENEMYMASK+1];
 
 // Hardware
-int8_t       inputUsingJoystick;
+int8_t      inputUsingJoystick;
 
 // Tracking, sorting & drawing
-uint8_t      drawIndex;
-int8_t       introColorOffset;
-uint8_t      numSortedThingIDs;
-int8_t       sortedThingIDs[MAX_OBJECTS];
+uint8_t     drawIndex;
+int8_t      introColorOffset;
+uint8_t     numSortedThingIDs;
+int8_t      sortedThingIDs[MAX_OBJECTS];
 
 // Demo Mode
-int16_t      demoAttractIndex;
-int16_t      demoAttractLength;
-int8_t       demoAttractMode;
-uint16_t     demoAttractScore;
+int16_t     demoAttractIndex;
+int16_t     demoAttractLength;
+int8_t      demoAttractMode;
+uint16_t    demoAttractScore;
 #ifdef  RECORD_REPLAY
-int8_t       demoRecordMode;
+int8_t      demoRecordMode;
 #endif
 
 // Audio
-int8_t       audioIsInit;
-int8_t       audioSourceBuffers[NUM_AUDIO_SOURCES];
-int8_t       audioSourceHandles[NUM_AUDIO_SOURCES];
+uint8_t     audioCurrentBank;
+uint16_t    audioEndAddress;
+uint8_t     audioEndBank;
+uint16_t    audioIndex;
+int8_t      audioIsInit;
+int8_t      audioIsPlaying;
+int8_t      audioLoopingSample;
 
 // Temp locals in the Things file
-uint8_t      colId0;
-uint8_t      colId1;
-uint8_t      index0;
-uint8_t      index1;
-uint8_t      reduce;
-uint8_t      sortKey;
-int16_t      sortKeyValue;
+uint8_t     colId0;
+uint8_t     colId1;
+uint8_t     index0;
+uint8_t     index1;
+uint8_t     reduce;
+uint8_t     sortKey;
+int16_t     sortKeyValue;
 
 // Temp locals in the UI file
-uint8_t      uiInitialsColor;
-uint8_t      uiInsertRow;
-uint8_t      uiLetter;
-uint8_t      uiLetterIndex;
-uint8_t      uiState;
-int16_t      uiTimer;
+uint8_t     uiInitialsColor;
+uint8_t     uiInsertRow;
+uint8_t     uiLetter;
+uint8_t     uiLetterIndex;
+uint8_t     uiState;
+int16_t     uiTimer;
 
 //-----------------------------------------------------------------------------
 // One time only init
@@ -162,7 +166,12 @@ void globalsInit() {
     randomSeed = -1;
 
     // Zero
+    audioCurrentBank = 0;
+    audioEndAddress = 0;
+    audioEndBank = 0;
     audioIsInit = 0;
+    audioIsPlaying = -1;
+    audioLoopingSample = -1;
     demoAttractLength = DEMO_ATTRACT_LENGTH;
     demoAttractMode = 0;
     inputUsingJoystick = 0;

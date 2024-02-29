@@ -67,5 +67,16 @@ extern const uint8_t    stageLabelColor[3];
 extern const char**     stageLabelText[5];
 extern const int8_t     timeWarpDrawScript[];
 
+typedef struct _tagAudioData {
+    uint8_t     start_bank;
+    uint16_t    start_address;
+    uint8_t     end_bank;
+    uint16_t    end_address;
+    uint8_t     loops;
+} AudioData;
+extern AudioData audioData[NUM_AUDIO_SOURCES];
+
+extern uint8_t demoAttractBuffer[DEMO_ATTRACT_LENGTH];
+
 void dataCleanup();
 int8_t dataInit();

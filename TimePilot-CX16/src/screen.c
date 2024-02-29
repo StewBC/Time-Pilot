@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include "globals.h"
 
+#include "audio.h"
 #include "data.h"
 #include "draw.h"
 #include "erase.h"
@@ -113,6 +114,7 @@ void screenDrawLine(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t colo
             y0 += sy;
         }
     }
+    audioServiceAudio();
     waitvsync();
 }
 
@@ -176,14 +178,18 @@ void screenTimeWarp() {
         // Player sprite ON
         drawShowSprite(layerToThingTable[LAYER_PLAYER], 0b00001000);
         // 2 frames
+        audioServiceAudio();
         waitvsync();
+        audioServiceAudio();
         waitvsync();
 
         // Player sprite OFF
         eraseSprite(layerToThingTable[LAYER_PLAYER]);
         screenClearSection(0, 0, (PLAYFIELDH/2)-1, PLAYFIELDW, 2, TP_COLOR_SKY);
         // 2 frames
+        audioServiceAudio();
         waitvsync();
+        audioServiceAudio();
         waitvsync();
 
         i++;
