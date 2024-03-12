@@ -106,6 +106,7 @@ void thingsSortAndCollide() {
         }
     }
 
+    // Identify overlapping sprites, considering Y only
     i = 0;
     while(i < numSortedThingIDs) {
         key = sortedThingIDs[i];
@@ -113,6 +114,7 @@ void thingsSortAndCollide() {
         for(j = i + 1; j < numSortedThingIDs; j++) {
             other = sortedThingIDs[j];
             if(maxY >= activeMinY[other]) {
+                // Grow the overlap area by the included sprite, if needed
                 if(maxY < activeMaxY[other]) {
                     maxY = activeMaxY[other];
                 }
@@ -121,24 +123,18 @@ void thingsSortAndCollide() {
                 break;
             }
         }
-        if(i + 1 != j) {
-            thingsSortOverlapByLayer(i, j);
+        // Sort the overlapping sprites by layer
+        for (int16_t start = i + 1; start < j; ++start) {
+            int16_t key = sortedThingIDs[start];
+            int16_t value = activeLayer[key];
+            int16_t k = start - 1;
+            while(k >= i && (value < activeLayer[sortedThingIDs[k]])) {
+                sortedThingIDs[k + 1] = sortedThingIDs[k];
+                k--;
+            }
+            sortedThingIDs[k + 1] = key;
         }
+        // Start again past the overlapping region
         i = j;
-    }
-}
-
-//-----------------------------------------------------------------------------
-void thingsSortOverlapByLayer(int16_t start, int16_t end) {
-    // Sort for activeMinY and remove dead things
-    for (int i = start + 1; i < end; ++i) {
-        int key = sortedThingIDs[i];
-        int value = activeLayer[key];
-        int j = i - 1;
-        while(j >= start && (value < activeLayer[sortedThingIDs[j]])) {
-            sortedThingIDs[j + 1] = sortedThingIDs[j];
-            j--;
-        }
-        sortedThingIDs[j + 1] = key;
     }
 }

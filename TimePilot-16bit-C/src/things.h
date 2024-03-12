@@ -9,4 +9,3 @@
 
 uint16_t thingsAdd(uint16_t Y);
 void thingsSortAndCollide();
-void thingsSortOverlapByLayer(int16_t start, int16_t end);
