@@ -70,83 +70,58 @@ uint8_t thingsAdd(uint8_t Y) {
 
 //-----------------------------------------------------------------------------
 void thingsSortAndCollide() {
-    int8_t A, X, Y;
+    int8_t i, j, key, other, deadCount;
 
-    reduce = X = 0;
-    if(sortedThingIDs[0] < 0) {
-        reduce++;
-    }
-    while(++X < numSortedThingIDs) {
-        Y = sortedThingIDs[X];
-        if(Y < 0) {
-            reduce++;
+    // Sort for activeMinY and remove dead things
+    deadCount = sortedThingIDs[0] < 0 ? 1 : 0;
+    for (i = 1; i < numSortedThingIDs; ++i) {
+        key = sortedThingIDs[i];
+        if (key == -1) {
+            deadCount++;
             continue;
         }
-        sortKey = Y;
-        sortKeyValue = activeMinY[Y];
-
-        Y = X;
-        while(--Y >= 0) {
-            A = sortedThingIDs[Y];
-            if(A >= 0) {
-                index0 = Y;
-                Y = A;
-                if(activeMinY[Y] - sortKeyValue <= 0) {
-                    Y = index0;
-                    break;
-                }
-                A = Y;
-                Y = index0;
-            }
-
-            sortedThingIDs[Y+1] = A;
+        j = i - 1;
+        while(j >= 0 && (sortedThingIDs[j] < 0 || activeMinY[key] < activeMinY[sortedThingIDs[j]])) {
+            sortedThingIDs[j + 1] = sortedThingIDs[j];
+            j--;
         }
-
-        Y++;
-        sortedThingIDs[Y] = sortKey;
+        sortedThingIDs[j + 1] = key;
     }
-    numSortedThingIDs -= reduce;
+    numSortedThingIDs -= deadCount; // Update the count of live objects
 
-    // Collision Checks
-    X = 0;
-    while(X < numSortedThingIDs) {
-        Y = sortedThingIDs[X];
-        if(activeCollides[Y]) {
-            if(!(activeFlags[Y] & ACTIVEFLAGS_ISDEAD)) {
-                int8_t X1 = X + 1;
-                while(X1 < numSortedThingIDs) {
-                    int8_t Y1 = sortedThingIDs[X1];
-                    if(!(activeFlags[Y1] & ACTIVEFLAGS_ISDEAD)) {
-                        if(activeMinY[Y1] > activeMaxY[Y]) {
-                            break;  // The rest are also all lower so done with X
-                        }
+    for(i = 0; i < numSortedThingIDs; i++) {
+        key = sortedThingIDs[i];
+        if(activeCollides[key] && !(activeFlags[key] & ACTIVEFLAGS_ISDEAD)) {
+            for(j = i + 1; j < numSortedThingIDs; j++) {
+                other = sortedThingIDs[j];
+                if(!(activeFlags[other] & ACTIVEFLAGS_ISDEAD)) {
+                    if(activeMinY[other] > activeMaxY[key]) {
+                        break;
+                    }
+                    if(activeColsig[other] & activeCollides[key]) {
                         int8_t collides = 0;
-                        if(activeColsig[Y1] & activeCollides[Y]) {
-                            // If the player is involved in a collision, make the collision box a lot tighter, more forgiving
-                            if(activeLayer[Y1] == LAYER_PLAYER) {
-                                if(activeMinX[Y] < PLAYER_X+11 && activeMaxX[Y] > PLAYER_X+5 && activeMinY[Y] < PLAYER_Y+11 && activeMaxY[Y] > PLAYER_Y+5) {
-                                    collides = 1;
-                                }
-                            } else if(activeLayer[Y] == LAYER_PLAYER) {
-                                if(activeMinX[Y1] < PLAYER_X+11 && activeMaxX[Y1] > PLAYER_X+5 && activeMinY[Y1] < PLAYER_Y+11 && activeMaxY[Y1] > PLAYER_Y+5) {
-                                    collides = 1;
-                                }
-                            } else if(activeMinX[Y1] <= activeMaxX[Y]) {
-                                if(activeMaxX[Y1] >= activeMinX[Y]) {
-                                    collides = 1;
-                                }
+                        // If the player is involved in a collision, make the collision box a lot tighter, more forgiving
+                        if(activeLayer[other] == LAYER_PLAYER) {
+                            if(activeMinX[key] < PLAYER_X+11 && activeMaxX[key] > PLAYER_X+5 && activeMinY[key] < PLAYER_Y+11 && activeMaxY[key] > PLAYER_Y+5) {
+                                collides = 1;
                             }
-                            if(collides) {
-                                collideThings(Y, Y1);
-                                collideThings(Y1, Y);
-                                break;
+                        } else if(activeLayer[key] == LAYER_PLAYER) {
+                            if(activeMinX[other] < PLAYER_X+11 && activeMaxX[other] > PLAYER_X+5 && activeMinY[other] < PLAYER_Y+11 && activeMaxY[other] > PLAYER_Y+5) {
+                                collides = 1;
                             }
+                        } else if(activeMinX[other] <= activeMaxX[key]) {
+                            if(activeMaxX[other] >= activeMinX[key]) {
+                                collides = 1;
+                            }
+                        }
+                        if(collides) {
+                            collideThings(key, other);
+                            collideThings(other, key);
+                            break;
                         }
                     }
-                    X1++;
                 }
             }
         }
-        X++;
     }
 }
