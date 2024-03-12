@@ -50,139 +50,95 @@ uint16_t thingsAdd(uint16_t Y) {
 
 //-----------------------------------------------------------------------------
 void thingsSortAndCollide() {
-    int16_t A, X, Y;
+    int16_t i, j, key, other, deadCount;
 
-    reduce = X = 0;
-    if(sortedThingIDs[0] < 0) {
-        reduce++;
-    }
-    while(++X < numSortedThingIDs) {
-        Y = sortedThingIDs[X];
-        if(Y < 0) {
-            reduce++;
+    // Sort for activeMinY and remove dead things
+    deadCount = sortedThingIDs[0] < 0 ? 1 : 0;
+    for (i = 1; i < numSortedThingIDs; ++i) {
+        key = sortedThingIDs[i];
+        if (key == -1) {
+            deadCount++;
             continue;
         }
-        sortKey = Y;
-        sortKeyValue = activeMinY[Y];
-
-        Y = X;
-        while(--Y >= 0) {
-            A = sortedThingIDs[Y];
-            if(A >= 0) {
-                index0 = Y;
-                Y = A;
-                A = activeMinY[Y];
-                A -= sortKeyValue;
-                if(A <= 0) {
-                    Y = index0;
-                    break;
-                }
-                A = Y;
-                Y = index0;
-            }
-
-            sortedThingIDs[Y+1] = A;
+        j = i - 1;
+        while(j >= 0 && (sortedThingIDs[j] < 0 || activeMinY[key] < activeMinY[sortedThingIDs[j]])) {
+            sortedThingIDs[j + 1] = sortedThingIDs[j];
+            j--;
         }
-
-        Y++;
-        sortedThingIDs[Y] = sortKey;
+        sortedThingIDs[j + 1] = key;
     }
-    numSortedThingIDs -= reduce;
+    numSortedThingIDs -= deadCount; // Update the count of live objects
 
-    // Collision Checks
-    X = 0;
-    while(X < numSortedThingIDs) {
-        Y = sortedThingIDs[X];
-        if(activeCollides[Y]) {
-            if(!(activeFlags[Y] & ACTIVEFLAGS_ISDEAD)) {
-                int16_t X1 = X + 1;
-                while(X1 < numSortedThingIDs) {
-                    int16_t Y1 = sortedThingIDs[X1];
-                    if(!(activeFlags[Y1] & ACTIVEFLAGS_ISDEAD)) {
-                        if(activeMinY[Y1] > activeMaxY[Y]) {
-                            break;  // The rest are also all lower so done with X
-                        }
+    for(i = 0; i < numSortedThingIDs; i++) {
+        key = sortedThingIDs[i];
+        eraseThingIDs[i] = key;
+        if(activeCollides[key] && !(activeFlags[key] & ACTIVEFLAGS_ISDEAD)) {
+            for(j = i + 1; j < numSortedThingIDs; j++) {
+                other = sortedThingIDs[j];
+                if(!(activeFlags[other] & ACTIVEFLAGS_ISDEAD)) {
+                    if(activeMinY[other] > activeMaxY[key]) {
+                        break;
+                    }
+                    if(activeColsig[other] & activeCollides[key]) {
                         int16_t collides = 0;
-                        if(activeColsig[Y1] & activeCollides[Y]) {
-                            // If the player is involved in a collision, make the collision box a lot tighter, more forgiving
-                            if(activeLayer[Y1] == LAYER_PLAYER) {
-                                if(activeMinX[Y] < PLAYER_X+11 && activeMaxX[Y] > PLAYER_X+5 && activeMinY[Y] < PLAYER_Y+11 && activeMaxY[Y] > PLAYER_Y+5) {
-                                    collides = 1;
-                                }
-                            } else if(activeLayer[Y] == LAYER_PLAYER) {
-                                if(activeMinX[Y1] < PLAYER_X+11 && activeMaxX[Y1] > PLAYER_X+5 && activeMinY[Y1] < PLAYER_Y+11 && activeMaxY[Y1] > PLAYER_Y+5) {
-                                    collides = 1;
-                                }
-                            } else if(activeMinX[Y1] <= activeMaxX[Y]) {
-                                if(activeMaxX[Y1] >= activeMinX[Y]) {
-                                    collides = 1;
-                                }
+                        // If the player is involved in a collision, make the collision box a lot tighter, more forgiving
+                        if(activeLayer[other] == LAYER_PLAYER) {
+                            if(activeMinX[key] < PLAYER_X+11 && activeMaxX[key] > PLAYER_X+5 && activeMinY[key] < PLAYER_Y+11 && activeMaxY[key] > PLAYER_Y+5) {
+                                collides = 1;
                             }
-                            if(collides) {
-                                collideThings(Y, Y1);
-                                collideThings(Y1, Y);
-                                break;
+                        } else if(activeLayer[key] == LAYER_PLAYER) {
+                            if(activeMinX[other] < PLAYER_X+11 && activeMaxX[other] > PLAYER_X+5 && activeMinY[other] < PLAYER_Y+11 && activeMaxY[other] > PLAYER_Y+5) {
+                                collides = 1;
                             }
+                        } else if(activeMinX[other] <= activeMaxX[key]) {
+                            if(activeMaxX[other] >= activeMinX[key]) {
+                                collides = 1;
+                            }
+                        }
+                        if(collides) {
+                            collideThings(key, other);
+                            collideThings(other, key);
+                            break;
                         }
                     }
-                    X1++;
                 }
             }
         }
-        X++;
     }
 
-    endIndex = 0;
-    do {
-        X = endIndex;
-        Y = X + 1;
-        if(Y >= numSortedThingIDs) {
-            break;
-        }
-        startIndex = X;
-        endIndex = Y;
-        index0 = activeMaxY[sortedThingIDs[X]]; // index0 = X.max
-        do {
-            eraseThingIDs[Y] = sortedThingIDs[Y];
-            if(activeMinY[sortedThingIDs[Y]] >= index0) { // if Y.min >= X.max then no overlap
+    i = 0;
+    while(i < numSortedThingIDs) {
+        key = sortedThingIDs[i];
+        int maxY = activeMaxY[key];
+        for(j = i + 1; j < numSortedThingIDs; j++) {
+            other = sortedThingIDs[j];
+            if(maxY >= activeMinY[other]) {
+                if(maxY < activeMaxY[other]) {
+                    maxY = activeMaxY[other];
+                }
+            }
+            else {
                 break;
             }
-            // Don't worry about the X - to test and update the possible X overlaps would require a
-            // Growing cube or more accurately a smart bounding box which will take longer to maintain
-            // than just assuming there's an X overlap.  At least for now.
-            // Overlaps
-            if(activeMaxY[sortedThingIDs[Y]] > index0) { // if Y.max > X.max then X.max = Y.max (kinda)
-                index0 = activeMaxY[sortedThingIDs[Y]];
-            }
-            endIndex = ++Y;
-        } while(Y < numSortedThingIDs);
-        thingsSortOverlapByLayer();
-        X = startIndex;
-        Y = endIndex;
-        // Reverse the order of the EraseIDs
-        while(X < Y) {
-            eraseThingIDs[X] = sortedThingIDs[--Y];
-            eraseThingIDs[Y] = sortedThingIDs[X++];
         }
-    } while(1);
+        if(i + 1 != j) {
+            thingsSortOverlapByLayer(i, j);
+        }
+        i = j;
+    }
 }
 
 //-----------------------------------------------------------------------------
-void thingsSortOverlapByLayer() {
-    int16_t A, X, Y;
-
-    X = startIndex;
-    while(++X < endIndex) {
-        Y = sortedThingIDs[X];
-        sortKey = Y;
-        sortKeyValue = activeLayer[Y];
-        Y = X - 1;
-        while(Y >= 0 && Y >= startIndex && activeLayer[sortedThingIDs[Y]] >= sortKeyValue) {
-            A = sortedThingIDs[Y];
-            sortedThingIDs[Y+1] = A;
-            Y--;
+void thingsSortOverlapByLayer(int16_t start, int16_t end) {
+    // Sort for activeMinY and remove dead things
+    for (int i = start + 1; i < end; ++i) {
+        int key = sortedThingIDs[i];
+        int value = activeLayer[key];
+        int j = i - 1;
+        while(j >= start && (value < activeLayer[sortedThingIDs[j]])) {
+            sortedThingIDs[j + 1] = sortedThingIDs[j];
+            j--;
         }
-        Y++;
-        sortedThingIDs[Y] = sortKey;
+        sortedThingIDs[j + 1] = key;
     }
 }

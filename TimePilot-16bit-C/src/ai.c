@@ -518,7 +518,10 @@ void aiLevelBoss(int16_t X) {
 //-----------------------------------------------------------------------------
 void aiNonWrapping(int16_t X) {
     if((activeFlags[X] & ACTIVEFLAGS_CLIPMASK) == ACTIVEFLAGS_CLIPMASK) {
-        if(activeLayer[X] == LAYER_ENEMY_BULLETS || activeLayer[X] == LAYER_ENEMY_SPACEBULLETS) {
+        if(activeLayer[X] == LAYER_PLAYER_BULLETS) {
+            activeFlags[X] |= ACTIVEFLAGS_REMOVE;
+            return;
+        } else if(activeLayer[X] == LAYER_ENEMY_BULLETS || activeLayer[X] == LAYER_ENEMY_SPACEBULLETS) {
             activeFlags[X] |= ACTIVEFLAGS_REMOVE;
             if(activeFlags[X] & (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_TRACKED)) {
                 // Horizontal flyer bullet

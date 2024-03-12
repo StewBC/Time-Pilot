@@ -244,6 +244,8 @@ extern uint16_t     activeSky;
 extern uint16_t     activeStage;
 extern int16_t      aiEnemiesAlive;
 extern uint16_t     bomberHealth;
+extern uint16_t     colId0;
+extern uint16_t     colId1;
 extern uint16_t     enemiesKilled;
 extern uint16_t     enemyScore;
 extern uint16_t     exitGameMask;
@@ -359,17 +361,6 @@ extern uint8_t      demoAttractBuffer[DEMO_ATTRACT_LENGTH];
 extern int16_t      audioIsInit;
 extern ALuint       audioSourceBuffers[NUM_AUDIO_SOURCES];
 extern ALuint       audioSourceHandles[NUM_AUDIO_SOURCES];
-
-// Temp locals in the Things file
-extern uint16_t     colId0;
-extern uint16_t     colId1;
-extern uint16_t     endIndex;
-extern uint16_t     index0;
-extern uint16_t     index1;
-extern uint16_t     reduce;
-extern uint16_t     sortKey;
-extern  int16_t     sortKeyValue;
-extern uint16_t     startIndex;
 
 // Temp locals in the UI file
 extern uint16_t     uiInitialsColor;

@@ -31,6 +31,8 @@ uint16_t    activeSky;
 uint16_t    activeStage;
 int16_t     aiEnemiesAlive;
 uint16_t    bomberHealth;
+uint16_t    colId0;
+uint16_t    colId1;
 uint16_t    enemiesKilled;
 uint16_t    enemyScore;
 uint16_t    exitGameMask;
@@ -140,17 +142,6 @@ int16_t      demoRecordMode;
 int16_t     audioIsInit;
 ALuint      audioSourceBuffers[NUM_AUDIO_SOURCES];
 ALuint      audioSourceHandles[NUM_AUDIO_SOURCES];
-
-// Temp locals in the Things file
-uint16_t    colId0;
-uint16_t    colId1;
-uint16_t    endIndex;
-uint16_t    index0;
-uint16_t    index1;
-uint16_t    reduce;
-uint16_t    sortKey;
- int16_t    sortKeyValue;
-uint16_t    startIndex;
 
 // Temp locals in the UI file
 uint16_t    uiInitialsColor;

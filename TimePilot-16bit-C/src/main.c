@@ -29,18 +29,6 @@ int main(int argc, char** argcv) {
 
 //-----------------------------------------------------------------------------
 void mainCleanup() {
-    // Going again with the assumption these strings were successfully strdup'd
-    int16_t i;
-    // free(TEXT_PLAYER);
-    // free(TEXT_STAGE);
-    // free(TEXT_P1SCORE);
-    // free(TEXT_P2SCORE);
-    // free(TEXT_HIGHSCOREDISPLAY);
-    // for(i = 0; i < 5; i++) {
-    //   free(TEXT_HIGHSCORES[i]);
-    //   free(TEXT_INITIALS[i]);
-    // }
-
     // Audio again before data
     audioCleanup();
     dataCleanup();
