@@ -109,8 +109,7 @@ void thingsSortAndCollide() {
     // Identify overlapping sprites, considering Y only
     i = 0;
     while(i < numSortedThingIDs) {
-        key = sortedThingIDs[i];
-        int maxY = activeMaxY[key];
+        int maxY = activeMaxY[sortedThingIDs[i]];
         for(j = i + 1; j < numSortedThingIDs; j++) {
             other = sortedThingIDs[j];
             if(maxY >= activeMinY[other]) {

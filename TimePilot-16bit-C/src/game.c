@@ -238,11 +238,8 @@ void gameStageInit() {
         demoRecordMode = 0;
         demoAttractMode = 1;
     }
-#endif
-
-#ifdef RECORD_REPLAY
-    if(demoAttractMode || demoRecordMode) {
-        stageIntroState = 0;
+    stageIntroState = 0;
+    if(1) {
 #else
     if(demoAttractMode) {
 #endif

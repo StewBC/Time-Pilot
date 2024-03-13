@@ -2,6 +2,7 @@
 build/
 design.txt
 todo.txt
+replay*
 *.obj
 *.pdb
 *.xcf
