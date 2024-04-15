@@ -173,8 +173,8 @@ void screenWipe() {
 }
 
 //-----------------------------------------------------------------------------
-void screenWipeToSkyColor(uint16_t skyColor) {
-    drawBackgroundColor = colors[TP_COLOR_SKY] = skyColors[skyColor];
+void screenWipeToStageSky(uint16_t stage) {
+    drawBackgroundColor = colors[TP_COLOR_SKY] = skyColors[stage];
     screenWipe();
-    activeSky = skyColor;
+    activeSky = stage;
 }

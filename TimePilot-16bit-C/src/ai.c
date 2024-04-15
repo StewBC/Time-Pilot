@@ -242,7 +242,7 @@ void aiEnemy(int16_t X) {
                         activeFlags[X] |= ACTIVEFLAGS_AI_FLEE;
                         // Prevent a fleeing enemy from shooting (unless it has shot but mostly this works)
                         // and no big deal if it doesn't
-                        enemyWeapon[eID]++;
+                        enemyWeapon[eID] = 2*MAX_OBJECTS+1;
                     }
                     activeTimer[X] = ENEMY_WAVE_ACTIVE_TIMER;
                 }
@@ -252,7 +252,7 @@ void aiEnemy(int16_t X) {
             if(!(--activeTimer[X])) {
                 // Yes - pick a new heading and how long to hold that for
                 enemyHeading[eID] = aiRandom() & 31;
-                activeTimer[enemyID[eID]] = ENEMY_STEADY_MIN_TIME + (aiRandom() & 31);
+                activeTimer[X] = ENEMY_STEADY_MIN_TIME + enemyHeading[eID];
             }
         }
 
@@ -283,7 +283,7 @@ void aiEnemy(int16_t X) {
         }
 
         // Is shooting a possibility?
-        if(enemyWeapon[eID] >= 128 && !(exitGameMask & EXIT_PLAYER_DIED)) {
+        if(enemyWeapon[eID] == 2*MAX_OBJECTS && !(exitGameMask & EXIT_PLAYER_DIED)) {
             if(!calculated) {
                 x = (activeMinX[X] >> 4) & 31;
                 y = (activeMinY[X] >> 4) & 31;
@@ -299,12 +299,12 @@ void aiEnemy(int16_t X) {
                     if(activeStage == TIME_PERIOD4_2001) {
                         enemyWeapon[eID] = thingsAdd(LAYER_ENEMY_SPACEBULLETS);
                     } else {
-                        audioPlaySource(AUDIO_ENEMY_SHOOT);
                         enemyWeapon[eID] = thingsAdd(LAYER_ENEMY_BULLETS);
                     }
                     // Use extra for the direction
                     activeHeading[enemyWeapon[eID]] = activeFrame[X];
                     activeFlags[enemyWeapon[eID]] |= eID;
+                    audioPlaySource(AUDIO_ENEMY_SHOOT);
                 }
             } else if(activeStage != TIME_PERIOD1_1940 && numberOfTracked < numberOfTrackedMax) {
                 #define WEAPON_BORDER 4*8
@@ -529,7 +529,7 @@ void aiNonWrapping(int16_t X) {
             } else {
                 // Actual enemy bullet
                 int16_t mask = activeFlags[X] & ACTIVEFLAGS_ENEMYMASK;
-                enemyWeapon[mask] = 128;
+                enemyWeapon[mask] = 2*MAX_OBJECTS;
             }
             return;
         }
@@ -538,14 +538,14 @@ void aiNonWrapping(int16_t X) {
             activeFlags[X] |= ACTIVEFLAGS_REMOVE;
             if(activeLayer[X] == LAYER_ENEMY) {
                 numberOfEnemies--;
-                enemyID[activeFlags[X] & ACTIVEFLAGS_ENEMYMASK] = 128;
+                enemyID[activeFlags[X] & ACTIVEFLAGS_ENEMYMASK] = 2*MAX_OBJECTS;
                 if(activeFlags[X] & ACTIVEFLAGS_AI_FOLLOW) {
                     numberOfAIFollowers--;
                 }
                 // Might still not be able to shoot
             } else if (activeLayer[X] >= LAYER_ENEMY_BOMBS && activeLayer[X] < LAYER_ENEMY_BOOMERANG + 1) {
                 int16_t mask = activeFlags[X] & ACTIVEFLAGS_ENEMYMASK;
-                enemyWeapon[mask] = 128;
+                enemyWeapon[mask] = 2*MAX_OBJECTS;
                 numberOfTracked--;
                 if(numberOfRockets && !(--numberOfRockets)) {
                     audioStopSource(AUDIO_ROCKET_FLY);
@@ -600,7 +600,7 @@ int16_t  aiRandom() {
 void aiRecallEnemies(){
     int16_t index;
     for(index = ACTIVEFLAGS_ENEMYMASK; index >= 0 ; index--) {
-        if(enemyID[index] < 128) {
+        if(enemyID[index] < 2*MAX_OBJECTS) {
             activeFlags[enemyID[index]] |= ACTIVEFLAGS_AI_FLEE;
         }
     }
@@ -625,7 +625,7 @@ void aiScores(int16_t X) {
 void aiSpawnEnemy(){
     int16_t Y, X;
     for(Y=ACTIVEFLAGS_ENEMYMASK; Y>=0 ; Y--) {
-        if(enemyID[Y] > 127) {
+        if(enemyID[Y] == 2*MAX_OBJECTS) {
             int16_t A = (((aiRandom() & 7) - 4) + playerAngle) & 31;
             spawnX = launchPosX[A];
             spawnY = launchPosY[A];
@@ -650,7 +650,7 @@ void aiSpawnWave() {
     spawnX = launchPosX[waveSpawnL];
     spawnY = launchPosY[waveSpawnL];
     while(1) {
-        if(enemyID[X] > 127) {
+        if(enemyID[X] == 2*MAX_OBJECTS) {
             enemyID[X] = thingsAdd(LAYER_ENEMY);
             enemyHeading[X] = waveSpawnDir;
             activeFrame[enemyID[X]] = waveSpawnDir;

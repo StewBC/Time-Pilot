@@ -152,6 +152,9 @@ void collidePlayer(uint8_t colID0, uint8_t colID1) {
 //-----------------------------------------------------------------------------
 void collideRemove(uint8_t colID0, uint8_t colID1) {
     activeFlags[colID0] |= ACTIVEFLAGS_REMOVE;
+    if(activeFlags[colID0] & ACTIVEFLAGS_TRACKED) {
+        numberOfTracked--;
+    }
 }
 
 //-----------------------------------------------------------------------------

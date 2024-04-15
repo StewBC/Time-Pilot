@@ -340,6 +340,7 @@ extern uint16_t     eraseIndex;
 extern int16_t      eraseThingIDs[MAX_OBJECTS];
 extern uint16_t     insertThings;
 extern int16_t      introColorOffset;
+extern uint16_t     numEraseThingIDs;
 extern uint16_t     numSortedThingIDs;
 extern int16_t      sortedThingIDs[MAX_OBJECTS];
 

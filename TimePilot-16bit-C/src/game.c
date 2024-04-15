@@ -80,12 +80,13 @@ void gameInit() {
     // Set up a player
     gameRestorePlayer();
 
-    // P2 area
-    screenClearSection(28, 7, 12, 2, colors[TP_COLOR_BLACK]);
-    // P1 Score area
+    // Clear P1 Score area
     printRectXY(28, 5, 0, colors[TP_COLOR_BLACK], 9);
     if(numberOfPlayers) {
         uiShowP2Playing();
+    } else {
+        // Clear P2 area
+        screenClearSection(28, 7, 12, 2, colors[TP_COLOR_BLACK]);
     }
 }
 
@@ -144,7 +145,7 @@ void gamePostFrame() {
 void gameProcessThings() {
     int16_t X, Y;
 
-    while(eraseIndex < numSortedThingIDs) {
+    while(eraseIndex < numEraseThingIDs) {
         X = eraseThingIDs[eraseIndex];
         if((activeFlags[X] & ACTIVEFLAGS_CLIPMASK) == ACTIVEFLAGS_CLIPMASK) {
             activeFlags[X] |= ACTIVEFLAGS_ERASED; // If not on-screen, mark as erased
@@ -248,7 +249,7 @@ void gameStageInit() {
     }
 
     if(activeStage != activeSky) {
-        screenWipeToSkyColor(activeStage);
+        screenWipeToStageSky(activeStage);
         if(activeStage && !(exitGameMask & EXIT_PLAYER_DIED) && !demoAttractMode) {
             audioPlaySource(AUDIO_NEXT_LEVEL);
         }

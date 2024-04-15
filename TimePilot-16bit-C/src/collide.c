@@ -42,7 +42,7 @@ void collideEnemy(uint16_t colID0, uint16_t colID1) {
         numberOfAIFollowers--;
     }
 
-    enemyID[activeFlags[colID0] & ACTIVEFLAGS_ENEMYMASK] = 128;
+    enemyID[activeFlags[colID0] & ACTIVEFLAGS_ENEMYMASK] = 2*MAX_OBJECTS;
     gameAddScore();
     collideThingExplode(colID0);
     activeHeight[colID0] = 16;
@@ -57,7 +57,7 @@ void collideEnemyBoomerang(uint16_t colID0, uint16_t colID1) {
     gameAddScore();
     collideThingExplode(colID0);
     activeWidth[colID0] = activeHeight[colID0] = 11;
-    enemyWeapon[X] = 128;
+    enemyWeapon[X] = 2*MAX_OBJECTS;
     numberOfTracked--;
 }
 
@@ -68,7 +68,7 @@ void collideEnemyRockets(uint16_t colID0, uint16_t colID1) {
     gameAddScore();
     collideThingExplode(colID0);
     activeWidth[colID0] = activeHeight[colID0] = 16;
-    enemyWeapon[X] = 128;
+    enemyWeapon[X] = 2*MAX_OBJECTS;
     numberOfTracked--;
     if(!(--numberOfRockets)) {
         audioStopSource(AUDIO_ROCKET_FLY);
@@ -81,7 +81,7 @@ void collideEnemySpaceBullets(uint16_t colID0, uint16_t colID1) {
     gameAddScore();
     collideThingExplode(colID0);
     activeWidth[colID0] = activeHeight[colID0] = 13;
-    enemyWeapon[X] = 128;
+    enemyWeapon[X] = 2*MAX_OBJECTS;
 }
 
 //-----------------------------------------------------------------------------
@@ -152,6 +152,9 @@ void collidePlayer(uint16_t colID0, uint16_t colID1) {
 //-----------------------------------------------------------------------------
 void collideRemove(uint16_t colID0, uint16_t colID1) {
     activeFlags[colID0] |= ACTIVEFLAGS_REMOVE;
+    if(activeFlags[colID0] & ACTIVEFLAGS_TRACKED) {
+        numberOfTracked--;
+    }
 }
 
 //-----------------------------------------------------------------------------

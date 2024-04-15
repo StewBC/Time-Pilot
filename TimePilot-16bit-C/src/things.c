@@ -68,6 +68,7 @@ void thingsSortAndCollide() {
         sortedThingIDs[j + 1] = key;
     }
     numSortedThingIDs -= deadCount; // Update the count of live objects
+    numEraseThingIDs = numSortedThingIDs;
 
     for(i = 0; i < numSortedThingIDs; i++) {
         key = sortedThingIDs[i];
@@ -133,7 +134,14 @@ void thingsSortAndCollide() {
             }
             sortedThingIDs[k + 1] = key;
         }
-        // Start again past the overlapping region
+        // Make the last thing in the group to be erased, the 1st.  That way
+        // it blocks erasing the group till all in the group can be erased, and thus redrawn
+        // This means nothing in this version but is needed for the Apple IIgs chasing the beam
+        if(i < j-1) {
+            int16_t endErase = eraseThingIDs[j-1];
+            eraseThingIDs[j-1] = eraseThingIDs[i];
+            eraseThingIDs[i] = endErase;
+        }
         i = j;
     }
 }

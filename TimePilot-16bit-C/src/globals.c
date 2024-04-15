@@ -126,6 +126,7 @@ uint16_t    eraseIndex;
 int16_t     eraseThingIDs[MAX_OBJECTS];
 uint16_t    insertThings;
 int16_t     introColorOffset;
+uint16_t    numEraseThingIDs;
 uint16_t    numSortedThingIDs;
 int16_t     sortedThingIDs[MAX_OBJECTS];
 
@@ -222,8 +223,8 @@ void globalsStageInit() {
 
     for(i = 0; i < ACTIVEFLAGS_ENEMYMASK+1; i++) {
         // Non-Zero
-        enemyID[i] = 128;
-        enemyWeapon[i] = 128;
+        enemyID[i] = 2*MAX_OBJECTS;
+        enemyWeapon[i] = 2*MAX_OBJECTS;
 
         // Zero
         enemyHeading[i] = 0;

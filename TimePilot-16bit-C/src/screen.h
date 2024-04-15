@@ -14,4 +14,4 @@ void screenSetColPixel(int16_t x0, int16_t y0);
 void screenSetPalette();
 void screenTimeWarp();
 void screenWipe();
-void screenWipeToSkyColor(uint16_t pal);
+void screenWipeToStageSky(uint16_t stage);
