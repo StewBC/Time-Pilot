@@ -386,10 +386,10 @@ void aiEnemyBombs(int16_t X) {
 
 //-----------------------------------------------------------------------------
 void aiEnemyBoomerang(int16_t X) {
-    if(!levelBossHealth) {
-        activeFlags[X] |= ACTIVEFLAGS_REMOVE;
-        return;
-    }
+    // if(!levelBossHealth) {
+    //     activeFlags[X] |= ACTIVEFLAGS_REMOVE;
+    //     return;
+    // }
 
     if(!(frameCounter & 15)) {
         if(activeMinX[X] < (PLAYFIELDW/2+8)*8 && activeMinX[X] > (PLAYFIELDW/2-8)*8 &&
@@ -407,10 +407,10 @@ void aiEnemyBoomerang(int16_t X) {
 
 //-----------------------------------------------------------------------------
 void aiEnemyBullets(int16_t X) {
-    if(!levelBossHealth) {
-        activeFlags[X] |= ACTIVEFLAGS_REMOVE;
-        return;
-    }
+    // if(!levelBossHealth) {
+    //     activeFlags[X] |= ACTIVEFLAGS_REMOVE;
+    //     return;
+    // }
     aiAddVelocity(X, invPlayerAngle+VELOCITY_119);
     aiAddVelocity(X, activeHeading[X]+VELOCITY_200);  // Direction in Extra
     aiNonWrapping(X);
@@ -418,10 +418,10 @@ void aiEnemyBullets(int16_t X) {
 
 //-----------------------------------------------------------------------------
 void aiEnemyRockets(int16_t X) {
-    if(!levelBossHealth) {
-        activeFlags[X] |= ACTIVEFLAGS_REMOVE;
-        return;
-    }
+    // if(!levelBossHealth) {
+    //     activeFlags[X] |= ACTIVEFLAGS_REMOVE;
+    //     return;
+    // }
     aiAddVelocity(X, invPlayerAngle+VELOCITY_119);
     if(!(frameCounter & 15)) {
         activeHeading[X] = aiTurnOnRay(X) & 31;
@@ -433,10 +433,10 @@ void aiEnemyRockets(int16_t X) {
 
 //-----------------------------------------------------------------------------
 void aiEnemySpaceBullets(int16_t X) {
-    if(!levelBossHealth) {
-        activeFlags[X] |= ACTIVEFLAGS_REMOVE;
-        return;
-    }
+    // if(!levelBossHealth) {
+    //     activeFlags[X] |= ACTIVEFLAGS_REMOVE;
+    //     return;
+    // }
     aiAddVelocity(X, invPlayerAngle+VELOCITY_119);
     aiAddVelocity(X, activeHeading[X]+VELOCITY_200);    // Direction in extra
     if(!(frameCounter & 3)) {

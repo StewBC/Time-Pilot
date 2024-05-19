@@ -81,20 +81,30 @@ void thingsSortAndCollide() {
                         break;
                     }
                     if(activeColsig[other] & activeCollides[key]) {
-                        int16_t collides = 0;
-                        // If the player is involved in a collision, make the collision box a lot tighter, more forgiving
-                        if(activeLayer[other] == LAYER_PLAYER) {
-                            if(activeMinX[key] < PLAYER_X+11 && activeMaxX[key] > PLAYER_X+5 && activeMinY[key] < PLAYER_Y+11 && activeMaxY[key] > PLAYER_Y+5) {
-                                collides = 1;
-                            }
-                        } else if(activeLayer[key] == LAYER_PLAYER) {
-                            if(activeMinX[other] < PLAYER_X+11 && activeMaxX[other] > PLAYER_X+5 && activeMinY[other] < PLAYER_Y+11 && activeMaxY[other] > PLAYER_Y+5) {
-                                collides = 1;
+                        int16_t collides = 0, swap = 0;
+                        if(other == 0) {
+                            other = key;
+                            key = 0;
+                            swap = 1;
+                        }
+                        if(!key) {
+                            if(activeLayer[other] == LAYER_ENEMY) {
+                                if (activeMinX[other]+2 < PLAYER_X+11 && activeMaxX[other]-2 > PLAYER_X+5 && activeMinY[other]+2 < PLAYER_Y+11 && activeMaxY[other]-2 > PLAYER_Y+5) {
+                                    collides = 1;
+                                }
+                            } else {
+                                if(activeMinX[other] < PLAYER_X+11 && activeMaxX[other] > PLAYER_X+5 && activeMinY[other] < PLAYER_Y+11 && activeMaxY[other] > PLAYER_Y+5) {
+                                    collides = 1;
+                                }
                             }
                         } else if(activeMinX[other] <= activeMaxX[key]) {
                             if(activeMaxX[other] >= activeMinX[key]) {
                                 collides = 1;
                             }
+                        }
+                        if(swap) {
+                            key = other;
+                            other = 0;
                         }
                         if(collides) {
                             collideThings(key, other);
@@ -130,9 +140,11 @@ void thingsSortAndCollide() {
             int16_t k = start - 1;
             while(k >= i && (value < activeLayer[sortedThingIDs[k]])) {
                 sortedThingIDs[k + 1] = sortedThingIDs[k];
+                eraseThingIDs[k + 1] = sortedThingIDs[k];
                 k--;
             }
             sortedThingIDs[k + 1] = key;
+            eraseThingIDs[k + 1] = key;
         }
         // Make the last thing in the group to be erased, the 1st.  That way
         // it blocks erasing the group till all in the group can be erased, and thus redrawn
