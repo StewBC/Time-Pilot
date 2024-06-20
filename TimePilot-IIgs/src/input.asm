@@ -175,7 +175,7 @@ inputReadGameKeyboard   entry
                         lda    KBD
                         bpl    irgkButtons                 ; no key - go check Apple KBD buttons that map to fire
                         sta    KBDSTRB
-                        cmp    #($8D)|8+($8D)      ; scan code in lo/hi with hi bit set - space = fire
+                        cmp    #($8D)|8+($8D)              ; scan code in lo/hi with hi bit set - space = fire
                         beq    irgkFire
                         cmp    #(' '+$80)|8+(' '+$80)      ; scan code in lo/hi with hi bit set - space = fire
                         bne    irgkChkQuit

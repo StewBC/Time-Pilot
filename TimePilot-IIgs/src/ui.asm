@@ -252,6 +252,8 @@ ugoCharOk               jsr       ugoSetInitial                ; chance to this 
 ; Check if the user pressed . or A-Z and accept that as input. SPACE = accept (Fire)
 ugoHasKey               sta       KBDSTRB                      ; clear the key
                         and       #$7F                         ; take hi bit off
+                        cmp       #$0D                         ; is it ENTER (fire alternative)
+                        beq       ugoConfirm
                         cmp       #$20                         ; is it space (fire)
                         beq       ugoConfirm
                         cmp       #$2e                         ; is it a period '.'
