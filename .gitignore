@@ -3,6 +3,7 @@ build/
 design.txt
 todo.txt
 replay*
+debug.map
 *.obj
 *.pdb
 *.xcf
