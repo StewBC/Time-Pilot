@@ -27,6 +27,8 @@ I then went back to the Apple IIgs version and (almost) finished it.  I really s
 ## Differences between my version and the 1982 arcade version  
 This game was designed for the Apple IIgs whereas the Arcade version runs on a rotated screen.  The arcade version has a resolution of 224H x 256V whereas the Apple IIgs has 320H x 200V.  For this reason, I moved all of the stats such as score, extra lives, etc. over to the right hand side.  The Windows/Linux/macOS version also uses a horizontal resolution of 200.  The Commander X16 version uses a horizontal resolution of 240 - that matches its 40x30 mode.  
   
+Another significant difference is stage length.  The original shows 7 stage progress planes.  Each represents killing 8 enemies, so to complete a stage requires killing 56 enemies.  My version has room for only 6, so you have to kill only 48 enemies to advance to the next stage.  That will obviously have an effect on overall scores, but it will be exaggerated since you will encounter less parachutes, for example, which if you pick them all up, means 5,000 points per parachute.  Also less enemy waves which, when wiped out, is 2,000 points per wave.  
+
 The other differences between the original and my version are more subtle, for example the original has an indicator that shows the player has cleared all the stages, and I think perhaps how many times, but I just use the simple plane icon to indicate the stage number.
   
 Thank you  
