@@ -1,0 +1,79 @@
+# Each file in this list has 1 frame in X, except where it is followed by a number.
+# In that casem, there are that number of frames in the file, horizontally
+# None of these files have vertical images
+
+# Optional parameter meaning
+# 0 - (input file name) output file/sprite frame base name
+# 1 - (SPRITES) sprite bank (class) name
+# 2 - (1) Input frame size or count in width (look at parameter 4)
+# 3 - (1) Input frame size or count in height (look at parameter 4)
+# 4 - (0) 1 means frame_count is a fixed size, not size / parameter 1 or 2
+# 5 - (0) Supress making a shifted right by 1 column version of each frame (and thus no DAT files)
+# 6 - (0) offset in X - Only start processing the image at this pixel column in the width
+# 7 - (0) offset in Y - Only start processing the image at this pixel row in the height
+# 8 - (0) pad X - skip X pixels between frames in the input image width
+# 9 - (0) pad Y - skip Y pixels between frames in the input image height
+#10 - (0) 1 means make a power of 2 in X (otherwise just divisible by 2)
+#11 - (0) 1 means make power of 2 in Y (otherwise just divisible by 2)
+
+png/astro0.png                    :CLOUD
+png/astro1.png                    :CLOUD
+png/astro2.png                    :CLOUD
+png/bomb.png                      :LEVL0:2
+png/boomerang.png                 :LEVL4:8
+png/cloud0.png                    :CLOUD
+png/cloud1.png                    :CLOUD
+png/cloud2.png                    :CLOUD
+png/expl_bmrng.png                EXLBM:EXPLD:4
+png/expl_large.png                EXLLG:EXPLD:4
+png/expl_sblt.png                 EXLSB:EXPLD:4
+png/expl_small.png                EXLSM:EXPLD:4
+png/expl_wepns.png                EXLWE:EXPLD:4
+png/l0boss.png                    BOSS0:LEVL0:8
+png/l0enemy.png                   ENEMY0:LEVL0:16
+png/l1bomber.png                  BOMBER:LEVL1:8
+png/l1boss.png                    BOSS1:LEVL1:8
+png/l1enemy.png                   ENEMY1:LEVL1:16
+png/l2boss.png                    BOSS2:LEVL2:8
+png/l2enemy.png                   ENEMY2:LEVL2:9
+png/l3boss.png                    BOSS3:LEVL3:8
+png/l3enemy.png                   ENEMY3:LEVL3:16
+png/l4boss.png                    BOSS4:LEVL4:2
+png/l4enemy.png                   ENEMY4:LEVL4:4
+png/number.png                    :SHARE:6
+png/parachute.png                 :SHARE:4
+png/player.png                    :SHARE:32:::1
+png/progress.png                  :SHARE::::1
+png/rocket.png                    :LEVL2:16
+png/sbullet.png                   :LEVL4:8
+png/stage.png                     :SHARE::::1
+png/text-1.png                    TXT1:TEXT::::1
+png/text-2.png                    TXT2:TEXT::::1
+png/text-3.png                    TXT3:TEXT::::1
+png/text-4.png                    TXT4:TEXT::::1
+png/text-5.png                    TXT5:TEXT::::1
+png/text-1910.png                 TXT1910:TEXT::::1
+png/text-1910-blue.png            TXT1910B:TEXT::::1
+png/text-1910-red.png             TXT1910R:TEXT::::1
+png/text-1940.png                 TXT1940:TEXT::::1
+png/text-1940-blue.png            TXT1940B:TEXT::::1
+png/text-1940-red.png             TXT1940R:TEXT::::1
+png/text-1970.png                 TXT1970:TEXT::::1
+png/text-1970-blue.png            TXT1970B:TEXT::::1
+png/text-1970-red.png             TXT1970R:TEXT::::1
+png/text-1982.png                 TXT1982:TEXT::::1
+png/text-1982-blue.png            TXT1982B:TEXT::::1
+png/text-1982-red.png             TXT1982R:TEXT::::1
+png/text-2001.png                 TXT2001:TEXT::::1
+png/text-2001-blue.png            TXT2001B:TEXT::::1
+png/text-2001-red.png             TXT2001R:TEXT::::1
+png/text-ad.png                   TXTAD:TEXT::::1
+png/text-ad-blue.png              TXTADB:TEXT::::1
+png/text-ad-red.png               TXTADR:TEXT::::1
+png/text-pause.png                TXTPAUSE:TEXT::::1
+png/text-gameover.png             TXTGAMEOVER:TEXT::::1
+png/text-player.png               TXTPLAYER:TEXT::::1
+png/text-ready.png                TXTREADY:TEXT::::1
+png/text-stage.png                TXTSTAGE:TEXT::::1
+png/timepilot.png                 :SHARE:1:::1
+png/timewarp.png                  :SHARE:4:::1

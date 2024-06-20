@@ -1,0 +1,10 @@
+.vscode/
+gif/
+lst/
+obj/
+link.scp
+src/**/*.mac
+!src/macros/*.mac
+TIME.PILOT
+timepilot.2mg
+timepilot.po
