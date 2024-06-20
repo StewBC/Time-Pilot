@@ -176,7 +176,7 @@ I have to give special thanks to a few people.
 **Ian Brumby** - Ian wrote Crossrunner and helped me get started with GS/OS development. Also introduced me to Orca/M and Golden Gate.  
 **Brutal Deluxe** - Mr. Sprite and Cadius are indispensable.  
 **Kelvin Sherlock** - Golden Gate, which is also indispensable in this process.  
-**Andy McFadden** - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  `
+**Andy McFadden** - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  
 **Jeremy Rand** - Made BuGS which made me want to make an arcade game for the IIgs.  
 **Mike Westerfield** - Created Orca/M which is a very sophisticated assembler that has been a joy to use.  
   
