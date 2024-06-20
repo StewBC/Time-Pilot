@@ -1,8 +1,7 @@
-# Each file in this list has 1 frame in X, except where it is followed by a number.
-# In that casem, there are that number of frames in the file, horizontally
-# None of these files have vertical images
+# This file lists the images that will be converted for the Apple IIgs
+# Eeach line has a file and optional parameters.
 
-# Optional parameter meaning
+# Optional parameter meaning:
 # 0 - (input file name) output file/sprite frame base name
 # 1 - (SPRITES) sprite bank (class) name
 # 2 - (1) Input frame size or count in width (look at parameter 4)
