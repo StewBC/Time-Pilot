@@ -1,10 +1,15 @@
 # Time Pilot for Apple IIgs  
-These instructions are for Converting the art, building the code, and playing the game.  
+These instructions are for playing the game, but mostly for converting the art and building the code.  
+  
+## Controls  
+The game uses the keyboard or Joystick to control the player plane.  To use the Joystick, simply press `J` on the title screen.  If the J does not turn green (selected) then the game is not detecting the Joystick.  Controls on the Joystick (in game) are Up, Down, Left, Right and fire, while the second button is Pause.  In the UI, the fire button starts a 1 Player game, and the "Pause" button starts a 2 Player game.  
+  
+The keyboard controls are (and these also work when playing with the Joystick) `1` - 1 Player, `2` - 2 Player, `ESC` - back up (and quit) and `P` - Pause.  The in-game keys are `Option` to rotate left, `Open Apple` to rotate right, `Space` to fire (just hold, don't have to tap - I felt too sorry for the poor spacebar).  
   
 ## Getting started  
-The Apple IIgs version is written in 65816 assembly language, targeting the Orca/M assembler and the build process is done using make.  Several pieces of software were used to structure the build process, listed below.  Not all are free.  See below.  
+The Apple IIgs version is written in 65816 assembly language, targeting the Orca/M assembler and the build process is done using `make`.  Several pieces of software were used to structure the build process, listed below.  Not all are free.  See below.  
   
-Running make takes these options:  
+Running `make` takes these options:  
 make option | effect
 --- | ---
 art | run misc/mkspr.py to build the files in src/sprites
@@ -16,11 +21,6 @@ macros | use Orca/M's macgen to build the needed macro files
 indent | put all the source through cadius, sed and awk to format the source
 clean | clean up built versions of files
 zap | clean and remove intermediate and built files and folders
-  
-## Controls  
-The game uses the keyboard or Joystick to control the player plane.  To use the Joystick, simply press `J` on the title screen.  If the J does not turn green (selected) then the game is not detecting the Joystick.  Controls on the Joystick (in game) are Up, Down, Left, Right and fire, while the second button is Pause.  In the UI, the fire button starts a 1 Player game, and the "Pause" button starts a 2 Player game.  
-  
-The keyboard controls are (and these also work when playing with the Joystick) `1` - 1 Player, `2` - 2 Player, `ESC` - back up (and quit) and `P` - Pause.  The in-game keys are `Option` to rotate left, `Open Apple` to rotate right, `Space` to fire (just hold, don't have to tap - I felt too sorry for the poor spacebar).  
   
 ## Software I use and is needed to rebuild the code and art  
 Orca/M is an assembler that runs natively on the Apple IIgs.  It is not freeware but can be bought from [juiced.gs](https://juiced.gs/).  It is called the Opus ][ collection, in the store.  At the time of writing this is $25 for a download version.  
@@ -44,7 +44,9 @@ Note that the paths for the tools are in the Makefile, and also in the python fi
 Once everything is set up, the macros need to be built at least once (`make macros`).  After that, something like `make test -j` should build and run the game just fine.  
   
 ### Using VS Code  
-This is my launch.json, below.  Notice the local path to the emulator, x16emu.exe.  
+Put these two files in the `.vscode` folder inside the `TimePilot-IIgs` folder to make the experience using code to develop this game a lot nicer.  
+  
+This is my launch.json.
 ```
 {
   "version": "0.2.0",
@@ -171,12 +173,12 @@ With those in place, pressing F5 will build the game and launch it in the emulat
   
 # Special Thanks  
 I have to give special thanks to a few people.  
-Ian Brumby - Ian wrote Crossrunner and helped me get started with GS/OS development. Also introduced me to Orca/M and Golden Gate.  
-Brutal Deluxe - Mr. Sprite and Cadius are indispensable.  
-Kelvin Sherlock - Golden Gate, which is also indispensable in this process.  
-Andy McFadden - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  `
-Jeremy Rand - Made BuGS which made me want to make an arcade game for the IIgs.  
-Mike Westerfield - Created Orca/M which is a very sophisticated assembler that has been a joy to use.  
+**Ian Brumby** - Ian wrote Crossrunner and helped me get started with GS/OS development. Also introduced me to Orca/M and Golden Gate.  
+**Brutal Deluxe** - Mr. Sprite and Cadius are indispensable.  
+**Kelvin Sherlock** - Golden Gate, which is also indispensable in this process.  
+**Andy McFadden** - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  `
+**Jeremy Rand** - Made BuGS which made me want to make an arcade game for the IIgs.  
+**Mike Westerfield** - Created Orca/M which is a very sophisticated assembler that has been a joy to use.  
   
 Thank you all - you have made my life better! :)  
   
