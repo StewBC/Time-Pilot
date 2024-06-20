@@ -114,7 +114,7 @@ ugoUserInTable          inx                                    ; step to the pos
                         lda       #8
                         sec
                         sbc       tInsertRow                   ; see how many scores "move down"
-                        beq       ugoMoveNone
+                        beq       ugoSetScore
                         sta       tRowsToMove                  ; save the move down number
 
 ; move "row" in table down
@@ -149,7 +149,7 @@ ugoCpyScores            lda       highScore1,y
                         bne       ugoCpyScores
 
 ; Add the player score to the numeric score table
-                        ldx       tInsertRow                   ; get the position the user score slots in (counted in 2's)
+ugoSetScore             ldx       tInsertRow                   ; get the position the user score slots in (counted in 2's)
                         lda       zPlayerScore
                         sta       highScore1,x
 
@@ -166,7 +166,7 @@ ugoCpyScores            lda       highScore1,y
                         sta       (ptBCDIndex),y
 
 ; Show the table
-ugoMoveNone             lda       tInsertRow                   ; save this index into initials variable
+                        lda       tInsertRow                   ; save this index into initials variable
                         asl       a                            ; *2 (so 4) for initials width
                         tay
                         lda       #$2041                       ; A and space
