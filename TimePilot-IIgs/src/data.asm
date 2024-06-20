@@ -2075,10 +2075,6 @@ dt_color_palette_sky    dc     h'0600'                     ; TIME_PERIOD0_1910
                         dc     h'0505'                     ; TIME_PERIOD3_1982
                         dc     h'0000'                     ; TIME_PERIOD4_2001
 
-dt_color_intro_text     dc     h'111166662222'             ; white, blue, red
-
-dt_color_stage_text     dc     i2'COLOR_WHITE,COLOR_BLUE,COLOR_RED'
-
 ;-----------------------------------------------------------------------------
 ; MARK: Multiplication
 dt_mult_4               dc     i2'0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60'
@@ -2109,13 +2105,6 @@ dt_ui_initials_y        dc     i2'(8*160+10)*8'
                         dc     i2'(12*160+10)*8'
                         dc     i2'(14*160+10)*8'
                         dc     i2'(16*160+10)*8'
-
-
-; at_ui_stage_text        dc     a2'TEXT_PERIOD0_1910'
-;                         dc     a2'TEXT_PERIOD1_1940'
-;                         dc     a2'TEXT_PERIOD2_1970'
-;                         dc     a2'TEXT_PERIOD3_1982'
-;                         dc     a2'TEXT_PERIOD4_2001'
 
 ;-----------------------------------------------------------------------------
 ; MARK: Audio
