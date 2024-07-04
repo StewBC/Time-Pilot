@@ -398,6 +398,8 @@ aefBulletTimer          lda    zBulletTimer
                         beq    aefEnemies                   ; no timer no spawn
                         and    #7                           ; spawn only every 8 frames
                         bne    aefBulletCountdown           ; so not now
+                        lda    #AUDIO_PLAYER_SHOOT
+                        jsr    audioPlaySource
                         lda    #PLAYER_X+6
                         sta    zSpawnX
                         lda    #PLAYER_Y+8
@@ -446,6 +448,8 @@ aefEnoughToSpawn        cmp    #6                           ; more then 5?
 aefMakeFiveOnly         lda    #5
 aefConfigWave           sta    zWaveSpawnCount
                         sta    zNumberOfWaveEnemies
+                        lda    #AUDIO_WAVE_START
+                        jsr    audioPlaySource
                         lda    zInvPlayerAngle
                         sta    zWaveSpawnDir
                         jsr    aiRandom
@@ -454,7 +458,6 @@ aefConfigWave           sta    zWaveSpawnCount
                         sta    zWaveSpawnDuration
                         lda    #2*MAX_ENEMY_INDEX
                         sta    zWaveSpawnIndex
-; audioPlaySource(AUDIO_WAVE_START)
                         rts
 aefMaybeSpawnNext       and    #ENEMY_SPAWN_TIMER/2
                         beq    aefSpawnNext
@@ -604,7 +607,9 @@ aeHasTarget             cmp    activeFrame,X                ; if target = facing
                         bcs    aeShoot
                         cmp    #6
                         bcs    aeStageVelocityLong
-aeShoot                 lda    activeMinX,x
+aeShoot                 lda    #AUDIO_ENEMY_SHOOT
+                        jsr    audioPlaySource
+                        lda    activeMinX,x
                         clc
                         adc    #8
                         sta    zSpawnX
@@ -675,7 +680,9 @@ aeL0BombOkay            lda    activeMinX,x
                         bra    aeBombsAway
 aeBombToLeft            lda    #38
                         sta    activeFrame,x
-aeBombsAway             inc    zNumberOfTracked
+aeBombsAway             lda    #AUDIO_BOMB
+                        jsr    audioPlaySource
+                        inc    zNumberOfTracked
                         lda    #1
                         eor    zLaunchSide
                         sta    zLaunchSide
@@ -697,7 +704,8 @@ aeRocketFromRight       lda    activeMinY,x
                         lda    activeMinX,x
                         cmp    #PLAYFIELDW*8-WEAPON_BORDER
                         bcc    aeStageVelocity
-aeLaunchRocket          anop
+aeLaunchRocket          lda    #AUDIO_ROCKET_LAUNCH
+                        jsr    audioPlaySource
 ; audioPlaySource(AUDIO_ROCKET_LAUNCH)
                         lda    activeMinX,x
                         clc
@@ -709,6 +717,8 @@ aeLaunchRocket          anop
                         lda    zActiveStage
                         cmp    #TIME_PERIOD2_1970
                         bne    aeNotRocket
+                        lda    #AUDIO_ROCKET_FLY
+                        jsr    audioPlaySource
 ; audioPlaySource(AUDIO_ROCKET_FLY)
 aeNotRocket             inc    zNumberOfRockets
                         ldy    #LAYER_ROCKETS
@@ -895,7 +905,8 @@ anwRocket               dec    zNumberOfRockets
                         beq    anwStopRocketSound
                         rts
 anwStopRocketSound      anop
-; audioStopSource(AUDIO_ROCKET_FLY)
+                        lda    #AUDIO_ROCKET_FLY
+                        jsr    audioStopSource
                         rts
 
 ;-----------------------------------------------------------------------------

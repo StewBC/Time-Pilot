@@ -5,6 +5,9 @@ obj/
 link.scp
 src/**/*.mac
 !src/macros/*.mac
+config.kegs
+config.txt
+debug.map
 TIME.PILOT
 timepilot.2mg
 timepilot.po

@@ -17,6 +17,7 @@ MAIN                    START
 ;-----------------------------------------------------------------------------
 main                    phb
                         jsr          mainInit
+                        jsr          audioInit
                         bcs          mfail
                         jsr          screenInit
                         jsr          uiInit
@@ -34,7 +35,7 @@ mShutdown               short        m                              ; Shut Down
 
 mfail                   ~MMShutDown  zMemID
                         ~TLShutDown
-
+                        jsr          audioShutdown
                         plb
                         _QuitGS      mQuitParameters
 

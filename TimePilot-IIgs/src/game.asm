@@ -81,17 +81,19 @@ gas1P1                  jmp      uiShowP1Score
 ;-----------------------------------------------------------------------------
 ; MARK: gameInit
 gameInit                entry
+                        lda      #AUDIO_GAME_START
+                        jsr      audioPlaySource
 ; audioPlaySource(AUDIO_GAME_START)
                         jsr      gameInitVarsGame
                         jsr      gameRestorePlayer                           ; init all of the shadow stats
                         LDAPAL   COLOR_BLACK
                         sta      zSkyColor
-                        LDBOX    28,5,9,1
+                        LDBOX    28,7,9,1
                         jsr      screenClearSection                          ; clear P1 score
                         lda      zNumberOfPlayers
                         beq      giOnePlayer
                         jmp      uiShowP2Playing                             ; show P2 details
-giOnePlayer             LDBOX    28,7,12,2                                   ; erase P2 area if 1P
+giOnePlayer             LDBOX    28,9,12,2                                   ; erase P2 area if 1P
                         jmp      screenClearSection
 
 ;-----------------------------------------------------------------------------
@@ -603,6 +605,11 @@ gameStart               entry
 
                         jsr      gameInit
 gsStageInit             jsr      gameStageInit
+                        lda      zAudioTimeWarp
+                        beq      gsRasterLoop
+                        stz      zAudioTimeWarp
+                        lda      #AUDIO_BIG_EXPLOSION
+                        jsr      audioPlaySource
 gsRasterLoop            lda      RASTER_LINE
                         and      #%0000000011111111                          ; Only interested in the low byte
                         asl      a                                           ; the MSB is actually bit 0 but I am happy
@@ -646,7 +653,10 @@ gsGameExit              LDAPAL   COLOR_BLACK
                         sta      zSkyColor
                         LDBOX    PLAYFIELDW,10,12,9
                         jsr      screenClearSection
-                        jmp      screenWipe
+                        jsr      screenWipe
+                        LDBOX    PLAYFIELDW,0,12,2
+                        jmp      screenClearSection
+
 gsStageComplete         bit      #EXIT_PLAYER_DIED
                         bne      gsSkipTimeWarp
                         jsr      screenTimeWarp

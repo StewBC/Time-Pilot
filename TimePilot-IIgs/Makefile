@@ -127,6 +127,7 @@ dsk: all
 	-$(call RMFILES,$(DISK))
 	$(call CP,$(TEMPLATE_DISK) $(DISK))
 	$(CADIUS) ADDFILE $(DISK) /$(VOLUME) ./$(PROGRAM)
+	$(CADIUS) ADDFOLDER $(DISK) /$(VOLUME)/snd ./snd
 
 floppy: all 
 	-$(call RMFILES,$(FLOPPY))

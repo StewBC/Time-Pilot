@@ -465,6 +465,9 @@ screenTimeWarp          entry
 tXposIndex              equ     zTemp00
 tLength                 equ     zTemp01
 tScriptIndex            equ     zTemp02
+                        lda     #AUDIO_TIMEWARP
+                        sta     zAudioTimeWarp
+                        jsr     audioPlaySource
                         lda     #32                             ; erase 16 lines
                         sta     zRowsToErase
                         lda     zPlayerAngle                    ; get the frame the player is holding

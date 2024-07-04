@@ -174,6 +174,8 @@ ugoSetScore             ldx       tInsertRow                   ; get the positio
                         lda       #$0020                       ; and space \00
                         sta       TEXT_INITIALS1+2,y
 
+                    lda #AUDIO_HIGHSCORE
+                    jsr audioPlaySource
                         LDAPAL    COLOR_BLACK                  ; wipe game to UI screen
                         sta       zSkyColor
                         jsr       screenWipe
@@ -296,12 +298,12 @@ uiInit                  entry
                         jsr       screenClear                  ; set entire screen area to 0 (overwrites palettes)
                         LDAPAL    COLOR_RED
                         sta       >printFontColor
-                        PRINTSZ   TEXT_HIGH,29,1               ; show the always on-screen labels
-                        PRINTSZ   TEXT_1UP,35,4
+                        PRINTSZ   TEXT_HIGH,29,3               ; show the always on-screen labels
+                        PRINTSZ   TEXT_1UP,35,6
                         LDAPAL    COLOR_WHITE                  ; and show the last 0 on the score
                         sta       >printFontColor              ; stored scores are 10x smaller than "appears"
-                        PRINTSZ   TEXT_HIGHSCORES1,33,2
-                        PRINTSZ   TEXT_SCORE00,37,5            ; P1 00
+                        PRINTSZ   TEXT_HIGHSCORES1,33,4
+                        PRINTSZ   TEXT_SCORE00,37,7            ; P1 00
                         jmp       uiShowP2Playing
 
 ;-----------------------------------------------------------------------------
@@ -364,16 +366,20 @@ umSetupPlay             sta       zNumberOfPlayers             ; init for a game
                         rts
 umChkScan               bit       #INPUT_SCAN
                         beq       umChkKbd
+                        lda       #AUDIO_COINDROP
+                        jsr       audioPlaySource
                         jsr       inputCheckForJoy             ; check if there's a joystick
                         bra       umMkTitle                    ; force title screen on
 umChkKbd                bit       #INPUT_KEYBOARD
                         beq       umWaitFrame
+                        lda       #AUDIO_COINDROP
+                        jsr       audioPlaySource
                         stz       zInputUsingJoystick          ; turn off using joystick
 umMkTitle               lda       #6                           ; reset time to demo mode
                         sta       tIterations
                         lda       ptState                      ; which screen is in front
                         bne       umSkipAttract                ; if scores, clear and flip
-                        bra       umSwitchStateLoop            ; title - so just redraw
+                        jmp       umSwitchStateLoop            ; title - so just redraw
 umWaitFrame             jsr       screenDelay
                         bra       umHoldStateLoop
 
@@ -401,8 +407,13 @@ uiShowCommonLabels      entry
                         PRINTSZ   TEXT_KONAMI,8,19
                         LDAPAL    COLOR_BLUE
                         sta       >printFontColor
-                        PRINTSZ   TEXT_VERSION,7,22
-                        PRINTSZ   TEXT_STEFAN,5,24
+                        PRINTSZ   TEXT_VERSION,5,22
+                        LDAPAL    COLOR_RED
+                        sta       >printFontColor
+                        PRINTSZ   TEXT_STEFAN,8,23
+                        LDAPAL    COLOR_ORANGE
+                        sta       >printFontColor
+                        PRINTSZ   TEXT_ANTOINE,8,24
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -415,7 +426,7 @@ uiShowHighScore         entry
                         ldx       #TEXT_HIGHSCOREDISPLAY
                         lda       highScoresDisplay
                         jsr       uiBCD2String
-                        PRINTSZ   TEXT_HIGHSCOREDISPLAY,33,2
+                        PRINTSZ   TEXT_HIGHSCOREDISPLAY,33,4
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -464,7 +475,7 @@ uiShowP1Score           entry
                         ldx       #TEXT_P1SCORE
                         lda       zPlayerScore
                         jsr       uiBCD2String
-                        PRINTSZ   TEXT_P1SCORE,33,5
+                        PRINTSZ   TEXT_P1SCORE,33,7
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -472,10 +483,10 @@ uiShowP1Score           entry
 uiShowP2Playing         entry
                         LDAPAL    COLOR_RED                    ; show the scores - always on-screen
                         sta       >printFontColor
-                        PRINTSZ   TEXT_2UP,35,7
+                        PRINTSZ   TEXT_2UP,35,9
                         LDAPAL    COLOR_WHITE                  ; and show the last 0 on the score
                         sta       >printFontColor              ; stored scores are 10x smaller than "appears"
-                        PRINTSZ   TEXT_SCORE00,37,8            ; P2 00
+                        PRINTSZ   TEXT_SCORE00,37,10           ; P2 00
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -486,7 +497,7 @@ uiShowP2Score           entry
                         ldx       #TEXT_P2SCORE
                         lda       zPlayerScore
                         jsr       uiBCD2String
-                        PRINTSZ   TEXT_P2SCORE,33,8
+                        PRINTSZ   TEXT_P2SCORE,33,10
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -522,6 +533,8 @@ uspsDone                pla
 ;-----------------------------------------------------------------------------
 ; MARK: uiShowPreGameLabels
 uiShowPreGameLabels     entry
+                        LDSCRNXY  28,0
+                        jsl       TPSMALL_000A
                         ldy       #LAYER_TEXT                  ; Player
                         jsr       thingsAdd
                         lda       #10*8

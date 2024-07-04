@@ -75,4 +75,5 @@ png/text-player.png               TXTPLAYER:TEXT::::1
 png/text-ready.png                TXTREADY:TEXT::::1
 png/text-stage.png                TXTSTAGE:TEXT::::1
 png/timepilot.png                 :SHARE:1:::1
+png/tpsmall.png                   :SHARE:1:::1
 png/timewarp.png                  :SHARE:4:::1

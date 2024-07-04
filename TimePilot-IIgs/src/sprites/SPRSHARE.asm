@@ -9492,6 +9492,665 @@ TIMEPILOT_000A          ENTRY
                         RTL
 
 ;-----------------------------------
+; MARK: TPSMALL_000A
+TPSMALL_000A            ENTRY
+                        CLC                              ; 96x11, 1417 bytes, 2326 cycles
+                        SEI                              ; Disable Interrupts
+                        PHD                              ; Backup Direct Page
+                        TSC                              ; Backup Stack
+                        STA    >STACKADDRESS
+                        LDA    $E1C068                   ; Direct Page and Stack in Bank 01/
+                        ORA    #$0030
+                        STA    $E1C068
+                        TYA                              ; Y = Sprite Target Screen Address (upper left corner)
+                        TCS                              ; New Stack address
+                        LDX    #$7777                    ; Pattern #1 : 33
+                        LDY    #$2222                    ; Pattern #2 : 23
+                        LDA    #$7787                    ; Pattern #3 : 11
+                        TCD
+;--
+                        TXA                              ; Line 0
+                        STA    $07,S
+                        STA    $1E,S
+                        STA    $21,S
+                        LDA    $0A,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $0A,S
+                        LDA    $0D,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $0D,S
+                        LDA    $13,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $13,S
+                        LDA    $27,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $27,S
+                        LDA    $B3,S
+                        AND    #$0F00
+                        ORA    #$7022
+                        STA    $B3,S
+                        LDA    $B8,S
+                        AND    #$00F0
+                        ORA    #$2708
+                        STA    $B8,S
+                        LDA    $C2,S
+                        AND    #$0F00
+                        ORA    #$2077
+                        STA    $C2,S
+                        LDA    $C5,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $C5,S
+                        LDA    $CD,S
+                        AND    #$0F00
+                        ORA    #$7087
+                        STA    $CD,S
+                        SHORT  M
+                        LDA    $06,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $06,S
+                        LDA    $09,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $09,S
+                        LDA    $18,S
+                        AND    #$F0
+                        ORA    #$08
+                        STA    $18,S
+                        LDA    $20,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $20,S
+                        LDA    $23,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $23,S
+                        LDA    $26,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $26,S
+                        LDA    $2D,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $2D,S
+                        LDA    $A1,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $A1,S
+                        LONG   M
+                        TSC
+                        ADC    #$0005
+                        TCS
+                        PHX
+                        PHX
+                        TSC
+                        ADC    #$0011
+                        TCS
+                        PHX
+                        PHX
+                        TSC
+                        ADC    #$000E
+                        TCS
+                        PHX
+                        PHX
+                        TSC
+                        ADC    #$0014
+                        TCS
+                        PHX
+                        PHD
+                        TSC                              ; Line 1
+                        ADC    #$0083
+                        TCS
+                        LDA    #$2278
+                        STA    $A3,S
+                        TYA
+                        STA    $A7,S
+                        LDA    #$7788
+                        STA    $B6,S
+                        LDA    $A1,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $A1,S
+                        LDA    $A5,S
+                        AND    #$00F0
+                        ORA    #$7807
+                        STA    $A5,S
+                        LDA    $AD,S
+                        AND    #$00F0
+                        ORA    #$2708
+                        STA    $AD,S
+                        LDA    $C2,S
+                        AND    #$0F00
+                        ORA    #$7087
+                        STA    $C2,S
+                        SHORT  M
+                        LDA    $96,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $96,S
+                        LDA    $A9,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $A9,S
+                        LDA    $B5,S
+                        AND    #$F0
+                        ORA    #$08
+                        STA    $B5,S
+                        LONG   M
+                        PEA    $7877
+                        PEA    $8772
+                        PHX
+                        PEA    $7722
+                        PEA    $7778
+                        TSC
+                        ADC    #$0011
+                        TCS
+                        PEA    $2278
+                        PEA    $2728
+                        PHX
+                        TSC
+                        ADC    #$0015
+                        TCS
+                        PEA    $2728
+                        PEA    $7727
+                        PEA    $7727
+                        PEA    $2277
+                        TSC
+                        ADC    #$0013
+                        TCS
+                        PEA    $7822
+                        PEA    $7778
+                        PEA    $7722
+                        TSC                              ; Line 2
+                        ADC    #$0085
+                        TCS
+                        LDA    #$8778
+                        STA    $A6,S
+                        LDA    #$7788
+                        STA    $BD,S
+                        LDA    #$8788
+                        STA    $C0,S
+                        LDA    $9D,S
+                        AND    #$F00F
+                        ORA    #$0780
+                        STA    $9D,S
+                        LDA    $A4,S
+                        AND    #$F00F
+                        ORA    #$0780
+                        STA    $A4,S
+                        LDA    $AE,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $AE,S
+                        LDA    $B1,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $B1,S
+                        LDA    $B3,S
+                        AND    #$00F0
+                        ORA    #$7708
+                        STA    $B3,S
+                        LDA    $B6,S
+                        AND    #$00F0
+                        ORA    #$7708
+                        STA    $B6,S
+                        LDA    $BA,S
+                        AND    #$0F00
+                        ORA    #$7087
+                        STA    $BA,S
+                        SHORT  M
+                        LDA    #$87
+                        STA    $9F,S
+                        LDA    $96,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $96,S
+                        LDA    $A9,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $A9,S
+                        LDA    $BF,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $BF,S
+                        LDA    $C2,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $C2,S
+                        LONG   M
+                        PEA    $7877
+                        PEA    $8782
+                        PEA    $7887
+                        PEA    $7882
+                        PEA    $7788
+                        TSC
+                        ADC    #$001E
+                        TCS
+                        PEA    $7728
+                        PEA    $7728
+                        PEA    $2277
+                        TSC
+                        ADC    #$0013
+                        TCS
+                        PEA    $7788
+                        PEA    $8777
+                        PEA    $2722
+                        PEA    $7287
+                        TSC                              ; Line 3
+                        ADC    #$0083
+                        TCS
+                        LDA    #$8877
+                        STA    $9F,S
+                        TXA
+                        STA    $A9,S
+                        LDA    #$7788
+                        STA    $BE,S
+                        STA    $C1,S
+                        LDA    #$8788
+                        STA    $C4,S
+                        LDA    $9B,S
+                        AND    #$00F0
+                        ORA    #$7807
+                        STA    $9B,S
+                        LDA    $B7,S
+                        AND    #$00F0
+                        ORA    #$8708
+                        STA    $B7,S
+                        LDA    $B9,S
+                        AND    #$F00F
+                        ORA    #$0870
+                        STA    $B9,S
+                        LDA    $BB,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $BB,S
+                        SHORT  M
+                        LDA    #$77
+                        STA    $AB,S
+                        LDA    $9D,S
+                        AND    #$0F
+                        ORA    #$80
+                        STA    $9D,S
+                        LDA    $B2,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $B2,S
+                        LDA    $C3,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $C3,S
+                        LDA    $C6,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $C6,S
+                        LONG   M
+                        PEA    $7887
+                        PEA    $2288
+                        PEA    $7827
+                        TSC
+                        ADC    #$000D
+                        TCS
+                        PEA    $7877
+                        PEA    $7778
+                        TSC                              ; Line 4
+                        ADC    #$00A4
+                        TCS
+                        LDA    #$8877
+                        STA    $94,S
+                        STA    $98,S
+                        LDA    #$7788
+                        STA    $A3,S
+                        STA    $BA,S
+                        STA    $BE,S
+                        TYA
+                        STA    $AD,S
+                        LDA    #$7778
+                        STA    $B7,S
+                        LDA    $AB,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $AB,S
+                        LDA    $B2,S
+                        AND    #$F00F
+                        ORA    #$0870
+                        STA    $B2,S
+                        LDA    $B4,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $B4,S
+                        SHORT  M
+                        LDA    #$77
+                        STA    $A2,S
+                        LDA    #$87
+                        STA    $B1,S
+                        LDA    $AF,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $AF,S
+                        LDA    $B9,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $B9,S
+                        LDA    $BC,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $BC,S
+                        LONG   M
+                        PEA    $7887
+                        PEA    $7878
+                        PEA    $8777
+                        TSC
+                        ADC    #$0015
+                        TCS
+                        PEA    $2277
+                        PHX
+                        TSC                              ; Line 5
+                        ADC    #$0095
+                        TCS
+                        LDA    #$8877
+                        STA    $94,S
+                        STA    $98,S
+                        STA    $A2,S
+                        TYA
+                        STA    $AD,S
+                        LDA    #$7778
+                        STA    $B7,S
+                        TDC
+                        STA    $BB,S
+                        LDA    #$7788
+                        STA    $BE,S
+                        LDA    $9F,S
+                        AND    #$0F00
+                        ORA    #$8077
+                        STA    $9F,S
+                        LDA    $AB,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $AB,S
+                        LDA    $B1,S
+                        AND    #$0F00
+                        ORA    #$7087
+                        STA    $B1,S
+                        LDA    $B5,S
+                        AND    #$F00F
+                        ORA    #$0870
+                        STA    $B5,S
+                        LDA    $B9,S
+                        AND    #$F00F
+                        ORA    #$0870
+                        STA    $B9,S
+                        SHORT  M
+                        LDA    #$27
+                        STA    $A4,S
+                        LDA    #$87
+                        STA    $B4,S
+                        LDA    $93,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $93,S
+                        LONG   M
+                        PEA    $7887
+                        PEA    $7877
+                        PEA    $8777
+                        TSC                              ; Line 6
+                        ADC    #$00A4
+                        TCS
+                        LDA    #$7277
+                        STA    $95,S
+                        STA    $99,S
+                        STA    $9C,S
+                        TDC
+                        STA    $A0,S
+                        STA    $B3,S
+                        STA    $BA,S
+                        LDA    #$8877
+                        STA    $A4,S
+                        TXA
+                        STA    $BD,S
+                        LDA    #$2788
+                        STA    $C0,S
+                        LDA    $9E,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $9E,S
+                        LDA    $A7,S
+                        AND    #$0F00
+                        ORA    #$8077
+                        STA    $A7,S
+                        LDA    $AD,S
+                        AND    #$00F0
+                        ORA    #$7707
+                        STA    $AD,S
+                        LDA    $B7,S
+                        AND    #$F00F
+                        ORA    #$0770
+                        STA    $B7,S
+                        SHORT  M
+                        LDA    #$87
+                        STA    $B6,S
+                        LDA    #$78
+                        STA    $B9,S
+                        LDA    #$77
+                        STA    $C2,S
+                        LDA    $97,S
+                        AND    #$0F
+                        ORA    #$80
+                        STA    $97,S
+                        LDA    $9B,S
+                        AND    #$0F
+                        ORA    #$80
+                        STA    $9B,S
+                        LDA    $A2,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $A2,S
+                        LDA    $A6,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $A6,S
+                        LONG   M
+                        PEA    $8877
+                        PEA    $8777
+                        TSC                              ; Line 8
+                        ADC    #$0138
+                        TCS
+                        TXA
+                        STA    $01,S
+                        STA    $1F,S
+                        TYA
+                        STA    $A1,S
+                        STA    $CD,S
+                        LDA    #$2288
+                        STA    $CC,S
+                        LDA    $03,S
+                        AND    #$F00F
+                        ORA    #$0720
+                        STA    $03,S
+                        LDA    $0E,S
+                        AND    #$000F
+                        ORA    #$7770
+                        STA    $0E,S
+                        LDA    $18,S
+                        AND    #$00F0
+                        ORA    #$7708
+                        STA    $18,S
+                        LDA    $1A,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $1A,S
+                        LDA    $2C,S
+                        AND    #$00F0
+                        ORA    #$7708
+                        STA    $2C,S
+                        LDA    $2E,S
+                        AND    #$0F00
+                        ORA    #$7077
+                        STA    $2E,S
+                        LDA    $A3,S
+                        AND    #$F00F
+                        ORA    #$0280
+                        STA    $A3,S
+                        LDA    $B8,S
+                        AND    #$00F0
+                        ORA    #$2208
+                        STA    $B8,S
+                        LDA    $BA,S
+                        AND    #$0F00
+                        ORA    #$2022
+                        STA    $BA,S
+                        LDA    $CF,S
+                        AND    #$F00F
+                        ORA    #$0F20
+                        STA    $CF,S
+                        SHORT  M
+                        LDA    #$77
+                        STA    $05,S
+                        LDA    #$22
+                        STA    $A5,S
+                        LDA    $00,S
+                        AND    #$F0
+                        ORA    #$07
+                        STA    $00,S
+                        LDA    $14,S
+                        AND    #$0F
+                        ORA    #$80
+                        STA    $14,S
+                        LDA    $1E,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $1E,S
+                        LDA    $21,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $21,S
+                        LDA    $2A,S
+                        AND    #$0F
+                        ORA    #$70
+                        STA    $2A,S
+                        LDA    $A0,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $A0,S
+                        LDA    $B4,S
+                        AND    #$0F
+                        ORA    #$80
+                        STA    $B4,S
+                        LONG   M
+                        TSC
+                        ADC    #$000D
+                        TCS
+                        PHX
+                        PEA    $7887
+                        PHX
+                        PEA    $8777
+                        TSC
+                        ADC    #$000E
+                        TCS
+                        PHX
+                        PHX
+                        TSC
+                        ADC    #$001A
+                        TCS
+                        PHX
+                        PHD
+                        PEA    $7877
+                        PHX
+                        TSC                              ; Line 9
+                        ADC    #$0092
+                        TCS
+                        LDA    #$2822
+                        STA    $8F,S
+                        STA    $9A,S
+                        TYA
+                        STA    $AC,S
+                        STA    $B0,S
+                        STA    $B4,S
+                        STA    $BA,S
+                        LDA    $8E,S
+                        AND    #$0000
+                        ORA    #$2222
+                        STA    $8E,S
+                        LDA    $A5,S
+                        AND    #$00F0
+                        ORA    #$2208
+                        STA    $A5,S
+                        LDA    $A7,S
+                        AND    #$0F00
+                        ORA    #$2022
+                        STA    $A7,S
+                        LDA    $AE,S
+                        AND    #$00F0
+                        ORA    #$2208
+                        STA    $AE,S
+                        LDA    $B2,S
+                        AND    #$F00F
+                        ORA    #$0820
+                        STA    $B2,S
+                        SHORT  M
+                        LDA    #$22
+                        STA    $92,S
+                        LDA    #$82
+                        STA    $AB,S
+                        LDA    $99,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $99,S
+                        LDA    $9C,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $9C,S
+                        LDA    $A1,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $A1,S
+                        LDA    $B9,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $B9,S
+                        LONG   M
+                        PHY
+                        PHY
+                        PEA    $2228
+                        PHY
+                        PEA    $2882
+                        PHY
+                        PEA    $8222
+                        TSC
+                        ADC    #$0024
+                        TCS
+                        PHY
+                        PEA    $8282
+                        PHY
+                        PHY
+                        PEA    $2822
+                        PEA    $2288
+                        TSC                              ; Line 10
+                        ADC    #$008E
+                        TCS
+                        PEA    $2282
+                        PHY
+                        PEA    $2822
+                        TSC
+                        ADC    #$000E
+                        TCS
+                        PHY
+                        PHY
+;--
+                        LDA    $E1C068                   ; Direct Page and Stack in Bank 00/
+                        AND    #$FFCF
+                        STA    $E1C068
+                        LDA    >STACKADDRESS             ; Restore Stack
+                        TCS
+                        PLD                              ; Restore Direct Page
+                        CLI                              ; Enable Interrupts
+                        RTL
+
+;-----------------------------------
 ; MARK: TIMEWARP_000A
 TIMEWARP_000A           ENTRY
                         CLC                              ; 16x16, 59 bytes, 117 cycles

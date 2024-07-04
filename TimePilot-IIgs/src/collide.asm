@@ -33,6 +33,8 @@ cbDead                  lda    #BOMBER_TIMER
                         sta    zBomberTimer
                         lda    #SCORE_1500
                         jsr    gameAddBonus
+                        lda    #AUDIO_ENEMY_EXPLODE
+                        jsr    audioPlaySource
 ; audioPlaySource(AUDIO_ENEMY_EXPLODE)
                         ldy    #LAYER_EXPLODE_LARGE
                         jmp    collideThingExplode
@@ -70,7 +72,9 @@ clbCollideWithWhat      ldy    zThingID1
                         cmp    #LAYER_EXPLODE_LARGE         ; first, so if it's a LAYER_EXPLODE_LARGE
                         beq    clbDead                      ; it was the player, so die
                         jmp    gameAddScore                 ; boss hit but alive
-clbDead                 lda    #SCORE_3000                  ; boss is dead
+clbDead                 lda    #AUDIO_BIG_EXPLOSION
+                        jsr    audioPlaySource
+                        lda    #SCORE_3000                  ; boss is dead
                         jsr    gameAddBonus
                         stz    zStageIntroState
                         inc    zPlayerExitTimer
@@ -160,6 +164,8 @@ ceKillMe                lda    activeEID,x
                         jsr    gameAddScore
                         dec    zNumberOfEnemies
                         inc    zEnemiesKilled
+                        lda    #AUDIO_ENEMY_EXPLODE
+                        jsr    audioPlaySource
 ; audioPlaySource(AUDIO_ENEMY_EXPLODE)
                         jmp    uiUpdateStageProgress
 
@@ -170,6 +176,8 @@ collideParachute        entry
                         lda    #AF_REMOVE
                         ora    activeFlags,x
                         sta    activeFlags,x
+                        lda    #AUDIO_PICKUP
+                        jsr    audioPlaySource
 ; audioPlaySource(AUDIO_PICKUP)
                         jsr    aiRandom
                         and    #$7F
@@ -200,6 +208,8 @@ cpDead                  lda    #EXIT_PLAYER_DIED
                         sta    zNumberOfAIFollowersMax
                         lda    #ENEMIES_TO_KILL_TO_CLEAR/2  ; reset difficulty countdown
                         sta    zDifficultyKillCount
+                        lda    #AUDIO_BIG_EXPLOSION
+                        jsr    audioPlaySource
 ; audioPlaySource(AUDIO_BIG_EXPLOSION)
                         ldy    #LAYER_EXPLODE_LARGE
                         jmp    collideThingExplode
@@ -224,8 +234,9 @@ collideRockets          entry
                         lda    zNumberOfRockets
                         beq    cerExplode
                         dec    zNumberOfRockets
-;                        bne    cerExplode
-; audioStopSource(AUDIO_ROCKET_FLY);
+                        bne    cerExplode
+                        lda    #AUDIO_ROCKET_FLY
+                        jsr    audioStopSource
 cerExplode              ldy    #LAYER_EXPLODE_ROCKETS
                         jsr    collideThingExplode
                         jmp    gameAddScore
