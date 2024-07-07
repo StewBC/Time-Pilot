@@ -301,9 +301,9 @@ void aiEnemy(int16_t X) {
                     } else {
                         enemyWeapon[eID] = thingsAdd(LAYER_ENEMY_BULLETS);
                     }
+                    activeEID[enemyWeapon[eID]] = eID;
                     // Use extra for the direction
                     activeHeading[enemyWeapon[eID]] = activeFrame[X];
-                    activeFlags[enemyWeapon[eID]] |= eID;
                     audioPlaySource(AUDIO_ENEMY_SHOOT);
                 }
             } else if(activeStage != TIME_PERIOD1_1940 && numberOfTracked < numberOfTrackedMax) {
@@ -318,11 +318,11 @@ void aiEnemy(int16_t X) {
                             enemyWeapon[eID] = thingsAdd(LAYER_ENEMY_BOMBS);
                             if(!launchSide) {
                                 activeFrame[enemyWeapon[eID]] = 29;
-                                activeFlags[enemyWeapon[eID]] |= (eID | (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_DIR_RIGHT)); // Same flag - for clarity
+                                activeFlags[enemyWeapon[eID]] |= ACTIVEFLAGS_DIR_RIGHT;
                             } else {
                                 activeFrame[enemyWeapon[eID]] = 19;
-                                activeFlags[enemyWeapon[eID]] |= eID;
                             }
+                            activeEID[enemyWeapon[eID]] = eID;
                             numberOfTracked++;
                             launchSide ^= 1;
                             audioPlaySource(AUDIO_BOMB);
@@ -341,8 +341,8 @@ void aiEnemy(int16_t X) {
                         numberOfRockets++;
                         enemyWeapon[eID] = thingsAdd(LAYER_ENEMY_ROCKETS);
                     }
+                    activeEID[enemyWeapon[eID]] = eID;
                     activeHeading[enemyWeapon[eID]] = activeFrame[X];
-                    activeFlags[enemyWeapon[eID]] |= eID;
                     numberOfTracked++;
                     launchSide ^= 1;
                 }
@@ -362,7 +362,7 @@ void aiEnemy(int16_t X) {
 //-----------------------------------------------------------------------------
 void aiEnemyBombs(int16_t X) {
     aiAddVelocity(X, invPlayerAngle+VELOCITY_119);
-    if(activeFlags[X] & (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_DIR_RIGHT) ) {
+    if(activeFlags[X] & ACTIVEFLAGS_DIR_RIGHT) {
         if(activeFrame[X] != 6) {
             if(!(frameCounter & 3)) {
                 activeFrame[X] = (activeFrame[X] + 1) & 31;
@@ -465,7 +465,7 @@ void aiExplodeThing(int16_t X) {
 //-----------------------------------------------------------------------------
 void aiHorizontalFlyer(int16_t X) {
     aiAddVelocity(X, invPlayerAngle+VELOCITY_119);
-    if(activeFlags[X] & (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_DIR_RIGHT)) {
+    if(activeFlags[X] & ACTIVEFLAGS_DIR_RIGHT) {
         aiAddVelocity(X, VELOCITY_100);
     } else {
         aiAddVelocity(X, VELOCITY_100+16);
@@ -488,7 +488,7 @@ void aiHorizontalFlyer(int16_t X) {
                 A = thingsAdd(LAYER_ENEMY_BULLETS);
             }
             activeHeading[A] = heading; // Direction in extra
-            activeFlags[A] |= (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_TRACKED); // Same flag for clarity
+            activeFlags[A] |= ACTIVEFLAGS_TRACKED;
             numberOfTracked++;
         }
     }
@@ -523,13 +523,12 @@ void aiNonWrapping(int16_t X) {
             return;
         } else if(activeLayer[X] == LAYER_ENEMY_BULLETS || activeLayer[X] == LAYER_ENEMY_SPACEBULLETS) {
             activeFlags[X] |= ACTIVEFLAGS_REMOVE;
-            if(activeFlags[X] & (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_TRACKED)) {
+            if(activeFlags[X] & ACTIVEFLAGS_TRACKED) {
                 // Horizontal flyer bullet
                 numberOfTracked--;
             } else {
                 // Actual enemy bullet
-                int16_t mask = activeFlags[X] & ACTIVEFLAGS_ENEMYMASK;
-                enemyWeapon[mask] = 2*MAX_OBJECTS;
+                enemyWeapon[activeEID[X]] = 2*MAX_OBJECTS;
             }
             return;
         }
@@ -538,14 +537,13 @@ void aiNonWrapping(int16_t X) {
             activeFlags[X] |= ACTIVEFLAGS_REMOVE;
             if(activeLayer[X] == LAYER_ENEMY) {
                 numberOfEnemies--;
-                enemyID[activeFlags[X] & ACTIVEFLAGS_ENEMYMASK] = 2*MAX_OBJECTS;
+                enemyID[activeEID[X]] = 2*MAX_OBJECTS;
                 if(activeFlags[X] & ACTIVEFLAGS_AI_FOLLOW) {
                     numberOfAIFollowers--;
                 }
                 // Might still not be able to shoot
             } else if (activeLayer[X] >= LAYER_ENEMY_BOMBS && activeLayer[X] < LAYER_ENEMY_BOOMERANG + 1) {
-                int16_t mask = activeFlags[X] & ACTIVEFLAGS_ENEMYMASK;
-                enemyWeapon[mask] = 2*MAX_OBJECTS;
+                enemyWeapon[activeEID[X]] = 2*MAX_OBJECTS;
                 numberOfTracked--;
                 if(numberOfRockets && !(--numberOfRockets)) {
                     audioStopSource(AUDIO_ROCKET_FLY);
@@ -630,9 +628,9 @@ void aiSpawnEnemy(){
             spawnX = launchPosX[A];
             spawnY = launchPosY[A];
             enemyID[Y] = thingsAdd(LAYER_ENEMY);
+            activeEID[enemyID[Y]] = Y;
             enemyHeading[Y] = invPlayerAngle;
             activeFrame[enemyID[Y]] = invPlayerAngle;
-            activeFlags[enemyID[Y]] |= Y;
             activeTimer[enemyID[Y]] = ENEMY_STEADY_MIN_TIME + (aiRandom() & 31);
             if((aiRandom() & 64) && numberOfAIFollowers < numberOfAIFollowersMax) {
                 activeFlags[enemyID[Y]] |= ACTIVEFLAGS_AI_FOLLOW;
@@ -652,9 +650,10 @@ void aiSpawnWave() {
     while(1) {
         if(enemyID[X] == 2*MAX_OBJECTS) {
             enemyID[X] = thingsAdd(LAYER_ENEMY);
+            activeEID[enemyID[X]] = X;
             enemyHeading[X] = waveSpawnDir;
             activeFrame[enemyID[X]] = waveSpawnDir;
-            activeFlags[enemyID[X]] |= (X | ACTIVEFLAGS_AI_WAVE);
+            activeFlags[enemyID[X]] = ACTIVEFLAGS_AI_WAVE;
             activeTimer[enemyID[X]] = waveSpawnDuration;
             numberOfEnemies++;
             if(!(--waveSpawnNumber & 1)) {

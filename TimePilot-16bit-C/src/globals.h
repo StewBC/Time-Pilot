@@ -104,7 +104,6 @@
 #define ACTIVEFLAGS_AI_FOLLOW       0b0001000000000000
 #define ACTIVEFLAGS_AI_FLEE         0b0010000000000000
 #define ACTIVEFLAGS_AI_WAVE         0b0100000000000000
-#define ACTIVEFLAGS_MULTIPURPOSE    0b1000000000000000 // Note - This flag is multi-putpose
 #define ACTIVEFLAGS_TRACKED         0b1000000000000000 // Multi = tracked
 #define ACTIVEFLAGS_DIR_RIGHT       0b1000000000000000 // Multi = direction
 
@@ -307,6 +306,7 @@ extern uint16_t     activeBMPIdx[MAX_OBJECTS];
 extern uint16_t     activeCollides[MAX_OBJECTS];
 extern uint16_t     activeColsig[MAX_OBJECTS];
 extern int16_t      activeExtra[MAX_OBJECTS];
+extern int16_t      activeEID[MAX_OBJECTS];
 extern uint16_t     activeFlags[MAX_OBJECTS];
 extern int16_t      activeFrame[MAX_OBJECTS];
 extern int16_t      activeHeight[MAX_OBJECTS];

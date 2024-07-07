@@ -93,6 +93,7 @@ uint16_t    highScoresDisplay;
 uint16_t    activeBMPIdx[MAX_OBJECTS];
 uint16_t    activeCollides[MAX_OBJECTS];
 uint16_t    activeColsig[MAX_OBJECTS];
+int16_t     activeEID[MAX_OBJECTS];
 int16_t     activeExtra[MAX_OBJECTS];
 uint16_t    activeFlags[MAX_OBJECTS];
 int16_t     activeFrame[MAX_OBJECTS];
@@ -203,6 +204,7 @@ void globalsStageInit() {
     for(i = 0; i < MAX_OBJECTS; i++) {
         activeCollides[i] = 0;
         activeColsig[i] = 0;
+        activeEID[i] = 0;
         activeExtra[i] = 0;
         activeFlags[i] = 0;
         activeFrame[i] = 0;

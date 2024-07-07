@@ -242,7 +242,7 @@ void drawClouds2Part(int16_t X) {
 //-----------------------------------------------------------------------------
 void drawEnemyBombs(int16_t X) {
     int16_t localActiveFrame = activeFrame[X];
-    activeFrame[X] = activeFlags[X] & (ACTIVEFLAGS_MULTIPURPOSE | ACTIVEFLAGS_DIR_RIGHT) ? 0 : 1;
+    activeFrame[X] = activeFlags[X] & ACTIVEFLAGS_DIR_RIGHT ? 0 : 1;
     drawBMPFully(X);
     activeFrame[X] = localActiveFrame;
 }
