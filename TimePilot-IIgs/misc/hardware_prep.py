@@ -12,8 +12,10 @@ MAIN_FILE = "obj:main" # entry point
 
 # Constants for directory and file manipulation
 SOURCE_DIR = "src"
+SOUND_DIR = "snd"
 TARGET_DIR = "IIgs"
 NEW_SOURCE_DIR = os.path.join(TARGET_DIR, SOURCE_DIR)
+NEW_SOUND_DIR = os.path.join(TARGET_DIR, SOUND_DIR)
 CR_LINE_ENDING = "\r"
 
 def write_with_cr(file_path, lines):
@@ -51,6 +53,9 @@ def process_files():
     if os.path.exists(NEW_SOURCE_DIR):
         shutil.rmtree(NEW_SOURCE_DIR)
     shutil.copytree(SOURCE_DIR, NEW_SOURCE_DIR)
+    if os.path.exists(NEW_SOUND_DIR):
+        shutil.rmtree(NEW_SOUND_DIR)
+    shutil.copytree(SOUND_DIR, NEW_SOUND_DIR)
 
     # Lists to store different file types and paths
     asm_files = []
@@ -82,6 +87,18 @@ def process_files():
                 with open(full_path, 'w', newline=None) as file:
                     file.write(content)
 
+    # Walk through the snd directory and process files
+    for root, dirs, files in os.walk(NEW_SOUND_DIR):
+        for name in files:
+            full_path = os.path.join(root, name)
+            relative_path = os.path.relpath(full_path, NEW_SOURCE_DIR)
+            sub_folders.update([os.path.dirname(relative_path)])
+
+            if name.endswith(".snd"):
+                asm_files.append(relative_path)
+            else:
+                os.remove(full_path)  # Ignore .mac files
+
     # Create and fill the 'make' file
     make_path = os.path.join(TARGET_DIR, "make")
     write_with_cr(make_path, ["make.clean\n"] + [f"assemble src/{path[:-4]} keep=obj/{path[:-4]}\n" for path in asm_files] + 
@@ -106,6 +123,7 @@ def process_files():
     if os.path.exists("{SHK_ARCHIVE_NAME}"):
         os.remove("{SHK_ARCHIVE_NAME}")
     os.system(f"{CP2_EXECUTABLE} add {SHK_ARCHIVE_NAME} src")
+    os.system(f"{CP2_EXECUTABLE} add {SHK_ARCHIVE_NAME} snd")
     os.system(f"{CP2_EXECUTABLE} add {SHK_ARCHIVE_NAME} make")
     os.system(f"{CP2_EXECUTABLE} add {SHK_ARCHIVE_NAME} make.clean")
     os.system(f"{CP2_EXECUTABLE} add {SHK_ARCHIVE_NAME} make.macros")
@@ -117,6 +135,13 @@ def process_files():
             # Construct file path in the format expected by cp2.exe
             folder_path = os.path.join(root, file).replace('\\', ':').replace('/', ':')
             os.system(f"{CP2_EXECUTABLE} sa {SHK_ARCHIVE_NAME} \"{folder_path}\" type=SRC aux=0x0003")
+
+    # Set attributes for all files under snd
+    for root, dirs, files in os.walk("snd"):  # Navigate subfolder structure
+        for file in files:
+            # Construct file path in the format expected by cp2.exe
+            folder_path = os.path.join(root, file).replace('\\', ':').replace('/', ':')
+            os.system(f"{CP2_EXECUTABLE} sa {SHK_ARCHIVE_NAME} \"{folder_path}\" type=BIN aux=0x00D6")
 
     # Set attributes for make files
     make_files = ["make", "make.clean", "make.macros"]

@@ -81,10 +81,11 @@ gas1P1                  jmp      uiShowP1Score
 ;-----------------------------------------------------------------------------
 ; MARK: gameInit
 gameInit                entry
+                        lda      zDemoAttractMode
+                        bne      giSkipSong
                         lda      #AUDIO_GAME_START
                         jsr      audioPlaySource
-; audioPlaySource(AUDIO_GAME_START)
-                        jsr      gameInitVarsGame
+giSkipSong              jsr      gameInitVarsGame
                         jsr      gameRestorePlayer                           ; init all of the shadow stats
                         LDAPAL   COLOR_BLACK
                         sta      zSkyColor
@@ -188,12 +189,6 @@ gamePostFrame           entry
                         beq      gpfNoPrePlay                                ; intro not active
                         dec      zPrePlayTimer                               ; count down intro timer
                         bne      gpfSort
-; older
-;                        bne      gpfShowLabels
-;                        jsr      uiErasePreGameLabels                        ; end of intro, erase stage, etc. labels
-;                        bra      gpfSort
-;gpfShowLabels           jsr      uiShowPreGameLabels                         ; intro active, re-show labels
-;                        bra      gpfSort
 gpfNoPrePlay            inc      zAiSpawnTimer                               ; mark which enemy will process
                         lda      zAiSpawnTimer                               ; 0-7 takes turns running ai
                         and      #14                                         ; so enemies think every 7 frames
@@ -301,8 +296,8 @@ gameRestorePlayer       entry
                         sta      zBossHealth
                         lda      playersStageIntroState,x
                         sta      zStageIntroState
-;                        lda     #TIME_PERIOD4_2001                           ; SQW - Stage start override
-;                        sta     zActiveStage
+;                        lda      #TIME_PERIOD2_1970                          ; SQW - Stage start override
+;                        sta      zActiveStage
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -404,10 +399,11 @@ gsiRecordIsInit         stz      zStageIntroState
 gsiNotDemoMode          ldx      zActiveStage                                ; see if sky needs a wipe
                         cpx      zActiveSky
                         beq      gsiNoWipe
+                        jsr      audioLoadBOSS
                         jsr      screenWipeToStageSky
                         bra      gsiGSInit
 gsiNoWipe               LDAPAL   COLOR_SKY                                   ; reset sky color if no wipe
-                        sta      zSkyColor                                   ; and clear screen
+                        sta      zSkyColor                                   ; and clear playfield
                         LDBOX    0,0,PLAYFIELDW,PLAYFIELDH
                         jsr      screenClearSection
 gsiGSInit               jsr      gameInitVarsStage                           ; init the stage variables
@@ -450,11 +446,6 @@ gsiScreenSetup          jsr      uiShowStageIcon
                         sta      at_handler_erase+LAYER_TEXT
 
                         ldx      zActiveStage                                ; stage specific overrides
-;                        txa                                                  ; but first
-;                        lsr      a                                           ; update the stage number
-;                        xba                                                  ; in the stage text
-;                        adc      #'1 '
-;                        sta      >TEXT_STAGE_NUM
                         lda      bt_level,x                                  ; preset the bank for draw/jumps
                         short    m
                         sta      deJmpAddr+3                                 ; enemies
@@ -642,6 +633,10 @@ gsRasterDone            sta      zScanLinePrev                               ; s
 ; At this point the player is dead or has cleared the stage
                         lda      zDemoAttractMode
                         bne      gsGameExit                                  ; if demo-attract - exit now
+                        lda      #2                                          ; BOSS oscillator    ; Stop all looping audio
+                        jsr      audioStopOSCS
+                        lda      #AUDIO_ROCKET_FLY
+                        jsr      audioStopSource
                         LDBOX    0,0,PLAYFIELDW,PLAYFIELDH
                         jsr      screenClearSection                          ; clear playfield to sky color
                         lda      zExitGameMask
@@ -649,14 +644,14 @@ gsRasterDone            sta      zScanLinePrev                               ; s
                         bne      gsStageComplete                             ; end stage processing if stage clear
 gsNextPlayer            jsr      gameNextPlayer
                         bcc      gsStageInit                                 ; restart the stage
-gsGameExit              LDAPAL   COLOR_BLACK
+gsGameExit              short    m
+                        jsr      audioStopALLOSCS
+                        long     m
+                        LDAPAL   COLOR_BLACK
                         sta      zSkyColor
-                        LDBOX    PLAYFIELDW,10,12,9
+                        LDBOX    PLAYFIELDW,12,12,9                          ; erase Stage & Ships
                         jsr      screenClearSection
-                        jsr      screenWipe
-                        LDBOX    PLAYFIELDW,0,12,2
-                        jmp      screenClearSection
-
+                        jmp      screenWipe
 gsStageComplete         bit      #EXIT_PLAYER_DIED
                         bne      gsSkipTimeWarp
                         jsr      screenTimeWarp

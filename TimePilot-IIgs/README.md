@@ -70,102 +70,127 @@ This is my launch.json.
 This is my tasks.json.  
 ```
 {
-        // See https://go.microsoft.com/fwlink/?LinkId=733558
-        // for the documentation about the tasks.json format
-        "version": "2.0.0",
-        "tasks": [
-            {
-                "label": "Build and Run",
-                "type": "shell",
-                "command": "make -j dsk test",
-                "args": [],
-                "group": {
-                    "kind": "build",
-                },
-                "presentation": {
-                    "clear": true
-                },
-                "problemMatcher": [
-                    "$ca65",
-                    "$ld65",
-                    "$ld65-config",
-                    "$ld65-unresolved"
-                ]
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build and Run",
+            "type": "shell",
+            "command": "make -j dsk test",
+            "args": [],
+            "group": {
+                "kind": "build",
             },
-            {
-                "label": "Clean",
-                "type": "shell",
-                "command": "make clean",
-                "args": [],
-                "group": {
-                    "kind": "build",
-                },
-                "presentation": {
-                    "clear": true
-                },
-                "problemMatcher": [
-                    "$ca65",
-                    "$ld65",
-                    "$ld65-config",
-                    "$ld65-unresolved"
-                ]
+            "presentation": {
+                "clear": true
             },
-            {
-                "label": "Build",
-                "type": "shell",
-                "command": "make -j",
-                "args": [],
-                "group": {
-                    "kind": "build",
+            "problemMatcher": [
+                {
+                    "owner": "asm",
+                    "fileLocation": ["relative", "${workspaceFolder}/src/"],
+                    "pattern": {
+                        "regexp": "^Error .*?c\\\\(\\S+)\\s+(\\d+)\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "message": 3
+                    }
                 },
-                "presentation": {
-                    "clear": true
-                },
-                "problemMatcher": [
-                    "$ca65",
-                    "$ld65",
-                    "$ld65-config",
-                    "$ld65-unresolved"
-                ]
+                {
+                    "owner": "linker",
+                    "fileLocation": ["relative", "${workspaceFolder}/src/"],
+                    "pattern": {
+                        "regexp": "^Error at ([0-9A-F]+) past (.*?) PC.*: (.*)$",
+                        "file": 2,
+                        "line": 1,
+                        "message": 3
+                    }
+                }            
+            ]
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": "make clean",
+            "args": [],
+            "group": {
+                "kind": "build"
             },
-            {
-                "label": "Build art",
-                "type": "shell",
-                "command": "make art",
-                "args": [],
-                "group": {
-                    "kind": "build",
-                },
-                "presentation": {
-                    "clear": true
-                },
-            },
-            {
-                "label": "Build macros",
-                "type": "shell",
-                "command": "make -j macros",
-                "args": [],
-                "group": {
-                    "kind": "build",
-                },
-                "presentation": {
-                    "clear": true
-                },
-                "problemMatcher": []
-            },
-            {
-                "label": "Build indent",
-                "type": "shell",
-                "command": "make indent",
-                "args": [],
-                "group": {
-                    "kind": "build",
-                },
-                "presentation": {
-                    "clear": true
-                }
+            "presentation": {
+                "clear": true
             }
-        ]
+        },
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": "make -j",
+            "group": {
+                "kind": "build"
+            },
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher": [
+                {
+                    "owner": "asm",
+                    "fileLocation": ["relative", "${workspaceFolder}/src/"],
+                    "pattern": {
+                        "regexp": "^Error .*?c\\\\(\\S+)\\s+(\\d+)\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "message": 3
+                    }
+                },
+                {
+                    "owner": "linker",
+                    "fileLocation": ["relative", "${workspaceFolder}/src/"],
+                    "pattern": {
+                        "regexp": "^Error at ([0-9A-F]+) past (.*?) PC.*: (.*)$",
+                        "file": 2,
+                        "line": 1,
+                        "message": 3
+                    }
+                }            
+            ]
+        },
+        {
+            "label": "Build art",
+            "type": "shell",
+            "command": "make art",
+            "args": [],
+            "group": {
+                "kind": "build"
+            },
+            "presentation": {
+                "clear": true
+            }
+        },
+        {
+            "label": "Build macros",
+            "type": "shell",
+            "command": "make -j macros",
+            "args": [],
+            "group": {
+                "kind": "build"
+            },
+            "presentation": {
+                "clear": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build indent",
+            "type": "shell",
+            "command": "make indent",
+            "args": [],
+            "group": {
+                "kind": "build"
+            },
+            "presentation": {
+                "clear": true
+            }
+        }
+    ]
 }
 ```
   
@@ -174,7 +199,7 @@ With those in place, pressing F5 will build the game and launch it in the emulat
 # Special Thanks  
 I have to give special thanks to a few people.  
 **Ian Brumby** - Ian wrote Crossrunner and helped me get started with GS/OS development. Also introduced me to Orca/M and Golden Gate.  
-**Brutal Deluxe** - Mr. Sprite and Cadius are indispensable.  
+**Brutal Deluxe** - Mr. Sprite and Cadius are indispensable, and the audio code Antoine Vignau gave me made the game awesome!  
 **Kelvin Sherlock** - Golden Gate, which is also indispensable in this process.  
 **Andy McFadden** - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  
 **Jeremy Rand** - Made BuGS which made me want to make an arcade game for the IIgs.  

@@ -35,7 +35,6 @@ cbDead                  lda    #BOMBER_TIMER
                         jsr    gameAddBonus
                         lda    #AUDIO_ENEMY_EXPLODE
                         jsr    audioPlaySource
-; audioPlaySource(AUDIO_ENEMY_EXPLODE)
                         ldy    #LAYER_EXPLODE_LARGE
                         jmp    collideThingExplode
 
@@ -72,7 +71,11 @@ clbCollideWithWhat      ldy    zThingID1
                         cmp    #LAYER_EXPLODE_LARGE         ; first, so if it's a LAYER_EXPLODE_LARGE
                         beq    clbDead                      ; it was the player, so die
                         jmp    gameAddScore                 ; boss hit but alive
-clbDead                 lda    #AUDIO_BIG_EXPLOSION
+clbDead                 lda    #2                           ; BOSS oscillator
+                        jsr    audioStopOSCS
+                        lda    #AUDIO_ROCKET_FLY            ; for safety stop rocket flying loop also
+                        jsr    audioStopSource
+                        lda    #AUDIO_BIG_EXPLOSION
                         jsr    audioPlaySource
                         lda    #SCORE_3000                  ; boss is dead
                         jsr    gameAddBonus
@@ -166,7 +169,6 @@ ceKillMe                lda    activeEID,x
                         inc    zEnemiesKilled
                         lda    #AUDIO_ENEMY_EXPLODE
                         jsr    audioPlaySource
-; audioPlaySource(AUDIO_ENEMY_EXPLODE)
                         jmp    uiUpdateStageProgress
 
 ;-----------------------------------------------------------------------------
@@ -178,7 +180,6 @@ collideParachute        entry
                         sta    activeFlags,x
                         lda    #AUDIO_PICKUP
                         jsr    audioPlaySource
-; audioPlaySource(AUDIO_PICKUP)
                         jsr    aiRandom
                         and    #$7F
                         adc    #PARACHUTE_TIMER
@@ -210,7 +211,6 @@ cpDead                  lda    #EXIT_PLAYER_DIED
                         sta    zDifficultyKillCount
                         lda    #AUDIO_BIG_EXPLOSION
                         jsr    audioPlaySource
-; audioPlaySource(AUDIO_BIG_EXPLOSION)
                         ldy    #LAYER_EXPLODE_LARGE
                         jmp    collideThingExplode
 

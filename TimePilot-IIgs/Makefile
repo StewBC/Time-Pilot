@@ -133,6 +133,7 @@ floppy: all
 	-$(call RMFILES,$(FLOPPY))
 	$(call CP,$(TEMPLATE_FLOPPY) $(FLOPPY))
 	$(CADIUS) ADDFILE $(FLOPPY) /$(VOLUME) ./$(PROGRAM)
+	$(CADIUS) ADDFOLDER $(FLOPPY) /$(VOLUME)/snd ./snd
 
 test: dsk
 ifeq ($(EMUCMP),MAME)

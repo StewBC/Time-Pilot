@@ -17,10 +17,11 @@ MAIN                    START
 ;-----------------------------------------------------------------------------
 main                    phb
                         jsr          mainInit
-                        jsr          audioInit
                         bcs          mfail
                         jsr          screenInit
                         jsr          uiInit
+                        jsr          uiLoadScreen
+                        jsr          audioInit
 
 mLoop                   anop
                         jsr          uiMain

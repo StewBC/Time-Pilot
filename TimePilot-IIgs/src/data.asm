@@ -2107,15 +2107,6 @@ dt_ui_initials_y        dc     i2'(8*160+10)*8'
                         dc     i2'(16*160+10)*8'
 
 ;-----------------------------------------------------------------------------
-; MARK: Audio
-; stageBossAudio            anop
-; dc        i2'AUDIO_BOSSL0'
-; dc        i2'AUDIO_BOSSL1'
-; dc        i2'AUDIO_BOSSL2'
-; dc        i2'AUDIO_BOSSL3'
-; dc        i2'AUDIO_BOSSL4'
-
-;-----------------------------------------------------------------------------
 ; MARK: replayData
                         aif    &R_RECORD>0,.gsiRecordFile
                         ago    .gsiSkipRecordFile
@@ -2274,6 +2265,5 @@ dt_demo_buffer          anop
                         dc     h'00000000000000000000000000000000'
                         dc     h'00000000000000000000000000000000'
                         dc     h'00000000000000000000000000000000'
-
 thisisformatgamedata__  anop
                         END

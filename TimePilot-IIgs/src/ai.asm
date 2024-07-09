@@ -12,6 +12,7 @@
 AI                      START
 
                         using  GAMEDATA
+                        using  SOUNDDATA
                         using  VARIABLES
 
 ;-----------------------------------------------------------------------------
@@ -308,10 +309,7 @@ aefBossOkay             inc    zScoreTimer                  ; quick kills score 
                         lda    zEnemiesKilled
                         cmp    #ENEMIES_TO_KILL_TO_CLEAR+1  ; made needed progress to get boss?
                         bcc    aefStageActive               ; not yet
-                        lda    zBossHealth                  ; Boss is still alive?
-                        beq    aefNoBossAudio               ; no - no boss audio
-; !audioIsSourcePlaying(stageBossAudio[activeStage])) audioPlaySource(stageBossAudio[activeStage])
-aefNoBossAudio          lda    zBossTimer                   ; countdown alive?
+                        lda    zBossTimer                   ; countdown alive?
                         bmi    aefBulletTrampoline          ; no - don't consider spawning a boss
                         dec    zBossTimer
                         bpl    aefBulletTrampoline          ; >= 0 not yet time to spawn
@@ -333,6 +331,8 @@ aefNoBossAudio          lda    zBossTimer                   ; countdown alive?
                         bra    aefSaveBossSpawnX
 aefBossToLeft           lda    #224                         ; start off screen right and move left
 aefSaveBossSpawnX       sta    zSpawnX
+                        lda    #AUDIO_BOSS
+                        jsr    audioPlaySource
                         ldy    #LAYER_BOSS
                         jsr    thingsAdd                    ; spawn the boss
                         lda    zSpawnX
@@ -408,7 +408,6 @@ aefBulletTimer          lda    zBulletTimer
                         jsr    thingsAdd
                         lda    zPlayerAngle
                         sta    activeExtra,x                ; Heading
-; audioPlay AUDIO_PLAYER_SHOOT
 aefBulletCountdown      dec    zBulletTimer
 aefEnemies              lda    zActiveStage                 ; is the stage space
                         cmp    #TIME_PERIOD4_2001           ; then skip waves
@@ -627,7 +626,6 @@ aeShoot                 lda    #AUDIO_ENEMY_SHOOT
                         plx                                 ; restore enemy id
                         lda    activeFrame,X                ; thing heading
                         sta    activeExtra,y                ; into bullet heading
-; audioPlaySource(AUDIO_ENEMY_SHOOT)
 aeStageVelocityLong     jmp    aeStageVelocity
 aePlayerUnsighted       lda    zActiveStage
                         cmp    #TIME_PERIOD1_1940
@@ -686,7 +684,6 @@ aeBombsAway             lda    #AUDIO_BOMB
                         lda    #1
                         eor    zLaunchSide
                         sta    zLaunchSide
-; audioPlaySource(AUDIO_BOMB)
                         plx                                 ; restore thing index
                         bra    aeStageVelocity
 aeNotStage0             lda    zLaunchSide
@@ -706,7 +703,6 @@ aeRocketFromRight       lda    activeMinY,x
                         bcc    aeStageVelocity
 aeLaunchRocket          lda    #AUDIO_ROCKET_LAUNCH
                         jsr    audioPlaySource
-; audioPlaySource(AUDIO_ROCKET_LAUNCH)
                         lda    activeMinX,x
                         clc
                         adc    #8
@@ -716,10 +712,11 @@ aeLaunchRocket          lda    #AUDIO_ROCKET_LAUNCH
                         sta    zSpawnY
                         lda    zActiveStage
                         cmp    #TIME_PERIOD2_1970
-                        bne    aeNotRocket
+                        bcc    aeNotRocket
+                        cmp    #TIME_PERIOD4_2001
+                        bcs    aeNotRocket
                         lda    #AUDIO_ROCKET_FLY
                         jsr    audioPlaySource
-; audioPlaySource(AUDIO_ROCKET_FLY)
 aeNotRocket             inc    zNumberOfRockets
                         ldy    #LAYER_ROCKETS
 aeSetRocket             phx
@@ -893,6 +890,8 @@ anwWeaponCheck          lda    activeLayer,x
                         beq    anwIsWeapon
 anwMaybeWeapon          cmp    #LAYER_BULLETS
                         beq    anwIsWeapon
+                        cmp    #LAYER_BOSS
+                        beq    anwIsBoss
                         rts
 anwIsWeapon             dec    zNumberOfTracked
                         ldy    activeEID,x
@@ -904,10 +903,10 @@ anwIsWeapon             dec    zNumberOfTracked
 anwRocket               dec    zNumberOfRockets
                         beq    anwStopRocketSound
                         rts
-anwStopRocketSound      anop
-                        lda    #AUDIO_ROCKET_FLY
-                        jsr    audioStopSource
-                        rts
+anwStopRocketSound      lda    #AUDIO_ROCKET_FLY
+                        jmp    audioStopSource
+anwIsBoss               lda    #2                           ; BOSS oscillator
+                        jmp    audioStopOSCS
 
 ;-----------------------------------------------------------------------------
 ; MARK: aiParachute

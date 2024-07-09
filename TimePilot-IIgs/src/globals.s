@@ -246,29 +246,20 @@ DEMO_ATTRACT_LENGTH       gequ  2048                 ; 2653/2
 ; Audio
 AUDIO_BIG_EXPLOSION       gequ  0
 AUDIO_BOMB                gequ  1
-AUDIO_BOOOMERANG          gequ  2
-AUDIO_BOSSL0              gequ  3
-AUDIO_BOSSL1              gequ  4
-AUDIO_BOSSL2              gequ  5
-AUDIO_BOSSL3              gequ  6
-AUDIO_BOSSL4              gequ  7
-AUDIO_COINDROP            gequ  8
-AUDIO_ENEMY_EXPLODE       gequ  9
-AUDIO_ENEMY_SHOOT         gequ  10
-AUDIO_ENEMY_SHOOT_SPACE   gequ  11
-AUDIO_EXTRA_LIFE          gequ  12
-AUDIO_GAME_START          gequ  13
-AUDIO_HIGHSCORE           gequ  14
-AUDIO_NEXT_LEVEL          gequ  15
-AUDIO_PICKUP              gequ  16
-AUDIO_PLAYER_SHOOT        gequ  17
-AUDIO_ROCKET_FLY          gequ  18
-AUDIO_ROCKET_LAUNCH       gequ  19
-AUDIO_STAGE_CLEAR         gequ  20
-AUDIO_TIMEWARP            gequ  21
-AUDIO_WAPON_EXPLODE       gequ  22
-AUDIO_WAVE_START          gequ  23
-NUM_AUDIO_SOURCES         gequ  24
+AUDIO_BOSS                gequ  2                    ; loop
+AUDIO_COINDROP            gequ  3
+AUDIO_ENEMY_EXPLODE       gequ  4
+AUDIO_ENEMY_SHOOT         gequ  5
+AUDIO_EXTRA_LIFE          gequ  6
+AUDIO_GAME_START          gequ  7
+AUDIO_HIGHSCORE           gequ  8                    ; loop
+AUDIO_PICKUP              gequ  9
+AUDIO_PLAYER_SHOOT        gequ  10
+AUDIO_ROCKET_FLY          gequ  11                   ; loop
+AUDIO_ROCKET_LAUNCH       gequ  12
+AUDIO_TIMEWARP            gequ  13
+AUDIO_WAVE_START          gequ  14
+NUM_AUDIO_SOURCES         gequ  15
 
 ; Direct Page (zero page) Variables
 zActivePlayer             gequ  $00

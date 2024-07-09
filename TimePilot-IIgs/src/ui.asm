@@ -11,6 +11,7 @@
 
 UI                      START
                         using     GAMEDATA
+                        using     SOUNDDATA
                         using     TEXT
                         using     VARIABLES
 
@@ -173,9 +174,8 @@ ugoSetScore             ldx       tInsertRow                   ; get the positio
                         sta       TEXT_INITIALS1,y             ; replace initials
                         lda       #$0020                       ; and space \00
                         sta       TEXT_INITIALS1+2,y
-
-                    lda #AUDIO_HIGHSCORE
-                    jsr audioPlaySource
+                        lda       #AUDIO_HIGHSCORE             ; start high-score audio
+                        jsr       audioPlaySource
                         LDAPAL    COLOR_BLACK                  ; wipe game to UI screen
                         sta       zSkyColor
                         jsr       screenWipe
@@ -196,7 +196,12 @@ ugoSetScore             ldx       tInsertRow                   ; get the positio
                         lda       KBDSTRB
 
 ; Loop till 3 initials entered
-ugoInitialsLoop         dec       ptTimer
+ugoInitialsLoop         ldy       #26                          ; snd2OSC[AUDIO_HIGHSCORE]
+                        lda       oscPAGE,y
+                        bne       ugoAudioFine                 ; non-zero means stll playing
+                        lda       #AUDIO_HIGHSCORE             ; restart the looping highscore audio
+                        jsr       audioPlaySource
+ugoAudioFine            dec       ptTimer
                         bpl       ugoPastAnim
                         lda       #UI_COLORCYCLE_TIMER         ; animation timer fires
                         sta       ptTimer                      ; reset the timer
@@ -223,7 +228,8 @@ ugoConfirm              inc       tLetterIndex
                         lda       #$41                         ; not done, start at A again
                         jsr       ugoSetInitial
                         bra       ugoInitialsLoop
-ugoDone                 rts
+ugoDone                 lda       #AUDIO_HIGHSCORE
+                        jmp       audioStopSource
 
 ; Check left/right for letter changes
 ugoCheckStick           bit       #INPUT_RIGHT                 ; if right, advance the character digit
@@ -307,6 +313,16 @@ uiInit                  entry
                         jmp       uiShowP2Playing
 
 ;-----------------------------------------------------------------------------
+; MARK: uiLoadScreen
+uiLoadScreen            entry
+                        LDSCRNXY  4,2
+                        jsl       TIMEPILOT_000A
+                        LDAPAL    COLOR_YELLOW
+                        sta       >printFontColor
+                        PRINTSZ   TEXT_LOADING,9,12            ; show the always on-screen labels
+                        rts
+
+;-----------------------------------------------------------------------------
 ; MARK: uiMain
 uiMain                  entry
 tIterations             equ       zTemp03
@@ -320,7 +336,7 @@ tIterations             equ       zTemp03
                         beq       umSkipShow                   ; if not 0 - show score
                         jsr       uiShowP1Score
 umSkipShow              stz       zSkyColor                    ; ui on black background
-                        LDBOX     PLAYFIELDW,5,9,1
+                        LDBOX     PLAYFIELDW,7,9,1             ; clear P1 score bits (post demo)
                         jsr       screenClearSection
                         stz       zDemoAttractMode             ; Reset demo mode
 umSkipDemoReset         jsr       uiShowCommonLabels           ; Konami, me etc
@@ -400,6 +416,8 @@ upLoop                  jsr       screenDelay
 ;-----------------------------------------------------------------------------
 ; MARK: uiShowCommonLabels
 uiShowCommonLabels      entry
+                        LDBOX     PLAYFIELDW,0,12,2            ; remove small TP logo
+                        jsr       screenClearSection
                         LDSCRNXY  4,2
                         jsl       TIMEPILOT_000A
                         LDAPAL    COLOR_WHITE
@@ -408,12 +426,15 @@ uiShowCommonLabels      entry
                         LDAPAL    COLOR_BLUE
                         sta       >printFontColor
                         PRINTSZ   TEXT_VERSION,5,22
+                        LDAPAL    COLOR_YELLOW
+                        sta       >printFontColor
+                        PRINTSZ   TEXT_STEFAN,6,23
                         LDAPAL    COLOR_RED
                         sta       >printFontColor
-                        PRINTSZ   TEXT_STEFAN,8,23
+                        PRINTSZ   TEXT_AND,21,23
                         LDAPAL    COLOR_ORANGE
                         sta       >printFontColor
-                        PRINTSZ   TEXT_ANTOINE,8,24
+                        PRINTSZ   TEXT_BRUTALDELUXE,4,24
                         rts
 
 ;-----------------------------------------------------------------------------
