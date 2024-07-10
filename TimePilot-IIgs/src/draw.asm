@@ -207,7 +207,7 @@ drawBomberPart          entry
                         lda     #^BOMBER_000A_DATA
                         sta     zSpriteDataBank
                         ldy     ptImageStartY
-                        lda     dt_mult_15,y
+                        lda     dt_mult_14,y
                         adc     ptImageStartX
                         sta     ptImageStartX
                         lda     activeFlags,x

@@ -4,7 +4,7 @@ These instructions are for playing the game, but mostly for converting the art a
 ## Controls  
 The game uses the keyboard or Joystick to control the player plane.  To use the Joystick, simply press `J` on the title screen.  If the J does not turn green (selected) then the game is not detecting the Joystick.  Controls on the Joystick (in game) are Up, Down, Left, Right and fire, while the second button is Pause.  In the UI, the fire button starts a 1 Player game, and the "Pause" button starts a 2 Player game.  
   
-The keyboard controls are (and these also work when playing with the Joystick) `1` - 1 Player, `2` - 2 Player, `ESC` - back up (and quit) and `P` - Pause.  The in-game keys are (and these *do not* work in joystick mode) `Option` to rotate left, `Open Apple` to rotate right, `Space` to fire (just hold, don't have to tap - I felt too sorry for the poor spacebar).  
+The keyboard controls are (and these also work when playing with the Joystick) `1` - 1 Player, `2` - 2 Player, `ESC` - back up (and quit) and `P` - Pause.  The in-game keys are (and these rotate keys *do not* work in joystick mode) `Option` to rotate left, `Open Apple` to rotate right, `Space` to fire (just hold, don't have to tap - I felt too sorry for the poor spacebar).  
   
 ## Getting started  
 The Apple IIgs version is written in 65816 assembly language, targeting the Orca/M assembler and the build process is done using `make`.  Several pieces of software were used to structure the build process, listed below.  Not all are free.  See below.  
@@ -20,7 +20,26 @@ test | use the emulator to run the game
 macros | use Orca/M's macgen to build the needed macro files
 indent | put all the source through cadius, sed and awk to format the source
 clean | clean up built versions of files
-zap | clean and remove intermediate and built files and folders
+zap | clean and remove intermediate and built files and folders  
+  
+### Note about png/tpsmall.png  
+Mr Sprite will, at the time of writing, generate code to draw tpsmall that is not correct.  Under "; Line 8" it at some point generates:  
+```
+    LDA    $CF,S
+    AND    #$F00F
+    ORA    #$0220
+    STA    $CF,S
+    SHORT  M
+```
+The manual fix I apply is to make the line `ORA    #$0220` read:  
+```
+    LDA    $CF,S
+    AND    #$F00F
+    ORA    #$0F20
+    STA    $CF,S
+    SHORT  M
+```
+Without this fix, a pixel is drawn in the play area on the left, that does not belong.  It is harmless, but not nice.  With the fix the pixel is drawn in the sky color so it doesn't show up.  
   
 ## Software I use and is needed to rebuild the code and art  
 Orca/M is an assembler that runs natively on the Apple IIgs.  It is not freeware but can be bought from [juiced.gs](https://juiced.gs/).  It is called the Opus ][ collection, in the store.  At the time of writing this is $25 for a download version.  
