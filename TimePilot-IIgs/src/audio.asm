@@ -83,7 +83,7 @@ audioLoadFILES          entry
                         lda         #pCOINDROP
                         ldy         #0
                         jsr         audioLoadFILE
-                        sta         sndPAGE+6                               ; 3
+                        sta         sndPAGE+6                                ; 3
                         sty         ptrCOINDROP
                         stx         ptrCOINDROP+2
 
@@ -488,7 +488,7 @@ ap_loop                 ora         #$a0
                         tya
                         ora         #$a1
                         sta         SOUNDADRL
-                        lda         #%00000110                               ; right loop (which is left)
+                        lda         #%00000110                               ; also left loop
                         bra         ap_done
 
 ap_normal               ora         #$a0
@@ -627,6 +627,7 @@ ps_patch                ldy         #$bdbd                                   ; a
                         longi       off
 
 audioINTERRUPT          entry
+
                         phb                                                  ; prepare the context
                         phd
 
@@ -702,7 +703,12 @@ si_theend               tya
 
 ;--- Set the sound address where to stream data
 
-si_continue             lda         dpSOUNDCTL
+si_continue             lda         dpSOUNDADRL
+                        sta         >saddrL
+                        lda         dpSOUNDADRH
+                        sta         >saddrH
+
+                        lda         dpSOUNDCTL
                         ora         #%01100000                               ; bit 6: access RAM, bit 5: enable auto increment
                         sta         dpSOUNDCTL
 
@@ -729,6 +735,11 @@ si_continue             lda         dpSOUNDCTL
 
                         phk
                         plb
+
+                        lda         >saddrL
+                        sta         dpSOUNDADRL
+                        lda         >saddrH
+                        sta         dpSOUNDADRH
 
 ;--- Start the sound
 
@@ -913,6 +924,9 @@ theMASKEDOSC            ds          2
 theA                    ds          2
 theX                    ds          2
 theY                    ds          2
+
+saddrL                  ds          2
+saddrH                  ds          2
 
 ptrSOUNDBANK            ds          4
 
