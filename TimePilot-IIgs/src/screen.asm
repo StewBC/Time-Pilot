@@ -423,7 +423,7 @@ siPalloop               lda     dt_color_palette,x
                         dex
                         dex
                         bpl     siPalloop                       ; copy till 0/1 was written
-                        lda     #2                              ; Make border dark blue
+                        lda     #COLOR_BLACK
                         sta     BORDER
                         rts
 
