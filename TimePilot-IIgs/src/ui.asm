@@ -94,7 +94,8 @@ ugoKeyLoop              jsr       screenDelay
                         jsr       inputReadJoystick
                         bit       #INPUT_FIRE
                         beq       ugoKeyLoop
-ugoHaveKey              sta       KBDSTRB                      ; clear key
+ugoHaveKey              entry
+                        sta       KBDSTRB                      ; clear key
                         lda       zPlayerScore                 ; get the users' score
                         ldx       #8                           ; compare it to the scores in the high-score table
 ugoChkLoop              cmp       highScore1,x
@@ -295,11 +296,55 @@ ugoShowInitials         ldx       tInsertRow                   ; based on insert
                         tay                                    ; into Y
                         lda       #^TEXT_INITIALS1             ; and the bank in A
                         jsl       printZString                 ; and print the initials in alternating red/white
+                        lda       cheatModeActive              ; don't save scores if cheat active
+                        beq       sf_save
+                        rts
+sf_save                 jsl       GSOS                         ; Save the high-scores
+                        dc        i2'$2002'
+                        dc        a4'proDESTROYHS'
+                        jsl       GSOS
+                        dc        i2'$2001'
+                        dc        a4'proCREATEHS'
+                        bcs       sf_err
+                        jsl       GSOS
+                        dc        i2'$2010'
+                        dc        a4'proOPENHS'
+                        bcs       sf_err
+                        lda       proOPENHS+2
+                        sta       proREADHS1+2
+                        sta       proREADHS2+2
+                        sta       proCLOSEHS+2
+                        jsl       GSOS
+                        dc        i2'$2013'
+                        dc        a4'proREADHS1'
+                        jsl       GSOS
+                        dc        i2'$2013'
+                        dc        a4'proREADHS2'
+sf_err                  jsl       GSOS
+                        dc        i2'$2014'
+                        dc        a4'proCLOSEHS'
                         rts
 
 ;-----------------------------------------------------------------------------
 ; MARK: uiInit
 uiInit                  entry
+                        jsl       GSOS                         ; Load high-scores
+                        dc        i2'$2010'
+                        dc        a4'proOPENHS'
+                        bcs       uiErr
+                        lda       proOPENHS+2                  ; get file ID
+                        sta       proREADHS1+2
+                        sta       proREADHS2+2
+                        sta       proCLOSEHS+2
+                        jsl       GSOS
+                        dc        i2'$2012'
+                        dc        a4'proREADHS1'
+                        jsl       GSOS
+                        dc        i2'$2012'
+                        dc        a4'proREADHS2'
+uiErr                   jsl       GSOS
+                        dc        i2'$2014'
+                        dc        a4'proCLOSEHS'
                         lda       #0
                         jsr       screenClear                  ; set entire screen area to 0 (overwrites palettes)
                         LDAPAL    COLOR_RED
@@ -311,16 +356,6 @@ uiInit                  entry
                         PRINTSZ   TEXT_HIGHSCORES1,33,4
                         PRINTSZ   TEXT_SCORE00,37,7            ; P1 00
                         jmp       uiShowP2Playing
-
-;-----------------------------------------------------------------------------
-; MARK: uiLoadScreen
-uiLoadScreen            entry
-                        LDSCRNXY  4,2
-                        jsl       TIMEPILOT_000A
-                        LDAPAL    COLOR_YELLOW
-                        sta       >printFontColor
-                        PRINTSZ   TEXT_LOADING,9,12            ; show the always on-screen labels
-                        rts
 
 ;-----------------------------------------------------------------------------
 ; MARK: uiMain
@@ -375,11 +410,18 @@ umChk1P                 bit       #INPUT_FIRE
                         lda       #0                           ; 1 player game
                         bra       umSetupPlay
 umChk2P                 bit       #INPUT_2P+INPUT_PAUSE
-                        beq       umChkScan
+;                       beq       umChkScan
+                        beq       umChkCheat
                         lda       #1                           ; 2 player game
 umSetupPlay             sta       zNumberOfPlayers             ; init for a game to start
                         sta       zNumberOfPlayersAlive
                         rts
+umChkCheat              bit       #INPUT_CHEAT
+                        beq       umChkScan
+                        lda       cheatModeActive
+                        eor       #1
+                        sta       cheatModeActive
+                        bra       umMkTitle
 umChkScan               bit       #INPUT_SCAN
                         beq       umChkKbd
                         lda       #AUDIO_COINDROP
@@ -397,7 +439,7 @@ umMkTitle               lda       #6                           ; reset time to d
                         bne       umSkipAttract                ; if scores, clear and flip
                         jmp       umSwitchStateLoop            ; title - so just redraw
 umWaitFrame             jsr       screenDelay
-                        bra       umHoldStateLoop
+                        brl       umHoldStateLoop
 
 ;-----------------------------------------------------------------------------
 ; MARK: uiPause
@@ -425,7 +467,7 @@ uiShowCommonLabels      entry
                         PRINTSZ   TEXT_KONAMI,8,19
                         LDAPAL    COLOR_BLUE
                         sta       >printFontColor
-                        PRINTSZ   TEXT_VERSION,5,22
+                        PRINTSZ   TEXT_VERSION,3,22
                         LDAPAL    COLOR_YELLOW
                         sta       >printFontColor
                         PRINTSZ   TEXT_STEFAN,6,23

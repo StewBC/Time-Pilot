@@ -281,6 +281,8 @@ inputReadUIKeyboard     entry
                         beq    irukScan
                         cmp    #'K'
                         beq    irukKeys
+                        cmp    #'C'
+                        beq    irukCheat
 irukButtons             lda    BUTN0                       ; read the rotate buttons
                         bpl    irukChkClock                ; If 16 bit positive then not pressed
                         lda    #INPUT_LEFT                 ; pressed so rotate left
@@ -303,6 +305,8 @@ irukPause               lda    #INPUT_PAUSE
 irukScan                lda    #INPUT_SCAN
                         rts
 irukKeys                lda    #INPUT_KEYBOARD
+                        rts
+irukCheat               lda    #INPUT_CHEAT
                         rts
 
 thisisaformattinglabel  anop

@@ -8,7 +8,6 @@
 
 ;-----------------------------------------------------------------------------
 ; Apple locations, soft-switches and constants
-RASTER_LINE               gequ  $E0C02E
 SCREEN_BASE               gequ  $012000
 SCANLINE_CONTROL_BYTE     gequ  $019D00
 PALETTE_BASE              gequ  $019E00
@@ -23,6 +22,8 @@ BUTN1                     gequ  $01C062              ; Switch input 1 / Closed-A
 BUTN2                     gequ  $01C063              ; Switch input 2 / Shift key
 PADDL0                    gequ  $01C064              ; Read to get POT msb
 PTRIG                     gequ  $01C070
+RASTER_LINE               gequ  $E0C02E
+GSOS                      gequ  $E100A8
 STATEREG                  gequ  $E1C068              ; State Reg - b7=ALTZP PAGE2 RAMRD RAMWRT RDROM LCBNK2 ROMBANK INTCXROM=b0
 
 ;-----------------------------------------------------------------------------
@@ -226,6 +227,7 @@ INPUT_QUIT                gequ  %0000000100000000
 INPUT_2P                  gequ  %0000001000000000
 INPUT_SCAN                gequ  %0000010000000000
 INPUT_KEYBOARD            gequ  %0000100000000000
+INPUT_CHEAT               gequ  %0001000000000000
 INPUT_MASK_MOVEMENT       gequ  %0000000000001111
 INPUT_MASK_ROTATE         gequ  %0000000000110000
 INPUT_REPEAT_RATE         gequ  UI_COLORCYCLE_TIMER

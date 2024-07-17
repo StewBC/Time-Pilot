@@ -406,11 +406,19 @@ iedone                  lda     STATEREG                        ; Direct Page an
 ; MARK: screenInit
 screenInit              entry
                         short   m
-                        lda     #$E1
-                        sta     SHR                             ; Graphics ON
                         lda     #0
                         sta     SHADOWR                         ; Shadowing ON
                         long    m
+                        lda     #0
+                        ldx     #SCREEN_BYTES-2
+siClr                   sta     SCREEN_BASE,x
+                        dex
+                        dex
+                        bpl     siClr
+                        lda     BORDER
+                        sta     originalBorder
+                        lda     #COLOR_BLACK
+                        sta     BORDER
                         lda     #0                              ; Clear B of accumulator
                         ldx     #$FE
 siClearSCB              sta     SCANLINE_CONTROL_BYTE,x         ; 19D00-19DFF set to 0
@@ -423,8 +431,6 @@ siPalloop               lda     dt_color_palette,x
                         dex
                         dex
                         bpl     siPalloop                       ; copy till 0/1 was written
-                        lda     #COLOR_BLACK
-                        sta     BORDER
                         rts
 
 ;-----------------------------------------------------------------------------

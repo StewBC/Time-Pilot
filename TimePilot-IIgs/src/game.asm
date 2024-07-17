@@ -158,29 +158,40 @@ gvisEnemyInit           sta      enemyID,X                                   ; e
 
 ;-----------------------------------------------------------------------------
 ; return with carry set when all players dead
+; IN: A contains zExitGameMask
 ; MARK: gameNextPlayer
 gameNextPlayer          entry
 tgnpGameOver            equ      zTemp11
                         stz      tgnpGameOver                                ; game over flag
+                        bit      #EXIT_USER_QUIT
+                        bne      gnpUserQuit
+                        lda      cheatModeActive
+                        bne      gnpAlive
                         dec      zPlayerLives                                ; player lost a life
-                        bpl      tgnpAlive                                   ; but not game over yet
-                        inc      tgnpGameOver                                ; all lives lost so game over
+                        bpl      gnpAlive                                    ; but not game over yet
                         jsr      uiGameOver
-tgnpAlive               lda      zNumberOfPlayersAlive
-                        beq      tgnpStillPlaying                            ; > 0 means 2 players
+gnpAlive                lda      zNumberOfPlayersAlive
+                        beq      gnpStillPlaying                             ; > 0 means 2 players
                         jsr      gameSavePlayer                              ; swap to other player
                         lda      #2
                         eor      zActivePlayer
                         sta      zActivePlayer
                         jsr      gameRestorePlayer
-tgnpStillPlaying        lda      tgnpGameOver
-                        beq      tgnpNotOver
+gnpStillPlaying         lda      tgnpGameOver
+                        beq      gnpNotOver
                         dec      zNumberOfPlayersAlive                       ; if game over, reduce players
-                        beq      tgnpNotOver                                 ; all players dead?
+                        beq      gnpNotOver                                  ; all players dead?
                         sec                                                  ; yes, return with carry set
                         rts
-tgnpNotOver             clc                                                  ; no, return with carry clear
+gnpNotOver              clc                                                  ; no, return with carry clear
                         rts
+gnpUserQuit             inc      tgnpGameOver
+                        lda      #-1
+                        sta      zPlayerLives                                ; All lives lost
+                        lda      cheatModeActive                             ; If chearing don't ask for score
+                        bne      gnpAlive
+                        jsr      ugoHaveKey                                  ; skip game-over - ask for score if on table
+                        bra      gnpAlive
 
 ;-----------------------------------------------------------------------------
 ; MARK: gamePostFrame
@@ -339,8 +350,10 @@ gscAddLife              sec
                         cld
                         lda      #$0500
                         sta      zPlayerNextExtraLife
+                        lda      cheatModeActive                             ; if cheating, add the life back
+                        bne      noAddLife
                         inc      zPlayerLives
-                        jmp      uiShowPlayerShips
+noAddLife               jmp      uiShowPlayerShips
 
 ;-----------------------------------------------------------------------------
 ; MARK: gameStageInit
@@ -627,32 +640,30 @@ gsRasterDone            sta      zScanLinePrev                               ; s
                         jsr      gamePostFrame                               ; run checks for end of frame
                         lda      zExitGameMask
                         bit      #EXIT_USER_QUIT
-                        bne      gsGameExit                                  ; use wants to quit
+                        bne      gsPostPlay                                  ; user does want to quit
                         lda      zPlayerExitTimer
-                        bpl      gsRasterLoop                                ; while > zPlayerExitTimer keep going
-; At this point the player is dead or has cleared the stage
-                        lda      zDemoAttractMode
-                        bne      gsGameExit                                  ; if demo-attract - exit now
-                        lda      #2                                          ; BOSS oscillator    ; Stop all looping audio
-                        jsr      audioStopOSCS
-                        lda      #AUDIO_ROCKET_FLY
-                        jsr      audioStopSource
-                        LDBOX    0,0,PLAYFIELDW,PLAYFIELDH
-                        jsr      screenClearSection                          ; clear playfield to sky color
-                        lda      zExitGameMask
-                        bit      #EXIT_STAGE_CLEAR
-                        bne      gsStageComplete                             ; end stage processing if stage clear
-gsNextPlayer            jsr      gameNextPlayer
-                        bcc      gsStageInit                                 ; restart the stage
-gsGameExit              short    m
+                        bpl      gsRasterLoop                                ; this life or stage not done yet
+gsPostPlay              short    m                                           ; at this point the stage is clear or the player is dead
                         jsr      audioStopALLOSCS
                         long     m
-                        LDAPAL   COLOR_BLACK
+                        LDBOX    0,0,PLAYFIELDW,PLAYFIELDH
+                        jsr      screenClearSection                          ; clear playfield to sky color
+                        lda      zDemoAttractMode
+                        bne      gsGameExit                                  ; if demo-attract - exit now
+                        lda      zExitGameMask
+;                        bit      #EXIT_USER_QUIT
+;                        bne      gsNextPlayer                                ; user wants to quit
+                        bit      #EXIT_STAGE_CLEAR                           ; was AND # with above in
+                        bne      gsStageComplete                             ; The player cleared the stage
+gsNextPlayer            jsr      gameNextPlayer                              ; player dead - next player/life
+                        bcc      gsStageInit
+gsGameExit              LDAPAL   COLOR_BLACK
                         sta      zSkyColor
                         LDBOX    PLAYFIELDW,12,12,9                          ; erase Stage & Ships
                         jsr      screenClearSection
                         jmp      screenWipe
-gsStageComplete         bit      #EXIT_PLAYER_DIED
+gsStageComplete         lda      zExitGameMask
+                        bit      #EXIT_PLAYER_DIED
                         bne      gsSkipTimeWarp
                         jsr      screenTimeWarp
 gsSkipTimeWarp          inc      zActiveStage
@@ -662,8 +673,6 @@ gsSkipTimeWarp          inc      zActiveStage
                         bcc      gsStageEnd
                         stz      zActiveStage                                ; TIME_PERIOD0_1910
 gsStageEnd              lda      zExitGameMask
-                        bit      #EXIT_USER_QUIT
-                        bne      gsGameExit
                         bit      #EXIT_PLAYER_DIED
                         bne      gsNextPlayer                                ; if player died - swap
                         jmp      gsStageInit

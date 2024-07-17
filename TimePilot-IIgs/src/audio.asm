@@ -15,7 +15,6 @@ AUDIO                   START
 ; SOFTSWITCHES
 ;-----------------------------------
 
-GSOS                    equ         $E100A8
 SOUNDCTL                equ         $01c03c
 SOUNDDATA               equ         $01c03d
 SOUNDADRL               equ         $01c03e
@@ -128,6 +127,8 @@ audioLoadFILES          entry
 ;-----------------------------------
 
 audioLoadBOSS           entry
+                        php
+                        sei
 
 ; --- Find the sound for the BOSS
 
@@ -138,8 +139,6 @@ audioLoadBOSS           entry
 
 ;--- And move the sound into DOCRAM
 
-lb_1                    php
-                        sei
                         short       m
 
                         lda         IRQ_VOLUME
@@ -148,7 +147,7 @@ lb_1                    php
 
                         lda         SOUNDADRL                                ; Save the old pointer
                         sta         dpPREVADRL
-                        sta         SOUNDADRH
+                        lda         SOUNDADRH
                         sta         dpPREVADRH
 
                         lda         #$00                                     ; DOCRAM address $3000
@@ -877,10 +876,10 @@ snd2OSC                 dc          i1'18'                                   ; A
 ; FREQUENCY CONTROL LOW AND HIGH
 
 oscFREQL                dc          h'D6D6D6D6D6D6D6D6D6D6D6D6D6D6D6D6'
-                        dc          h'D6D6D6D6D6D6D6D6D6D6D6D6D6D60000'
+                        dc          h'D6D6ACACACACACACACACACACACAC0000'
 
 oscFREQH                dc          h'00000000000000000000000000000000'
-                        dc          h'00000000000000000000000000000000'
+                        dc          h'00000101010101010101010101010000'
 
 ; VOLUME
 

@@ -16,6 +16,7 @@ VARIABLES               DATA
 stackAddress            ds    2
 
 ; High-score tracking and display
+highScoreTableStart     entry
 highScoresDisplay       dc    h'5806'
 highScore1              dc    h'5806'
 highScore2              dc    h'8000'
@@ -69,6 +70,10 @@ gpVarsEnd               entry
 
 ; Demo record only
 demoRecordMode          ds    2
+
+; Non zero-page variables
+originalBorder          ds    2
+cheatModeActive         ds    2
 
 thisisaformattinglabel  anop
                         END

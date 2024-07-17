@@ -463,7 +463,7 @@ aefMaybeSpawnNext       and    #ENEMY_SPAWN_TIMER/2
                         rts
 aefSpawnNext            jmp    aiSpawnWave                  ; spawn and finish
 aefNoWaveYet            and    #ENEMY_SPAWN_TIMER
-                        ora    zPlayerExitTimer
+                        ora    zPlayerExitTimer             ; make sure player is not dead
                         beq    aefSpawnOrRecall
                         rts
 aefSpawnOrRecall        lda    zAiSpawnTimer

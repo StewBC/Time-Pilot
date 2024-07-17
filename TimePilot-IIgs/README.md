@@ -41,6 +41,12 @@ The manual fix I apply is to make the line `ORA    #$0220` read:
 ```
 Without this fix, a pixel is drawn in the play area on the left, that does not belong.  It is harmless, but not nice.  With the fix the pixel is drawn in the sky color so it doesn't show up.  
   
+## Note about history/ReadMeFirst  
+I found the easiest way to edit this document is in a IIgs Emulator.  Save it, and re-export it back from the emulator to the native filesystem making sure to grab the resource fork as well.  
+  
+## Note about TimePilot.icon  
+The AUX of the executable (which must be named TIME.PILOT) must be DB03 or the icon will not show up.  
+  
 ## Software I use and is needed to rebuild the code and art  
 Orca/M is an assembler that runs natively on the Apple IIgs.  It is not freeware but can be bought from [juiced.gs](https://juiced.gs/).  It is called the Opus ][ collection, in the store.  At the time of writing this is $25 for a download version.  
   
@@ -223,6 +229,8 @@ I have to give special thanks to a few people.
 **Andy McFadden** - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  
 **Jeremy Rand** - Made BuGS which made me want to make an arcade game for the IIgs.  
 **Mike Westerfield** - Created Orca/M which is a very sophisticated assembler that has been a joy to use.  
+**Brian A. Troha** - Provided the splash screen graphic.  
+**Emmanuel Marty et al.** - LZSA2 used in the loader - https://github.com/emmanuel-marty/lzsa.git  
   
 Thank you all - you have made my life better! :)  
   

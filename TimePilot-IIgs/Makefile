@@ -3,7 +3,8 @@
 # To generate macros for all the src/*.asm files, use make macros
 
 # Settings
-PROGRAM := TIME.PILOT
+PROGRAM := GAME
+LOADER := TIME.PILOT
 TARGETOBJDIR := obj
 LINKER_SCRIPT := link.scp
 LINKER_OPTIONS := +L # +L to see the segment sizes
@@ -14,7 +15,8 @@ HARDWAREDIR := IIgs
 TEMPLATE_DISK := appleIIgs/gsos-template.2mg
 TEMPLATE_FLOPPY := appleIIgs/800K-template.po
 DISK := timepilot.2mg
-FLOPPY := timepilot.po
+FLOPPY1 := timepilot1.po
+FLOPPY2 := timepilot2.po
 VOLUME := TIMEPILOT
 CADIUS := cadius.exe
 MAME_ADDRESS := 0x91716 # For MAME debugging - address where code is loaded - need to run and then calculate
@@ -51,6 +53,7 @@ SOURCES := $(filter-out $(SRCDIR)/main.asm,$(SOURCES))
 SOURCES := $(SRCDIR)/main.asm $(SOURCES)
 OBJECTS += $(subst .asm,.ROOT,$(subst $(SRCDIR),$(TARGETOBJDIR),$(SOURCES))) 
 LINK_OBJS := $(subst .ROOT,,$(OBJECTS))
+LINK_OBJS :=  $(filter-out $(TARGETOBJDIR)/loader,$(LINK_OBJS))
 define LINK_OBJS_NAMES
 	$(LINK_OBJS)
 endef
@@ -58,7 +61,7 @@ export LINK_OBJS_NAMES
 
 # TODO Pick an Emulator / Debugger
 # Crossrunner highly suggested as it has full source debug
-EMULATOR := CROSSRUNNER			# MAME, GSPORT, GSPLUS, KEGS & defaults to CROSSRUNNER
+EMULATOR := KEGS			# MAME, GSPORT, GSPLUS, KEGS & defaults to CROSSRUNNER
 EMUCMP = $(strip $(EMULATOR))
 ifeq ($(EMUCMP),MAME)
 	mkfile_path := $(shell $(PWD))
@@ -78,15 +81,16 @@ else ifeq ($(EMUCMP),KEGS)
 	EMU := kegswin.exe
 else
 	EMUDIR := C:/Program Files/Crossrunner
+# Switch $(PROGRAM) and debug.map to $(LOADER) and loader.map when debugging the loader 
 	EMU := Crossrunner.exe $(PROGRAM) -CompatibilityLayer -Speed=Fast -Map debug.map -source $(subst src,$(LISTINGDIR),$(SOURCES))
 endif
 
 vpath %.asm $(SRCDIR)
 
-.PHONY: all art hardware test macros indent clean zap
+.PHONY: all loader art hardware test macros indent clean zap
 
 # all does not build dsk and test (nor macros or indent). Manual make macros is required for a normal make to work.
-all:	$(PROGRAM)
+all:	$(PROGRAM) $(LOADER)
 
 $(TARGETOBJDIR) $(LISTINGDIR):
 	$(call MKDIR,$@)
@@ -98,6 +102,15 @@ ifeq ($(EMUCMP),CROSSRUNNER)
 else
 	iix assemble $< keep=$(subst /,:,$(basename $@))
 endif
+
+$(LOADER): loader.asm | $(TARGETOBJDIR) $(LISTINGDIR)
+	-$(call RMFILES,$(LOADER))
+ifeq ($(EMUCMP),CROSSRUNNER)
+	iix assemble +L +S $< keep=$(TARGETOBJDIR)/$(LOADER) > $(LISTINGDIR)$(subst src,,$<)
+else
+	iix assemble $< keep=$(TARGETOBJDIR)/$(LOADER)
+endif
+	iix link +S obj/loader keep=$(LOADER) > laoder.map
 
 $(PROGRAM): $(OBJECTS) Makefile
 	-$(call RMFILES,$(PROGRAM))
@@ -126,14 +139,22 @@ hardware:
 dsk: all 
 	-$(call RMFILES,$(DISK))
 	$(call CP,$(TEMPLATE_DISK) $(DISK))
+	$(CADIUS) ADDFILE $(DISK) /$(VOLUME) ./$(LOADER)
 	$(CADIUS) ADDFILE $(DISK) /$(VOLUME) ./$(PROGRAM)
+	$(CADIUS) ADDFILE $(DISK) /$(VOLUME) ./history/ReadMeFirst
+	$(CADIUS) ADDFOLDER $(DISK) /$(VOLUME)/Icons ./Icons
 	$(CADIUS) ADDFOLDER $(DISK) /$(VOLUME)/snd ./snd
 
 floppy: all 
-	-$(call RMFILES,$(FLOPPY))
-	$(call CP,$(TEMPLATE_FLOPPY) $(FLOPPY))
-	$(CADIUS) ADDFILE $(FLOPPY) /$(VOLUME) ./$(PROGRAM)
-	$(CADIUS) ADDFOLDER $(FLOPPY) /$(VOLUME)/snd ./snd
+	-$(call RMFILES,$(FLOPPY1))
+	-$(call RMFILES,$(FLOPPY2))
+	$(call CP,$(TEMPLATE_FLOPPY) $(FLOPPY1))
+	$(call CP,$(TEMPLATE_FLOPPY) $(FLOPPY2))
+	$(CADIUS) ADDFILE $(FLOPPY1) /$(VOLUME) ./$(LOADER)
+	$(CADIUS) ADDFILE $(FLOPPY1) /$(VOLUME) ./$(PROGRAM)
+	$(CADIUS) ADDFILE $(FLOPPY1) /$(VOLUME) ./history/ReadMeFirst
+	$(CADIUS) ADDFOLDER $(FLOPPY1) /$(VOLUME)/Icons ./Icons
+	$(CADIUS) ADDFOLDER $(FLOPPY2) /$(VOLUME)/snd ./snd
 
 test: dsk
 ifeq ($(EMUCMP),MAME)
@@ -162,8 +183,10 @@ clean:
 	-$(call RMFILES,$(GIFDIR)/*.*)
 	-$(call RMFILESR,$(HARDWAREDIR))
 	-$(call RMFILES,$(PROGRAM))
+	-$(call RMFILES,$(LOADER))
 	-$(call RMFILES,$(DISK))
-	-$(call RMFILES,$(FLOPPY))
+	-$(call RMFILES,$(FLOPPY1))
+	-$(call RMFILES,$(FLOPPY2))
 	-$(call RMFILES,$(LINKER_SCRIPT))
 	-$(call RMFILES,*.map)
 

@@ -7,7 +7,9 @@ src/**/*.mac
 !src/macros/*.mac
 config.kegs
 config.txt
-debug.map
+*.map
 TIME.PILOT
+GAME
 timepilot.2mg
-timepilot.po
+timepilot*.po
+highscore*

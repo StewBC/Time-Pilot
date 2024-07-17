@@ -16,12 +16,13 @@ MAIN                    START
 
 ;-----------------------------------------------------------------------------
 main                    phb
+                        lda          #$E1
+                        sta          SHR                            ; Graphics ON
                         jsr          mainInit
                         bcs          mfail
+                        jsr          audioInit
                         jsr          screenInit
                         jsr          uiInit
-                        jsr          uiLoadScreen
-                        jsr          audioInit
 
 mLoop                   anop
                         jsr          uiMain
@@ -32,6 +33,8 @@ mLoop                   anop
 mShutdown               short        m                              ; Shut Down
                         lda          #$41
                         sta          SHR                            ; Graphics OFF
+                        lda          originalBorder
+                        sta          BORDER
                         long         m
 
 mfail                   ~MMShutDown  zMemID
@@ -108,6 +111,7 @@ miGotbank1              short        m
                         long         m
 
                         stz          zInputUsingJoystick            ; One-time global zVars init
+                        stz          cheatModeActive
                         lda          #DEMO_ATTRACT_LENGTH
                         sta          zDemoAttractLength
                         lda          #-1

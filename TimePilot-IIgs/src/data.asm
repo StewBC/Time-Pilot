@@ -2108,6 +2108,47 @@ dt_ui_initials_y        dc     i2'(8*160+10)*8'
                         dc     i2'(16*160+10)*8'
 
 ;-----------------------------------------------------------------------------
+; MARK: highscoreData
+proCREATEHS             entry
+                        dc     i2'7'
+                        dc     a4'pHIGHSCORE2'
+                        dc     i2'$00C3'
+                        dc     i2'$005D'
+                        dc     i4'$00008023'
+                        ds     2
+                        ds     4
+                        ds     4
+
+proDESTROYHS            entry
+                        dc     i2'1'
+                        dc     a4'pHIGHSCORE2'
+
+proOPENHS               entry
+                        dc     i2'2'
+                        ds     2
+                        dc     a4'pHIGHSCORE2'
+
+proREADHS1              entry
+                        dc     i2'4'
+                        ds     2
+                        dc     a4'TEXT_HIGH_AV'
+                        dc     i4'67'
+                        ds     4
+
+proREADHS2              entry
+                        dc     i2'4'
+                        ds     2
+                        dc     a4'highScoreTableStart'
+                        dc     i4'12'
+                        ds     4
+
+proCLOSEHS              entry
+                        dc     i2'1'
+                        ds     2
+
+pHIGHSCORE2             dc     i2'11',c'1/highscore'
+
+;-----------------------------------------------------------------------------
 ; MARK: replayData
                         aif    &R_RECORD>0,.gsiRecordFile
                         ago    .gsiSkipRecordFile
