@@ -111,7 +111,7 @@ miGotbank1              short        m
                         long         m
 
                         stz          zInputUsingJoystick            ; One-time global zVars init
-                        stz          cheatModeActive
+                        stz          zCheatActive
                         lda          #DEMO_ATTRACT_LENGTH
                         sta          zDemoAttractLength
                         lda          #-1

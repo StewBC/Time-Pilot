@@ -69,8 +69,9 @@ png/text-2001-red.png             TXT2001R:TEXT::::1
 png/text-ad.png                   TXTAD:TEXT::::1
 png/text-ad-blue.png              TXTADB:TEXT::::1
 png/text-ad-red.png               TXTADR:TEXT::::1
-png/text-pause.png                TXTPAUSE:TEXT::::1
+png/text-cheat.png                TXTCHEAT:TEXT::::1
 png/text-gameover.png             TXTGAMEOVER:TEXT::::1
+png/text-pause.png                TXTPAUSE:TEXT::::1
 png/text-player.png               TXTPLAYER:TEXT::::1
 png/text-ready.png                TXTREADY:TEXT::::1
 png/text-stage.png                TXTSTAGE:TEXT::::1

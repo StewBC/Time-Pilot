@@ -3389,9 +3389,9 @@ TXTADR_000A             ENTRY
                         RTL
 
 ;-----------------------------------
-; MARK: TXTPAUSE_000A
-TXTPAUSE_000A           ENTRY
-                        CLC                             ; 40x8, 398 bytes, 642 cycles
+; MARK: TXTCHEAT_000A
+TXTCHEAT_000A           ENTRY
+                        CLC                             ; 32x8, 356 bytes, 563 cycles
                         SEI                             ; Disable Interrupts
                         PHD                             ; Backup Direct Page
                         TSC                             ; Backup Stack
@@ -3401,168 +3401,154 @@ TXTPAUSE_000A           ENTRY
                         STA    $E1C068
                         TYA                             ; Y = Sprite Target Screen Address (upper left corner)
                         TCS                             ; New Stack address
-                        LDX    #$2222                   ; Pattern #1 : 9
+                        LDX    #$2222                   ; Pattern #1 : 4
 ;--
-                        TXA                             ; Line 0
-                        STA    $00,S
-                        STA    $10,S
-                        LDA    $05,S
-                        AND    #$0F00
-                        ORA    #$2022
-                        STA    $05,S
-                        LDA    $0A,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $0A,S
-                        LDA    $0C,S
+                        TSC                             ; Line 1
+                        ADC    #$00A0
+                        TCS
+                        TXA
+                        STA    $07,S
+                        STA    $0D,S
+                        LDA    $01,S
                         AND    #$00F0
                         ORA    #$2202
-                        STA    $0C,S
-                        LDA    $12,S
-                        AND    #$0F00
-                        ORA    #$2022
-                        STA    $12,S
-                        LDA    $A2,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $A2,S
-                        LDA    $A4,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $A4,S
+                        STA    $01,S
+                        LDA    $0B,S
+                        AND    #$F00F
+                        ORA    #$0220
+                        STA    $0B,S
+                        LDA    $A3,S
+                        AND    #$0F0F
+                        ORA    #$2020
+                        STA    $A3,S
+                        LDA    $A6,S
+                        AND    #$0F0F
+                        ORA    #$2020
+                        STA    $A6,S
                         LDA    $AA,S
-                        AND    #$0FF0
-                        ORA    #$2002
+                        AND    #$0F0F
+                        ORA    #$2020
                         STA    $AA,S
                         SHORT  M
                         LDA    #$22
-                        STA    $02,S
-                        STA    $08,S
-                        STA    $A0,S
-                        STA    $A6,S
-                        STA    $A8,S
-                        STA    $AC,S
-                        STA    $AE,S
-                        STA    $B0,S
-                        LDA    $0E,S
+                        STA    $0A,S
+                        LDA    $04,S
                         AND    #$0F
                         ORA    #$20
-                        STA    $0E,S
-                        LONG   M
-                        TSC                             ; Line 2
-                        ADC    #$0140
-                        TCS
-                        TXA
-                        STA    $AD,S
-                        STA    $B0,S
-                        LDA    $02,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $02,S
-                        LDA    $06,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $06,S
-                        LDA    $0A,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $0A,S
-                        LDA    $A2,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $A2,S
-                        LDA    $A6,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $A6,S
-                        LDA    $AA,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $AA,S
-                        SHORT  M
-                        LDA    #$22
-                        STA    $00,S
                         STA    $04,S
-                        STA    $08,S
-                        STA    $0C,S
-                        STA    $10,S
-                        STA    $A0,S
-                        STA    $A4,S
-                        STA    $A8,S
-                        STA    $B2,S
-                        LDA    $AC,S
+                        LDA    $06,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $06,S
+                        LDA    $A1,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $A1,S
+                        LDA    $AD,S
                         AND    #$F0
                         ORA    #$02
-                        STA    $AC,S
+                        STA    $AD,S
                         LONG   M
-                        TSC                             ; Line 4
+                        TSC                             ; Line 3
                         ADC    #$0140
                         TCS
                         TXA
-                        STA    $00,S
-                        STA    $05,S
-                        LDA    $07,S
+                        STA    $A4,S
+                        STA    $AA,S
+                        LDA    $06,S
+                        AND    #$0F0F
+                        ORA    #$2020
+                        STA    $06,S
+                        LDA    $A6,S
                         AND    #$000F
                         ORA    #$2220
-                        STA    $07,S
-                        LDA    $0A,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $0A,S
-                        LDA    $0E,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $0E,S
-                        LDA    $A6,S
-                        AND    #$0FF0
-                        ORA    #$2002
                         STA    $A6,S
-                        LDA    $AA,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $AA,S
-                        LDA    $AE,S
-                        AND    #$0FF0
-                        ORA    #$2002
-                        STA    $AE,S
-                        SHORT  M
-                        LDA    #$22
-                        STA    $02,S
-                        STA    $04,S
-                        STA    $10,S
-                        STA    $A0,S
-                        STA    $A4,S
+                        LDA    $A8,S
+                        AND    #$F00F
+                        ORA    #$0220
                         STA    $A8,S
-                        STA    $AC,S
-                        STA    $B0,S
+                        SHORT  M
+                        LDA    $01,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $01,S
+                        LDA    $04,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $04,S
+                        LDA    $09,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $09,S
+                        LDA    $0B,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $0B,S
+                        LDA    $0D,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $0D,S
+                        LDA    $A1,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $A1,S
+                        LDA    $AD,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $AD,S
                         LONG   M
-                        TSC                             ; Line 6
+                        TSC                             ; Line 5
                         ADC    #$0140
                         TCS
-                        TXA
-                        STA    $09,S
-                        STA    $0D,S
-                        STA    $10,S
+                        LDA    $03,S
+                        AND    #$0F0F
+                        ORA    #$2020
+                        STA    $03,S
                         LDA    $06,S
-                        AND    #$0FF0
-                        ORA    #$2002
+                        AND    #$0F0F
+                        ORA    #$2020
                         STA    $06,S
-                        LDA    $12,S
-                        AND    #$0F00
-                        ORA    #$2022
-                        STA    $12,S
+                        LDA    $A1,S
+                        AND    #$00F0
+                        ORA    #$2202
+                        STA    $A1,S
+                        LDA    $A6,S
+                        AND    #$000F
+                        ORA    #$2220
+                        STA    $A6,S
+                        LDA    $A8,S
+                        AND    #$F000
+                        ORA    #$0222
+                        STA    $A8,S
                         SHORT  M
-                        LDA    #$22
-                        STA    $00,S
-                        STA    $04,S
-                        LDA    $08,S
+                        LDA    $01,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $01,S
+                        LDA    $09,S
                         AND    #$F0
                         ORA    #$02
-                        STA    $08,S
-                        LDA    $0C,S
+                        STA    $09,S
+                        LDA    $0B,S
                         AND    #$F0
                         ORA    #$02
-                        STA    $0C,S
+                        STA    $0B,S
+                        LDA    $0D,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $0D,S
+                        LDA    $A4,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $A4,S
+                        LDA    $AB,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $AB,S
+                        LDA    $AD,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $AD,S
                         LONG   M
 ;--
                         LDA    $E1C068                  ; Direct Page and Stack in Bank 00/
@@ -3856,6 +3842,192 @@ TXTGAMEOVER_000A        ENTRY
                         AND    #$F0
                         ORA    #$02
                         STA    $19,S
+                        LONG   M
+;--
+                        LDA    $E1C068                  ; Direct Page and Stack in Bank 00/
+                        AND    #$FFCF
+                        STA    $E1C068
+                        LDA    >STACKADDRESS            ; Restore Stack
+                        TCS
+                        PLD                             ; Restore Direct Page
+                        CLI                             ; Enable Interrupts
+                        RTL
+
+;-----------------------------------
+; MARK: TXTPAUSE_000A
+TXTPAUSE_000A           ENTRY
+                        CLC                             ; 40x8, 398 bytes, 642 cycles
+                        SEI                             ; Disable Interrupts
+                        PHD                             ; Backup Direct Page
+                        TSC                             ; Backup Stack
+                        STA    >STACKADDRESS
+                        LDA    $E1C068                  ; Direct Page and Stack in Bank 01/
+                        ORA    #$0030
+                        STA    $E1C068
+                        TYA                             ; Y = Sprite Target Screen Address (upper left corner)
+                        TCS                             ; New Stack address
+                        LDX    #$2222                   ; Pattern #1 : 9
+;--
+                        TXA                             ; Line 0
+                        STA    $00,S
+                        STA    $10,S
+                        LDA    $05,S
+                        AND    #$0F00
+                        ORA    #$2022
+                        STA    $05,S
+                        LDA    $0A,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $0A,S
+                        LDA    $0C,S
+                        AND    #$00F0
+                        ORA    #$2202
+                        STA    $0C,S
+                        LDA    $12,S
+                        AND    #$0F00
+                        ORA    #$2022
+                        STA    $12,S
+                        LDA    $A2,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $A2,S
+                        LDA    $A4,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $A4,S
+                        LDA    $AA,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $AA,S
+                        SHORT  M
+                        LDA    #$22
+                        STA    $02,S
+                        STA    $08,S
+                        STA    $A0,S
+                        STA    $A6,S
+                        STA    $A8,S
+                        STA    $AC,S
+                        STA    $AE,S
+                        STA    $B0,S
+                        LDA    $0E,S
+                        AND    #$0F
+                        ORA    #$20
+                        STA    $0E,S
+                        LONG   M
+                        TSC                             ; Line 2
+                        ADC    #$0140
+                        TCS
+                        TXA
+                        STA    $AD,S
+                        STA    $B0,S
+                        LDA    $02,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $02,S
+                        LDA    $06,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $06,S
+                        LDA    $0A,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $0A,S
+                        LDA    $A2,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $A2,S
+                        LDA    $A6,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $A6,S
+                        LDA    $AA,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $AA,S
+                        SHORT  M
+                        LDA    #$22
+                        STA    $00,S
+                        STA    $04,S
+                        STA    $08,S
+                        STA    $0C,S
+                        STA    $10,S
+                        STA    $A0,S
+                        STA    $A4,S
+                        STA    $A8,S
+                        STA    $B2,S
+                        LDA    $AC,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $AC,S
+                        LONG   M
+                        TSC                             ; Line 4
+                        ADC    #$0140
+                        TCS
+                        TXA
+                        STA    $00,S
+                        STA    $05,S
+                        LDA    $07,S
+                        AND    #$000F
+                        ORA    #$2220
+                        STA    $07,S
+                        LDA    $0A,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $0A,S
+                        LDA    $0E,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $0E,S
+                        LDA    $A6,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $A6,S
+                        LDA    $AA,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $AA,S
+                        LDA    $AE,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $AE,S
+                        SHORT  M
+                        LDA    #$22
+                        STA    $02,S
+                        STA    $04,S
+                        STA    $10,S
+                        STA    $A0,S
+                        STA    $A4,S
+                        STA    $A8,S
+                        STA    $AC,S
+                        STA    $B0,S
+                        LONG   M
+                        TSC                             ; Line 6
+                        ADC    #$0140
+                        TCS
+                        TXA
+                        STA    $09,S
+                        STA    $0D,S
+                        STA    $10,S
+                        LDA    $06,S
+                        AND    #$0FF0
+                        ORA    #$2002
+                        STA    $06,S
+                        LDA    $12,S
+                        AND    #$0F00
+                        ORA    #$2022
+                        STA    $12,S
+                        SHORT  M
+                        LDA    #$22
+                        STA    $00,S
+                        STA    $04,S
+                        LDA    $08,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $08,S
+                        LDA    $0C,S
+                        AND    #$F0
+                        ORA    #$02
+                        STA    $0C,S
                         LONG   M
 ;--
                         LDA    $E1C068                  ; Direct Page and Stack in Bank 00/

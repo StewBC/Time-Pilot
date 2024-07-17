@@ -67,6 +67,8 @@ gameAddScoreInternal    entry
                         adc      zPlayerScore                                ; add
                         cld                                                  ; BCD off
                         sta      zPlayerScore
+                        ldy      zCheatActive
+                        bne      gasiExtra
                         cmp      highScoresDisplay
                         bcc      gasiExtra                                   ; still not highscore
                         sta      highScoresDisplay                           ; update highscore
@@ -165,7 +167,7 @@ tgnpGameOver            equ      zTemp11
                         stz      tgnpGameOver                                ; game over flag
                         bit      #EXIT_USER_QUIT
                         bne      gnpUserQuit
-                        lda      cheatModeActive
+                        lda      zCheatActive
                         bne      gnpAlive
                         dec      zPlayerLives                                ; player lost a life
                         bpl      gnpAlive                                    ; but not game over yet
@@ -188,7 +190,7 @@ gnpNotOver              clc                                                  ; n
 gnpUserQuit             inc      tgnpGameOver
                         lda      #-1
                         sta      zPlayerLives                                ; All lives lost
-                        lda      cheatModeActive                             ; If chearing don't ask for score
+                        lda      zCheatActive                                ; If chearing don't ask for score
                         bne      gnpAlive
                         jsr      ugoHaveKey                                  ; skip game-over - ask for score if on table
                         bra      gnpAlive
@@ -350,7 +352,7 @@ gscAddLife              sec
                         cld
                         lda      #$0500
                         sta      zPlayerNextExtraLife
-                        lda      cheatModeActive                             ; if cheating, add the life back
+                        lda      zCheatActive                                ; if cheating, add the life back
                         bne      noAddLife
                         inc      zPlayerLives
 noAddLife               jmp      uiShowPlayerShips
@@ -651,8 +653,6 @@ gsPostPlay              short    m                                           ; a
                         lda      zDemoAttractMode
                         bne      gsGameExit                                  ; if demo-attract - exit now
                         lda      zExitGameMask
-;                        bit      #EXIT_USER_QUIT
-;                        bne      gsNextPlayer                                ; user wants to quit
                         bit      #EXIT_STAGE_CLEAR                           ; was AND # with above in
                         bne      gsStageComplete                             ; The player cleared the stage
 gsNextPlayer            jsr      gameNextPlayer                              ; player dead - next player/life

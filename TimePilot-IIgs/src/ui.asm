@@ -296,7 +296,7 @@ ugoShowInitials         ldx       tInsertRow                   ; based on insert
                         tay                                    ; into Y
                         lda       #^TEXT_INITIALS1             ; and the bank in A
                         jsl       printZString                 ; and print the initials in alternating red/white
-                        lda       cheatModeActive              ; don't save scores if cheat active
+                        lda       zCheatActive                 ; don't save scores if cheat active
                         beq       sf_save
                         rts
 sf_save                 jsl       GSOS                         ; Save the high-scores
@@ -410,7 +410,6 @@ umChk1P                 bit       #INPUT_FIRE
                         lda       #0                           ; 1 player game
                         bra       umSetupPlay
 umChk2P                 bit       #INPUT_2P+INPUT_PAUSE
-;                       beq       umChkScan
                         beq       umChkCheat
                         lda       #1                           ; 2 player game
 umSetupPlay             sta       zNumberOfPlayers             ; init for a game to start
@@ -418,9 +417,17 @@ umSetupPlay             sta       zNumberOfPlayers             ; init for a game
                         rts
 umChkCheat              bit       #INPUT_CHEAT
                         beq       umChkScan
-                        lda       cheatModeActive
+                        lda       #AUDIO_COINDROP
+                        jsr       audioPlaySource
+                        lda       zCheatActive
                         eor       #1
-                        sta       cheatModeActive
+                        sta       zCheatActive
+                        bne       umkShowCheat
+                        LDBOX     36,21,4,1                    ; remove the word CHEAT
+                        jsr       screenClearSection
+                        bra       umMkTitle
+umkShowCheat            LDSCRNXY  36,21
+                        jsl       TXTCHEAT_000A                ; show the word CHEAT
                         bra       umMkTitle
 umChkScan               bit       #INPUT_SCAN
                         beq       umChkKbd
@@ -436,8 +443,9 @@ umChkKbd                bit       #INPUT_KEYBOARD
 umMkTitle               lda       #6                           ; reset time to demo mode
                         sta       tIterations
                         lda       ptState                      ; which screen is in front
-                        bne       umSkipAttract                ; if scores, clear and flip
+                        bne       umBranchFar
                         jmp       umSwitchStateLoop            ; title - so just redraw
+umBranchFar             jmp       umSkipAttract                ; if scores, clear and flip
 umWaitFrame             jsr       screenDelay
                         brl       umHoldStateLoop
 

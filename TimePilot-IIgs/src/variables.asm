@@ -73,7 +73,6 @@ demoRecordMode          ds    2
 
 ; Non zero-page variables
 originalBorder          ds    2
-cheatModeActive         ds    2
 
 thisisaformattinglabel  anop
                         END
