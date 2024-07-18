@@ -70,7 +70,7 @@ scsLoop                 sta     SCREEN_BASE,x
 ;-----------------------------------------------------------------------------
 ; MARK: screenClips
 screenClips             entry
-tscClipMask             equ     zTemp01                         ; Matches ptScreenClips in draw
+tscClipMask             equ     zTemp01                         ; matches ptScreenClips in draw
                         stz     tscClipMask                     ; start with no clipping
                         lda     activeMinY,x
                         bpl     scCheckBotY                     ; if minY > 0 then not clipping top
@@ -197,7 +197,7 @@ sdlStepY                clc
 ; MARK: screenDrawPartial
 screenDrawPartial       entry
                         clc
-                        sei                                     ; Disable Interrupts
+                        sei                                     ; disable Interrupts
                         phb                                     ; save the data bank
                         phd                                     ; save the DP address
                         lda     zSpriteDataBank
@@ -209,13 +209,13 @@ screenDrawPartial       entry
                         lda     zImageAddressPdpB1
                         pha
                         pld
-                        tsc                                     ; Backup Stack
+                        tsc                                     ; backup Stack
                         sta     >stackAddress
-                        lda     STATEREG                        ; Direct Page and Stack in Bank 01/
+                        lda     STATEREG                        ; direct Page and Stack in Bank 01/
                         ora     #$0030
                         sta     STATEREG
                         lda     dpB1screenAddress
-                        tcs                                     ; New Stack address
+                        tcs                                     ; new Stack address
                         jmp     ifreturn
 ;---
 remainder               entry
@@ -326,33 +326,33 @@ ifreturnAddress         entry
                         jmp     remainder                       ; self modifying code sets this
 
 ;---
-ifdone                  lda     STATEREG                        ; Direct Page and Stack in Bank 00/
+ifdone                  lda     STATEREG                        ; direct Page and Stack in Bank 00/
                         and     #$FFCF
                         sta     STATEREG
-                        lda     >stackAddress                   ; Restore Stack
+                        lda     >stackAddress                   ; restore Stack
                         tcs
                         pld                                     ; restore the DP address
                         plb                                     ; restore the data bank
-                        cli                                     ; Enable Interrupts
+                        cli                                     ; enable Interrupts
                         rts
 
 ;-----------------------------------------------------------------------------
 ; MARK: screenErasePartial
 screenErasePartial      entry
-                        sei                                     ; Disable Interrupts
+                        sei                                     ; disable Interrupts
                         phd                                     ; save the DP address
                         lda     zImageAddressPdpB1
                         pha
                         pld
-                        tsc                                     ; Backup Stack
+                        tsc                                     ; backup Stack
                         sta     stackAddress
-                        lda     STATEREG                        ; Direct Page and Stack in Bank 01/
+                        lda     STATEREG                        ; direct Page and Stack in Bank 01/
                         ora     #$0030
                         sta     STATEREG
                         lda     dpB1screenAddress
-                        tcs                                     ; New Stack address
+                        tcs                                     ; new Stack address
                         ldy     dpB1imageVisibleWidth
-                        ldx     #$FFFF                          ; Palette index to erase to
+                        ldx     #$FFFF                          ; palette index to erase to
                         jmp     iereturn
 ieremainder             entry
                         short   m
@@ -393,13 +393,13 @@ iereturn                entry
                         txa
 iereturnAddress         entry
                         jmp     ieremainder
-iedone                  lda     STATEREG                        ; Direct Page and Stack in Bank00/
+iedone                  lda     STATEREG                        ; direct Page and Stack in Bank00/
                         and     #$FFCF
                         sta     STATEREG
-                        lda     stackAddress                    ; Restore Stack
+                        lda     stackAddress                    ; restore Stack
                         tcs
                         pld                                     ; restore the DP address
-                        cli                                     ; Enable Interrupts
+                        cli                                     ; enable Interrupts
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -407,7 +407,7 @@ iedone                  lda     STATEREG                        ; Direct Page an
 screenInit              entry
                         short   m
                         lda     #0
-                        sta     SHADOWR                         ; Shadowing ON
+                        sta     SHADOWR                         ; shadowing ON
                         long    m
                         lda     #0
                         ldx     #SCREEN_BYTES-2
@@ -419,7 +419,7 @@ siClr                   sta     SCREEN_BASE,x
                         sta     originalBorder
                         lda     #COLOR_BLACK
                         sta     BORDER
-                        lda     #0                              ; Clear B of accumulator
+                        lda     #0                              ; clear B of accumulator
                         ldx     #$FE
 siClearSCB              sta     SCANLINE_CONTROL_BYTE,x         ; 19D00-19DFF set to 0
                         dex

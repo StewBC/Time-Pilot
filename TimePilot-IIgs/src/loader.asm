@@ -28,7 +28,7 @@ zHandleH              gequ     $06
 
                       short    m
                       lda      #$E1
-                      sta      SHR                   ; Graphics ON
+                      sta      SHR                   ; graphics ON
                       long     m
 
                       lda      #0                    ; clear the screen

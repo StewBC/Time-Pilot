@@ -53,7 +53,7 @@ etPartial               lda    activeScreenAddress,x
                         lda    activeVisibleHeight,x
                         sta    [zImageVisHeightPdpB1]
                         lda    activeVisibleWidth,x
-                        bit    #3                      ; Does the width fit 2 bytes
+                        bit    #3                      ; does the width fit 2 bytes
                         beq    noRemainder
                         and    #$FFFC                  ; get the portion that fits 2 bytes
                         lsr    a

@@ -145,7 +145,7 @@ aiBoomerang             entry
                         bcc    aebrNoTurn                   ; too high
                         jsr    aiTurnOnRay
                         clc
-                        sta    activeExtra,x                ; Heading
+                        sta    activeExtra,x                ; heading
                         lda    zFrameCounter
 aebrNoTurn              and    #1
                         bne    aebrNoAnim
@@ -158,7 +158,7 @@ aebrNoAnim              lda    zInvPlayerAngle
                         adc    #VELOCITY_119
                         tay
                         jsr    aiAddVelocity
-                        lda    activeExtra,x                ; Heading
+                        lda    activeExtra,x                ; heading
                         adc    #VELOCITY_200
                         tay
                         jsr    aiAddVelocity
@@ -202,7 +202,7 @@ albDecFrame             dec    activeFrame,x                ; prev frame
                         rts
 albResetFrame           and    #6                           ; keep health even for lookup
                         tay
-                        lda    bossHealthFrames,y           ; Look up frame based on health
+                        lda    bossHealthFrames,y           ; look up frame based on health
                         sta    activeFrame,x
                         rts
 
@@ -214,7 +214,7 @@ aiBullets               entry
                         adc    #VELOCITY_119
                         tay
                         jsr    aiAddVelocity                ; can leave carry set
-                        lda    activeExtra,x                ; Heading
+                        lda    activeExtra,x                ; heading
                         clc
                         adc    #VELOCITY_200
                         tay
@@ -407,7 +407,7 @@ aefBulletTimer          lda    zBulletTimer
                         ldy    #LAYER_PLAYER_BULLETS
                         jsr    thingsAdd
                         lda    zPlayerAngle
-                        sta    activeExtra,x                ; Heading
+                        sta    activeExtra,x                ; heading
 aefBulletCountdown      dec    zBulletTimer
 aefEnemies              lda    zActiveStage                 ; is the stage space
                         cmp    #TIME_PERIOD4_2001           ; then skip waves
@@ -423,7 +423,7 @@ aefNotSpace             lda    zAiSpawnTimer                ; time to spawn a wa
                         lda    #MAX_ENEMY_INDEX
                         sec
                         sbc    zNumberOfEnemies
-                        cmp    #3                           ; Enough open enemy spots
+                        cmp    #3                           ; enough open enemy spots
                         bcs    aefEnoughToSpawn             ; to spawn a wave
                         stz    zAiSpawnTimer                ; reset spawn timer
                         rts                                 ; return - not enough spots
@@ -493,7 +493,7 @@ taeTarget               equ    zTemp00
                         tay
                         jsr    aiAddVelocity
                         ldy    zEnemyIdx                    ; keep EnemyIdx in Y (enemy meant to think)
-                        lda    enemyID,y                    ; Get the enemy at index
+                        lda    enemyID,y                    ; get the enemy at index
                         cmp    zThingID0                    ; is it this enemy
                         beq    aeEnemyThinks                ; yes, run ai for this enemy
                         jmp    aeStageVelocity              ; no, just move this enemy by its own power
@@ -502,7 +502,7 @@ aeEnemyThinks           lda    #-1
                         lda    activeFlags,x                ; is enemy in a wave
                         bit    #AF_AI_WAVE                  ; then do wave level things
                         beq    aeNotWave
-                        dec    activeExtra,x                ; Timer expires = make changes
+                        dec    activeExtra,x                ; timer expires = make changes
                         bne    aeBeamFlgsLoaded
                         bit    #AF_AI_FLEE+AF_AI_FOLLOW
                         beq    aeConfigWave                 ; wave+no action - intact so start scatter
@@ -525,7 +525,7 @@ aeWaveToFlee            ora    #AF_AI_FLEE                  ; disband to flee st
 aeSetWaveTime           lda    #ENEMY_WAVE_ACTIVE_TIMER
                         sta    activeExtra,x                ; timer
                         bra    aeBeam
-aeNotWave               dec    activeExtra,x                ; Timer
+aeNotWave               dec    activeExtra,x                ; timer
                         bne    aeBeamFlgsLoaded
                         jsr    aiRandom
                         and    #62
@@ -779,11 +779,11 @@ aetNoAnim               lda    zInvPlayerAngle
 ;-----------------------------------------------------------------------------
 ; MARK: aiHorizontalFlyer
 aiHorizontalFlyer       entry
-                        lda    zInvPlayerAngle              ; Move flyer based on player
+                        lda    zInvPlayerAngle              ; move flyer based on player
                         adc    #VELOCITY_119
                         tay
                         jsr    aiAddVelocity
-                        ldy    #VELOCITY_100                ; Move flyer based on own propulsion
+                        ldy    #VELOCITY_100                ; move flyer based on own propulsion
                         lda    activeFlags,x
                         bit    #AF_DIR_RIGHT
                         bne    ahfRight
@@ -798,7 +798,7 @@ ahfMaybeShoot           lda    zNumberOfAIFollowersMax      ; see if aggressive 
                         cmp    #3
                         bcs    ahfAggressive                ; yes - raised state so can shoot
                         rts
-ahfAggressive           lda    zNumberOfTracked             ; Not too many bullets in the air?
+ahfAggressive           lda    zNumberOfTracked             ; not too many bullets in the air?
                         cmp    zNumberOfTrackedMax
                         bcc    ahfShootOnScreen
                         rts
@@ -825,7 +825,7 @@ ahfShoot                lda    activeMinY,x                 ; get the bullet lau
 ahfShootToLeft          jsr    aiRandom
                         and    #30
                         adc    #16
-ahfSetBulletDir         sta    activeExtra,x                ; Heading
+ahfSetBulletDir         sta    activeExtra,x                ; heading
                         lda    activeFlags,x                ; flyer bullets are tracked
                         ora    #AF_TRACKED
                         sta    activeFlags,x
@@ -905,7 +905,7 @@ anwRocket               dec    zNumberOfRockets
                         rts
 anwStopRocketSound      lda    #AUDIO_ROCKET_FLY
                         jmp    audioStopSource
-anwIsBoss               lda    #2                           ; BOSS oscillator
+anwIsBoss               lda    #2                           ; boss oscillator
                         jmp    audioStopOSCS
 
 ;-----------------------------------------------------------------------------
@@ -949,7 +949,7 @@ aiPlayer                entry
 ; MARK: aiPlayerBullets
 aiPlayerBullets         entry
                         ldx    zThingID0
-                        lda    activeExtra,x                ; Heading
+                        lda    activeExtra,x                ; heading
                         adc    #VELOCITY_400
                         tay
                         jsr    aiAddVelocity
@@ -995,11 +995,11 @@ aiRockets               entry
                         and    #15
                         bne    aesbNoTurn
                         jsr    aiTurnOnRay
-                        sta    activeExtra,x                ; Heading
+                        sta    activeExtra,x                ; heading
                         and    #$FFFC
                         lsr    a
                         sta    activeFrame,x
-aesbNoTurn              lda    activeExtra,x                ; Heading
+aesbNoTurn              lda    activeExtra,x                ; heading
                         adc    #VELOCITY_150
                         tay
                         jsr    aiAddVelocity
@@ -1013,7 +1013,7 @@ aiSBullets              entry
                         adc    #VELOCITY_119
                         tay
                         jsr    aiAddVelocity
-                        lda    activeExtra,x                ; Heading
+                        lda    activeExtra,x                ; heading
                         adc    #VELOCITY_200
                         tay
                         jsr    aiAddVelocity
@@ -1031,7 +1031,7 @@ aesbNoAnim              jmp    aiNonWrapping
 ; MARK: aiScores
 aiScores                entry
                         ldx    zThingID0
-                        dec    activeExtra,x                ; Timer
+                        dec    activeExtra,x                ; timer
                         bne    asAlive
                         lda    #AF_REMOVE
                         ora    activeFlags,x
@@ -1079,7 +1079,7 @@ aseFound                jsr    aiRandom
                         jsr    aiRandom
                         and    #31
                         adc    #ENEMY_STEADY_MIN_TIME
-                        sta    activeExtra,x                ; Timer
+                        sta    activeExtra,x                ; timer
                         bit    #31
                         beq    aseNotFollow
                         lda    zNumberOfAIFollowers
@@ -1123,7 +1123,7 @@ aswSlotFound            stx    zWaveSpawnIndex              ; save index
                         sta    enemyHeading,y               ; set the heading
                         sta    activeFrame,x                ; direction/frame
                         lda    zWaveSpawnDuration           ; and how long to stay in wave
-                        sta    activeExtra,x                ; Timer
+                        sta    activeExtra,x                ; timer
                         inc    zNumberOfEnemies             ; enemy added
                         ldx    zWaveSpawnIndex              ; go to next slot
                         dex

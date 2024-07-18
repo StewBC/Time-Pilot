@@ -33,12 +33,12 @@ tgabScore               equ      zTemp00
                         sta      zSpawnX
                         lda      activeMinY,x
                         sta      zSpawnY
-                        ldy      #LAYER_SCORES                               ; Add score sprite
+                        ldy      #LAYER_SCORES                               ; add score sprite
                         jsr      thingsAdd
                         lda      tgabScore                                   ; get index
                         sta      activeFrame,x                               ; set as frame to show correct score
                         lda      #60                                         ; keep on-screen duration
-                        sta      activeExtra,x                               ; Timer
+                        sta      activeExtra,x                               ; timer
                         ldy      tgabScore
                         lda      dt_scores_bonus,y                           ; get the BCD value of the bonus
                         jsr      gameAddScoreInternal                        ; add the BCD score to score
@@ -118,7 +118,7 @@ gvigClearVars           stz      gpVarsStart,x                               ; p
                         lda      #ENEMIES_TO_KILL_TO_CLEAR/2
                         sta      zDifficultyKillCount                        ; carries over stage boundaries
                         lda      #2
-                        sta      zNumberOfAIFollowersMax                     ; Init difficulty
+                        sta      zNumberOfAIFollowersMax                     ; init difficulty
                         stz      zActivePlayer                               ; 1st player starts (0)
                         stz      zDemoAttractIndex
                         stz      zExitGameMask
@@ -147,7 +147,7 @@ gvisEnemyInit           sta      enemyID,X                                   ; e
                         lda      #1                                          ; init other non-zero variables
                         sta      zAiSpawnTimer
                         ina
-                        sta      zNumberOfTrackedMax                         ; This goes down at a new stage
+                        sta      zNumberOfTrackedMax                         ; this goes down at a new stage
                         lda      #BOMBER_HEALTH
                         sta      zBomberHealth
                         lda      #PLAYER_FRAME_LEFT
@@ -189,8 +189,8 @@ gnpNotOver              clc                                                  ; n
                         rts
 gnpUserQuit             inc      tgnpGameOver
                         lda      #-1
-                        sta      zPlayerLives                                ; All lives lost
-                        lda      zCheatActive                                ; If chearing don't ask for score
+                        sta      zPlayerLives                                ; all lives lost
+                        lda      zCheatActive                                ; if chearing don't ask for score
                         bne      gnpAlive
                         jsr      ugoHaveKey                                  ; skip game-over - ask for score if on table
                         bra      gnpAlive
@@ -208,7 +208,7 @@ gpfNoPrePlay            inc      zAiSpawnTimer                               ; m
                         sta      zEnemyIdx
                         inc      zFrameCounter                               ; global frame counter
                         lda      zActiveStage
-                        cmp      #TIME_PERIOD3_1982                          ; No propellers past 1982
+                        cmp      #TIME_PERIOD3_1982                          ; no propellers past 1982
                         bcs      gpfAiEndFrame
                         tax                                                  ; swap prop color palettes
                         lda      zFrameCounter
@@ -240,7 +240,7 @@ gameProcessThings       entry
 ;                        lda     BORDER                                       ; SQW
 ;                        ina
 ;                        sta     BORDER
-gptEraseLoop            ldx      zEraseIndex                                 ; Iterate the erase list
+gptEraseLoop            ldx      zEraseIndex                                 ; iterate the erase list
                         cpx      zNumEraseThingIDs
                         bcs      gptDrawLoop
                         lda      eraseThingIDs,x
@@ -371,11 +371,11 @@ gameStageInit           entry
 gsiDemoRecDone          lda      #1                                          ; if were recording
                         sta      zDemoAttractMode                            ; show recording
                         stz      demoRecordMode                              ; and turn recording off
-                        _Create  createFileData                              ; Create the replay file
+                        _Create  createFileData                              ; create the replay file
                         bcs      gsiFileError
                         _Open    openFileData
                         bcs      gsiFileError
-                        lda      openFileData                                ; Copy the ref
+                        lda      openFileData                                ; copy the ref
                         sta      writeFileData
                         lda      zDemoAttractLength                          ; and length
                         sta      writeLen
@@ -595,7 +595,7 @@ gsiSpawnLoop            dey
                         bra      gsiSpawnLoop
 giFinalize              sta      KBDSTRB
                         jsr      uiShowPreGameLabels
-                        jmp      thingsSortAndCollide                        ; Finally - sort things
+                        jmp      thingsSortAndCollide                        ; finally - sort things
 
 ;-----------------------------------------------------------------------------
 ;   _______________________________________________________________
@@ -617,20 +617,20 @@ gsStageInit             jsr      gameStageInit
                         lda      #AUDIO_BIG_EXPLOSION
                         jsr      audioPlaySource
 gsRasterLoop            lda      RASTER_LINE
-                        and      #%0000000011111111                          ; Only interested in the low byte
+                        and      #%0000000011111111                          ; only interested in the low byte
                         asl      a                                           ; the MSB is actually bit 0 but I am happy
                         cmp      zScanLinePrev                               ; with every 2 scan lines and getting the
                         beq      gsRasterLoop                                ; scan line in "screen space"
-                        bmi      gsRasterDone                                ; Raster wrapped back to top so endframe?
+                        bmi      gsRasterDone                                ; raster wrapped back to top so endframe?
                         cmp      #NTSC_TOP+SCREEN_PBOTTOM
-                        bcs      gsRasterDone                                ; Past bottom so endframe
-                        cmp      #NTSC_TOP                                   ; Scan line 0 in NTSC
-                        bcc      gsRasterLoop                                ; Raster still above draw area?
-                        sta      zScanLinePrev                               ; Raster in screen area
-                        sbc      #NTSC_TOP                                   ; Remove NTSC lines at the top of the screen
-                        sta      zScanLine                                   ; Actual line the raster is on
-                        jsr      gameProcessThings                           ; Run a frame of the game
-                        stz      zEndFrameProcessed                          ; Need to run endfrane
+                        bcs      gsRasterDone                                ; past bottom so endframe
+                        cmp      #NTSC_TOP                                   ; scan line 0 in NTSC
+                        bcc      gsRasterLoop                                ; raster still above draw area?
+                        sta      zScanLinePrev                               ; raster in screen area
+                        sbc      #NTSC_TOP                                   ; remove NTSC lines at the top of the screen
+                        sta      zScanLine                                   ; actual line the raster is on
+                        jsr      gameProcessThings                           ; run a frame of the game
+                        stz      zEndFrameProcessed                          ; need to run endfrane
                         bra      gsRasterLoop
 gsRasterDone            sta      zScanLinePrev                               ; save raster
                         lda      zEndFrameProcessed                          ; has an endframe already been run
@@ -654,7 +654,7 @@ gsPostPlay              short    m                                           ; a
                         bne      gsGameExit                                  ; if demo-attract - exit now
                         lda      zExitGameMask
                         bit      #EXIT_STAGE_CLEAR                           ; was AND # with above in
-                        bne      gsStageComplete                             ; The player cleared the stage
+                        bne      gsStageComplete                             ; the player cleared the stage
 gsNextPlayer            jsr      gameNextPlayer                              ; player dead - next player/life
                         bcc      gsStageInit
 gsGameExit              LDAPAL   COLOR_BLACK

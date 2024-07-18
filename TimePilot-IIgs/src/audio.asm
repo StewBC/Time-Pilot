@@ -31,9 +31,9 @@ IRQ_VOLUME              equ         $e100ca
 ; EQUATES
 ;-----------------------------------
 
-tiUserID                equ         zTemp02                                  ; Must still be valid when audioInit is called
-dpFROM                  equ         zTemp03                                  ; Antoine - I need a long in the Direct Page space
-dpFROMH                 equ         zTemp04                                  ; Antoine - I need a long in the Direct Page space
+tiUserID                equ         zTemp02                                  ; must still be valid when audioInit is called
+dpFROM                  equ         zTemp03
+dpFROMH                 equ         zTemp04
 dpPREVADRL              equ         zTemp05
 dpPREVADRH              equ         zTemp06
 
@@ -59,7 +59,7 @@ audioShutdown           entry
 ; LOAD ALL FILES
 ;-----------------------------------
 audioLoadFILES          entry
-                        lda         #pSOUNDBANK                              ; The 64KB wavebank
+                        lda         #pSOUNDBANK                              ; the 64KB wavebank
                         ldy         #0
                         jsr         audioLoadFILE
                         sty         ptrSOUNDBANK
@@ -145,7 +145,7 @@ audioLoadBOSS           entry
                         ora         #%01100000                               ; bit 6: access RAM, bit 5: enable auto increment
                         sta         SOUNDCTL
 
-                        lda         SOUNDADRL                                ; Save the old pointer
+                        lda         SOUNDADRL                                ; save the old pointer
                         sta         dpPREVADRL
                         lda         SOUNDADRH
                         sta         dpPREVADRH
@@ -155,7 +155,7 @@ audioLoadBOSS           entry
                         lda         #$30
                         sta         SOUNDADRH
 
-                        ldy         #0                                       ; Move 4K
+                        ldy         #0                                       ; move 4K
 lb_2                    lda         [dpFROM],y
                         sta         >SOUNDDATA
                         iny
@@ -176,7 +176,7 @@ lb_2                    lda         [dpFROM],y
 ;-----------------------------------
 
 audioLoadFILE           entry
-                        sta         proOPEN+4                                ; A contains the filename pointer
+                        sta         proOPEN+4                                ; a contains the filename pointer
                         sty         lf_skip+1                                ; if Yequ$bdbd then skip NewHandle
 
                         jsl         GSOS
@@ -253,7 +253,7 @@ audioInitENSONIQ        entry
                         sta         SOUNDADRL
                         sta         SOUNDADRH
 
-                        ldy         #0                                       ; Move 64K
+                        ldy         #0                                       ; move 64K
 ie_1                    lda         [dpFROM],y
                         sta         SOUNDDATA
                         iny
@@ -796,7 +796,7 @@ si_impair               tya
 
 si_next                 long        m
 
-                        inc         oscRAMPTR+1,x                            ; RAM ptr++
+                        inc         oscRAMPTR+1,x                            ; ram ptr++
                         tyx
                         dec         oscPAGE,x                                ; nb pages--
                         brl         si_exit
@@ -861,37 +861,37 @@ sndPAGE                 dc          i2'0'                                    ; 0
                         dc          i2'0'                                    ; 13
                         dc          i2'0'                                    ; 14
 
-sndPLAY                 dc          i1'FALSE'                                ; A 0  - in DOCRAM if TRUE, in RAM if FALSE
-                        dc          i1'FALSE'                                ; B 1
-                        dc          i1'TRUE'                                 ; D 2
-                        dc          i1'FALSE'                                ; I 3
-                        dc          i1'TRUE'                                 ; J 4
-                        dc          i1'TRUE'                                 ; K 5
-                        dc          i1'FALSE'                                ; M 6
-                        dc          i1'FALSE'                                ; N 7
-                        dc          i1'FALSE'                                ; O 8
-                        dc          i1'TRUE'                                 ; Q 9
-                        dc          i1'TRUE'                                 ; R 10
-                        dc          i1'TRUE'                                 ; S 11
-                        dc          i1'TRUE'                                 ; T 12
-                        dc          i1'FALSE'                                ; V 13
-                        dc          i1'TRUE'                                 ; X 14
+sndPLAY                 dc          i1'FALSE'                                ; 0  - in DOCRAM if TRUE, in RAM if FALSE
+                        dc          i1'FALSE'                                ; 1
+                        dc          i1'TRUE'                                 ; 2
+                        dc          i1'FALSE'                                ; 3
+                        dc          i1'TRUE'                                 ; 4
+                        dc          i1'TRUE'                                 ; 5
+                        dc          i1'FALSE'                                ; 6
+                        dc          i1'FALSE'                                ; 7
+                        dc          i1'FALSE'                                ; 8
+                        dc          i1'TRUE'                                 ; 9
+                        dc          i1'TRUE'                                 ; 10
+                        dc          i1'TRUE'                                 ; 11
+                        dc          i1'TRUE'                                 ; 12
+                        dc          i1'FALSE'                                ; 13
+                        dc          i1'TRUE'                                 ; 14
 
-snd2OSC                 dc          i1'18'                                   ; A 0  - sound index to oscillator index
-                        dc          i1'24'                                   ; B 1
-                        dc          i1'2'                                    ; D 2
-                        dc          i1'26'                                   ; I 3
-                        dc          i1'4'                                    ; J 4
-                        dc          i1'6'                                    ; K 5
-                        dc          i1'22'                                   ; M 6
-                        dc          i1'26'                                   ; N 7
-                        dc          i1'26'                                   ; O 8
-                        dc          i1'8'                                    ; Q 9
-                        dc          i1'10'                                   ; R 10
-                        dc          i1'14'                                   ; S 11
-                        dc          i1'16'                                   ; T 12
-                        dc          i1'28'                                   ; V 13
-                        dc          i1'12'                                   ; X 14
+snd2OSC                 dc          i1'18'                                   ; 0  - sound index to oscillator index
+                        dc          i1'24'                                   ; 1
+                        dc          i1'2'                                    ; 2
+                        dc          i1'26'                                   ; 3
+                        dc          i1'4'                                    ; 4
+                        dc          i1'6'                                    ; 5
+                        dc          i1'22'                                   ; 6
+                        dc          i1'26'                                   ; 7
+                        dc          i1'26'                                   ; 8
+                        dc          i1'8'                                    ; 9
+                        dc          i1'10'                                   ; 10
+                        dc          i1'14'                                   ; 11
+                        dc          i1'16'                                   ; 12
+                        dc          i1'28'                                   ; 13
+                        dc          i1'12'                                   ; 14
 
 ;-----------------------------------
 ; ENSONIQ DATA

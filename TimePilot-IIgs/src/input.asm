@@ -26,7 +26,7 @@ inputCheckForJoy        entry
                         stz    zInputUsingJoystick
                         jsr    inputReadJoystick           ; returns $8000 if POTS timed out
                         bmi    icfjDone
-                        inc    zInputUsingJoystick         ; Got a value, so turn JoyStick on
+                        inc    zInputUsingJoystick         ; got a value, so turn JoyStick on
 icfjDone                rts
 
 ;-----------------------------------------------------------------------------
@@ -40,10 +40,10 @@ iigProcInputs           lda    #KEY_READ_RATE
                         jsr    inputReadGameKeyboard       ; read the keyboard
                         ldx    zInputUsingJoystick         ; see if Joystick needs to be read
                         beq    iigPostRead
-                        and    #$FFFF-INPUT_MASK_ROTATE    ; Clear rotation that
+                        and    #$FFFF-INPUT_MASK_ROTATE    ; clear rotation that
                         sta    zInputMask                  ; fire may have added in keyboard
                         jsr    inputReadJoystick
-                        ora    zInputMask                  ; Blend joystick and keyboard
+                        ora    zInputMask                  ; blend joystick and keyboard
 iigPostRead             sta    zInputMask
                         aif    &R_RECORD>0,.iigRecordDemo
                         ago    .iigSkipDemoRecord
@@ -89,7 +89,7 @@ iigDebounce             eor    zInputMaskPrev              ; turn off something 
 iigMovement             and    #INPUT_MASK_MOVEMENT
                         asl    a                           ; * 2 for 16-bit lookup
                         tax
-                        lda    dt_angles_joystick,x        ; Based on Joy angle, get a desired player angle
+                        lda    dt_angles_joystick,x        ; based on Joy angle, get a desired player angle
                         bpl    iigMove                     ; only positive numbers valid
                         cmp    zPlayerAngle                ; invalid direction -restore mask
                         beq    iigNoMovement
@@ -101,9 +101,9 @@ iigMove                 sec                                ; subtract angle from
                         lda    #INPUT_ROTATE_LEFT          ; one half is closest to left
                         bra    iigSetRotInMask
 iigSetRotRight          lda    #INPUT_ROTATE_RIGHT         ; other half closest to right
-iigSetRotInMask         ora    zInputMask                  ; Add to the input mask
+iigSetRotInMask         ora    zInputMask                  ; add to the input mask
                         sta    zInputMask
-iigNoMovement           bit    #INPUT_ROTATE_LEFT          ; See if rotating left
+iigNoMovement           bit    #INPUT_ROTATE_LEFT          ; see if rotating left
                         beq    iigChkRotRight
                         lda    zPlayerAngle                ; playerAngle = (playerAngle-1) & 31
                         dea
@@ -124,7 +124,7 @@ iigNotRotRight          bit    #INPUT_QUIT                 ; test for ESC
                         lda    #EXIT_USER_QUIT             ; mark in exitGameMask
                         ora    zExitGameMask
                         sta    zExitGameMask
-iigNotQuit              lda    zInputMaskDebounced         ; Fire/pause on debounced
+iigNotQuit              lda    zInputMaskDebounced         ; fire/pause on debounced
                         bit    #INPUT_FIRE                 ; test for FIRE
                         beq    iigNotFire
                         ldx    zBulletTimer                ; if no bullet timer active
@@ -191,7 +191,7 @@ irgkChkPause            and    #$5F                        ; remove case - all l
                         lda    #INPUT_PAUSE
                         rts
 irgkButtons             lda    BUTN0                       ; read the "joystick" buttons (both)
-                        bpl    irgkChkClock                ; If 16 bit positive then not pressed
+                        bpl    irgkChkClock                ; if 16 bit positive then not pressed
                         pha
                         txa
                         ora    #INPUT_ROTATE_LEFT          ; pressed so rotate left
@@ -225,10 +225,10 @@ irjReadLoop             lda    |PADDL0
                         bra    irjReadLoop
 irjBoth                 inx
                         iny
-                        cpy    #$180                       ; Is there a better way to know there's no joystick
+                        cpy    #$180                       ; is there a better way to know there's no joystick
                         bcc    irjReadLoop                 ; than timing out on the axis read?
                         plb
-                        lda    #$8000                      ; No joystick attached - loop timed out
+                        lda    #$8000                      ; no joystick attached - loop timed out
                         rts
 irjXDone                bpl    irjScanDone
                         iny
@@ -272,7 +272,7 @@ inputReadUIKeyboard     entry
                         beq    irukOne
                         cmp    #('2'+$80)|8+('2'+$80)      ; 2 player on 2
                         beq    irukTwo
-                        cmp    #($1b+$80)|8+($1b+$80)      ; Quit on ESC
+                        cmp    #($1b+$80)|8+($1b+$80)      ; quit on ESC
                         beq    irukQuit
                         and    #$5F
                         cmp    #'P'
@@ -284,7 +284,7 @@ inputReadUIKeyboard     entry
                         cmp    #'C'
                         beq    irukCheat
 irukButtons             lda    BUTN0                       ; read the rotate buttons
-                        bpl    irukChkClock                ; If 16 bit positive then not pressed
+                        bpl    irukChkClock                ; if 16 bit positive then not pressed
                         lda    #INPUT_LEFT                 ; pressed so rotate left
                         rts
 irukChkClock            and    #$FF                        ; get 8-bit component

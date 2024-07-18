@@ -299,7 +299,7 @@ ugoShowInitials         ldx       tInsertRow                   ; based on insert
                         lda       zCheatActive                 ; don't save scores if cheat active
                         beq       sf_save
                         rts
-sf_save                 jsl       GSOS                         ; Save the high-scores
+sf_save                 jsl       GSOS                         ; save the high-scores
                         dc        i2'$2002'
                         dc        a4'proDESTROYHS'
                         jsl       GSOS
@@ -373,7 +373,7 @@ tIterations             equ       zTemp03
 umSkipShow              stz       zSkyColor                    ; ui on black background
                         LDBOX     PLAYFIELDW,7,9,1             ; clear P1 score bits (post demo)
                         jsr       screenClearSection
-                        stz       zDemoAttractMode             ; Reset demo mode
+                        stz       zDemoAttractMode             ; reset demo mode
 umSkipDemoReset         jsr       uiShowCommonLabels           ; Konami, me etc
                         sta       KBDSTRB                      ; clear KBD
                         stz       zInputMask
@@ -394,13 +394,13 @@ umHoldStateLoop         dec       ptTimer                      ; hold this state
                         sta       zDemoAttractMode             ; demo mode on
                         lda       #0                           ; single player
                         jmp       umSetupPlay                  ; start the demo
-umSkipAttract           LDBOX     5,6,20,11                    ; Clear scores table/text section
+umSkipAttract           LDBOX     5,6,20,11                    ; clear scores table/text section
                         jsr       screenClearSection
                         lda       #1
-                        eor       ptState                      ; Switch state (scores/text)
+                        eor       ptState                      ; switch state (scores/text)
                         sta       ptState
-                        bra       umSwitchStateLoop            ; Redraw UI scores / text
-umTimeOkay              jsr       inputInUI                    ; Read user input
+                        bra       umSwitchStateLoop            ; redraw UI scores / text
+umTimeOkay              jsr       inputInUI                    ; read user input
                         bit       #INPUT_QUIT
                         beq       umChk1P
                         sec                                    ; carry set on return quits
@@ -606,7 +606,7 @@ uspsDone                pla
 uiShowPreGameLabels     entry
                         LDSCRNXY  28,0
                         jsl       TPSMALL_000A
-                        ldy       #LAYER_TEXT                  ; Player
+                        ldy       #LAYER_TEXT                  ; player
                         jsr       thingsAdd
                         lda       #10*8
                         sta       activeMinX,x
@@ -617,7 +617,7 @@ uiShowPreGameLabels     entry
                         sta       activeExtra,x
                         stz       activeEID,x
 
-                        ldy       #LAYER_TEXT                  ; Player #
+                        ldy       #LAYER_TEXT                  ; player #
                         jsr       thingsAdd
                         lda       #17*8
                         sta       activeMinX,x

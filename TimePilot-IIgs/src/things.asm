@@ -56,7 +56,7 @@ taFound                 stx    zInsertThings             ; save where a spot was
                         sta    sortedThingIDs,x
                         inc    zNumSortedThingIDs
                         inc    zNumSortedThingIDs
-                        tax                              ; Put new thing into X
+                        tax                              ; put new thing into X
                         rts
 
 ;-----------------------------------------------------------------------------
@@ -69,13 +69,13 @@ tKeyMinY                equ    zTemp04
 tDeadCount              equ    zTemp05
 ;                        lda    #0                        ; SQW
 ;                        sta    BORDER
-                        stz    tDeadCount                ; Things in list to be removed
+                        stz    tDeadCount                ; things in list to be removed
                         lda    sortedThingIDs            ; look at 1st thing [0]
                         bpl    tsac0Alive                ; is it alive
                         inc    tDeadCount                ; no - inc dead count
 tsac0Alive              ldx    #0                        ; start index at 0
 tsacMainSortLoop        inx                              ; go to next
-                        inx                              ; Thing 0 is player - never removed
+                        inx                              ; thing 0 is player - never removed
                         cpx    zNumSortedThingIDs        ; processed all?
                         bcs    tsacYSortDone
                         lda    sortedThingIDs,x          ; get the index
@@ -130,7 +130,7 @@ tsacMainColLoopOk       lda    sortedThingIDs,x          ; key = sortedThingIDs[
                         tay
                         lda    activeCollides,y
                         bne    tsacDoesCollisions        ; key does collisions
-tsacNextI               inx                              ; No, next I
+tsacNextI               inx                              ; no, next I
                         inx
                         bra    tsacMainColLoop
 tsacDoesCollisions      lda    activeFlags,y
@@ -244,7 +244,7 @@ tsacNPxYok              lda    activeMaxY,y
                         bpl    tsacCollides              ; player min y in collision range so a collision
                         ldx    tJ
                         jmp    tsacNextJ                 ; player is not in a collision
-tsacCollides            stx    zThingID1                 ; There is a collision
+tsacCollides            stx    zThingID1                 ; there is a collision
                         sty    zThingID0                 ; save key and other
                         jsr    collideThings             ; collide them (0 first)
                         ldy    zThingID1                 ; reverse order
@@ -270,7 +270,7 @@ tsacMxXok               lda    activeMaxX,y
 ; In the code, x reg is I, then J, then Start, then K
 ;tKey                      equ zTemp00
 tI                      equ    zTemp01
-tK                      equ    zTemp02                   ; No BCD post this point so zTemp02 used
+tK                      equ    zTemp02                   ; no BCD post this point so zTemp02 used
 tMaxY                   equ    zTemp04                   ; tJ is 3
 tValue                  equ    zTemp05
 tsacSortOverlap         ldx    #0                        ; i = 0

@@ -56,7 +56,7 @@ collideBoss             entry
                         tyx
                         dec    zBossHealth
                         beq    clbDead
-                        lda    zBossHealth                  ; Space Boss needs
+                        lda    zBossHealth                  ; space boss needs
                         cmp    #BOSS_HEALTH/2               ; to flash on health below 50%
                         bne    clbCollideWithWhat
                         lda    zActiveStage
@@ -71,7 +71,7 @@ clbCollideWithWhat      ldy    zThingID1
                         cmp    #LAYER_EXPLODE_LARGE         ; first, so if it's a LAYER_EXPLODE_LARGE
                         beq    clbDead                      ; it was the player, so die
                         jmp    gameAddScore                 ; boss hit but alive
-clbDead                 lda    #2                           ; BOSS oscillator
+clbDead                 lda    #2                           ; boss oscillator
                         jsr    audioStopOSCS
                         lda    #AUDIO_ROCKET_FLY            ; for safety stop rocket flying loop also
                         jsr    audioStopSource
@@ -143,7 +143,7 @@ collideEnemy            entry
                         dec    zDifficultyKillCount
                         bpl    ceChkWave
                         lda    #3
-                        sta    zNumberOfAIFollowersMax      ; Both go up here
+                        sta    zNumberOfAIFollowersMax      ; both go up here
                         sta    zNumberOfTrackedMax
                         lda    #ENEMIES_TO_KILL_TO_CLEAR/2
                         sta    zDifficultyKillCount
@@ -161,7 +161,7 @@ ceChkFollow             bit    #AF_AI_FOLLOW
 ceKillMe                lda    activeEID,x
                         tay
                         lda    #2*MAX_OBJECTS
-                        sta    enemyID,y                    ; Slot is available
+                        sta    enemyID,y                    ; slot is available
                         ldy    #LAYER_EXPLODE_SMALL
                         jsr    collideThingExplode
                         jsr    gameAddScore
@@ -295,7 +295,7 @@ ctePostClipSetup        lda    dt_layer_active_height,y     ; set the new size
                         adc    activeHeight,x
                         sta    activeMaxY,x
                         lda    #EXPLOSION_HOLD_TIMER        ; set frame and duration
-                        sta    activeExtra,x                ; Timer
+                        sta    activeExtra,x                ; timer
                         lda    #2*(EXPLOSION_FRAMES-1)      ; 0 based
                         sta    activeFrame,x
                         rts
