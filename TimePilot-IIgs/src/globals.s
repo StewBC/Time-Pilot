@@ -17,14 +17,15 @@ VBL                       gequ  $01C019
 SHR                       gequ  $01C029
 BORDER                    gequ  $01C034
 SHADOWR                   gequ  $01C035
-BUTN0                     gequ  $01C061              ; Switch input 0 / Open-Apple key
-BUTN1                     gequ  $01C062              ; Switch input 1 / Closed-Apple key
-BUTN2                     gequ  $01C063              ; Switch input 2 / Shift key
-PADDL0                    gequ  $01C064              ; Read to get POT msb
+BUTN0                     gequ  $01C061              ; switch input 0 / Open-Apple key
+BUTN1                     gequ  $01C062              ; switch input 1 / Closed-Apple key
+BUTN2                     gequ  $01C063              ; switch input 2 / Shift key
+PADDL0                    gequ  $01C064              ; read to get POT msb
 PTRIG                     gequ  $01C070
 RASTER_LINE               gequ  $E0C02E
+TOOLBOXROM                gequ  $E10000
 GSOS                      gequ  $E100A8
-STATEREG                  gequ  $E1C068              ; State Reg - b7=ALTZP PAGE2 RAMRD RAMWRT RDROM LCBNK2 ROMBANK INTCXROM=b0
+STATEREG                  gequ  $E1C068              ; state Reg - b7=ALTZP PAGE2 RAMRD RAMWRT RDROM LCBNK2 ROMBANK INTCXROM=b0
 
 ;-----------------------------------------------------------------------------
 ; Game values related to the hardware screen
@@ -33,10 +34,10 @@ STATEREG                  gequ  $E1C068              ; State Reg - b7=ALTZP PAGE
 NTSC_TOP                  gequ  $100
 PLAYFIELDH                gequ  25
 PLAYFIELDW                gequ  28
-SCOL                      gequ  40                   ; Screen Columns
-SCOLW                     gequ  8                    ; Screen Column Width
-SROW                      gequ  25                   ; Screen Rows
-SROWH                     gequ  8                    ; Screen Row Height
+SCOL                      gequ  40                   ; screen Columns
+SCOLW                     gequ  8                    ; screen Column Width
+SROW                      gequ  25                   ; screen Rows
+SROWH                     gequ  8                    ; screen Row Height
 
 SCREEN_BYTES              gequ  160*200
 SCREEN_PBOTTOM            gequ  PLAYFIELDH*SROWH
@@ -57,7 +58,7 @@ COLOR_YELLOW              gequ  7
 COLOR_ORANGE              gequ  8
 COLOR_GRAY                gequ  9
 COLOR_DARK_RED            gequ  10
-COLOR_OLIVE_GREEN         gequ  11                   ; Doubles up as dark blue in space
+COLOR_OLIVE_GREEN         gequ  11                   ; doubles up as dark blue in space
 COLOR_DARK_YELLOW         gequ  12
 COLOR_PROP0               gequ  13
 COLOR_PROP1               gequ  14
@@ -71,7 +72,7 @@ EXIT_USER_QUIT            gequ  %001
 
 ; Tuneables
 BOMBER_HEALTH             gequ  4
-ENEMIES_TO_KILL_TO_CLEAR  gequ  48                   ; This is only 85% of what it should be at 56
+ENEMIES_TO_KILL_TO_CLEAR  gequ  48                   ; this is only 85% of what it should be at 56
 BOSS_HEALTH               gequ  8
 MAX_OBJECTS               gequ  64
 NUM_PROGRESS_PLANES       gequ  6                    ; SCOL-PLAYFIELDW*SCOLW/16
@@ -124,8 +125,8 @@ AF_REMOVE                 gequ  %0000100000000000
 AF_AI_FOLLOW              gequ  %0001000000000000
 AF_AI_FLEE                gequ  %0010000000000000
 AF_AI_WAVE                gequ  %0100000000000000
-AF_TRACKED                gequ  %1000000000000000    ; Multipurpose = tracked
-AF_DIR_RIGHT              gequ  %1000000000000000    ; Multipurpose = direction
+AF_TRACKED                gequ  %1000000000000000    ; multipurpose = tracked
+AF_DIR_RIGHT              gequ  %1000000000000000    ; multipurpose = direction
 
 AF_CLIPMASK               gequ  %0000011110000000
 
@@ -193,10 +194,10 @@ VELOCITY_400              gequ  12*32
 
 ; Timers
 BOMBER_TIMER              gequ  60*5
-ENEMY_RECALL_TIMER        gequ  32*18                ; Approx 9 seconds - has to be even checked inside !(aiSpawnTimer & ENEMY_SPAWN_TIMER)
-ENEMY_SPAWN_TIMER         gequ  %00011111            ; Approx .5 seconds
-ENEMY_SPAWN_WAVE_TIMER    gequ  32*20                ; Approx 10 seconds - has to be even checked inside !(aiSpawnTimer & ENEMY_SPAWN_TIMER)
-ENEMY_STEADY_MIN_TIME     gequ  3*60/8               ; Min time between dir changes
+ENEMY_RECALL_TIMER        gequ  32*18                ; approx 9 seconds - has to be even checked inside !(aiSpawnTimer & ENEMY_SPAWN_TIMER)
+ENEMY_SPAWN_TIMER         gequ  %00011111            ; approx .5 seconds
+ENEMY_SPAWN_WAVE_TIMER    gequ  32*20                ; approx 10 seconds - has to be even checked inside !(aiSpawnTimer & ENEMY_SPAWN_TIMER)
+ENEMY_STEADY_MIN_TIME     gequ  3*60/8               ; min time between dir changes
 ENEMY_WAVE_ACTIVE_TIMER   gequ  90/8                 ; div 8 because AI thinks only every 8 frames
 ENEMY_WAVE_ENTRY_TIMER    gequ  60/8                 ; div 8 because AI thinks only every 8 frames
 EXPLOSION_HOLD_TIMER      gequ  60/6

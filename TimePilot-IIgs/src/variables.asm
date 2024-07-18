@@ -73,6 +73,7 @@ demoRecordMode          ds    2
 
 ; Non zero-page variables
 originalBorder          ds    2
-
+originalKeyRepRate      ds    2
+originalKeyDelayRate    ds    2
 thisisaformattinglabel  anop
                         END
