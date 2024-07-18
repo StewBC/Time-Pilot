@@ -12,7 +12,7 @@
 AI                      START
 
                         using  GAMEDATA
-                        using  SOUNDDATA
+                        using  SOUNDDATAAREA
                         using  VARIABLES
 
 ;-----------------------------------------------------------------------------

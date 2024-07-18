@@ -8,7 +8,7 @@
                         mcopy       src/audio.mac
 
 AUDIO                   START
-                        USING       SOUNDDATA
+                        USING       SOUNDDATAAREA
                         USING       AUDIODATA
 
 ;-----------------------------------
@@ -402,6 +402,10 @@ audioStopSource         entry
 ass_continue            and         #$ff
                         tay
 
+                        lda         dpSOUNDADRL
+                        sta         >saddrL
+                        lda         dpSOUNDADRH
+                        sta         >saddrH
                         short       m
 
                         lda         IRQ_VOLUME
@@ -421,7 +425,11 @@ ass_continue            and         #$ff
                         lda         #%00000001
                         sta         SOUNDDATA
 
-ass_done                plp
+                        lda         >saddrL
+                        sta         dpSOUNDADRL
+                        lda         >saddrH
+                        sta         dpSOUNDADRH
+                        plp
                         ldy         theY
                         ldx         theX
                         lda         theA
@@ -448,6 +456,11 @@ audioPlaySource         entry
                         lda         snd2OSC,x                                ; get the associated oscillator
                         and         #$ff
                         tay
+
+                        lda         dpSOUNDADRL
+                        sta         >saddrL
+                        lda         dpSOUNDADRH
+                        sta         >saddrH
 
                         short       m
 
@@ -502,7 +515,12 @@ ap_normal               ora         #$a0
 ap_done                 sta         SOUNDDATA
                         long        m
 
-aps_done                plp
+                        lda         >saddrL
+                        sta         dpSOUNDADRL
+                        lda         >saddrH
+                        sta         dpSOUNDADRH
+
+                        plp
                         ldy         theY
                         ldx         theX
                         lda         theA
@@ -612,6 +630,12 @@ ps_patch                ldy         #$bdbd                                   ; a
 
                         long        m
                         pld
+
+                        lda         >saddrL
+                        sta         dpSOUNDADRL
+                        lda         >saddrH
+                        sta         dpSOUNDADRH
+
                         plp
 
                         ldy         theY
@@ -781,7 +805,7 @@ si_next                 long        m
 ;-----------------------------------
 ; SOUND DATA
 ;-----------------------------------
-SOUNDDATA               DATA
+SOUNDDATAAREA           DATA
 
 ; DOCRAM memory map
 ; 0000    WAPON EXPLODE

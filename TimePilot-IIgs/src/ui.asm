@@ -11,7 +11,7 @@
 
 UI                      START
                         using     GAMEDATA
-                        using     SOUNDDATA
+                        using     SOUNDDATAAREA
                         using     TEXT
                         using     VARIABLES
 
