@@ -91,7 +91,7 @@ giSkipSong              jsr      gameInitVarsGame
                         jsr      gameRestorePlayer                           ; init all of the shadow stats
                         LDAPAL   COLOR_BLACK
                         sta      zSkyColor
-                        LDBOX    28,7,9,1
+                        LDBOX    28,7,9,4
                         jsr      screenClearSection                          ; clear P1 score
                         lda      zNumberOfPlayers
                         beq      giOnePlayer
