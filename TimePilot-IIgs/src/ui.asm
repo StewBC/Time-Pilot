@@ -476,7 +476,7 @@ uiShowCommonLabels      entry
                         PRINTSZ   TEXT_KONAMI,8,19
                         LDAPAL    COLOR_BLUE
                         sta       >printFontColor
-                        PRINTSZ   TEXT_VERSION,3,22
+                        PRINTSZ   TEXT_VERSION,2,22
                         LDAPAL    COLOR_YELLOW
                         sta       >printFontColor
                         PRINTSZ   TEXT_STEFAN,6,23
