@@ -6,8 +6,8 @@
 ; This is free and unencumbered software released into the public domain.
 ;-----------------------------------------------------------------------------
 
-                      copy     'src/globals.s'
-                      mcopy    'src/loader.mac'
+                      copy     src/globals.s
+                      mcopy    src/loader.mac
 
 LOADER                START
 
