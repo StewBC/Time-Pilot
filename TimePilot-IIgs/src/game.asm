@@ -172,6 +172,7 @@ tgnpGameOver            equ      zTemp11
                         dec      zPlayerLives                                ; player lost a life
                         bpl      gnpAlive                                    ; but not game over yet
                         jsr      uiGameOver
+                        inc      tgnpGameOver
 gnpAlive                lda      zNumberOfPlayersAlive
                         beq      gnpStillPlaying                             ; > 0 means 2 players
                         jsr      gameSavePlayer                              ; swap to other player
