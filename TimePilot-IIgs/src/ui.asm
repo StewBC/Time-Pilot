@@ -85,6 +85,7 @@ ugoShowNum              jsl       TXT1_000A
 ugoKeyLoop              jsr       screenDelay
                         dec       ptTimer
                         beq       ugoHaveKey                   ; time out when counter runs out
+                        lda       ptTimer
                         cmp       #UI_GAME_OVER_TIMER-60       ; hold for at least one second
                         bcs       ugoKeyLoop
                         lda       KBD                          ; check for key
