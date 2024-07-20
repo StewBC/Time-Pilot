@@ -23,7 +23,7 @@ clean | clean up built versions of files
 zap | clean and remove intermediate and built files and folders  
 
 ### On macOS
-There is a different Makefile for macOS, you need cadius (which you can put with the Makefile.macos).  On the mac version, I have tested:  
+There is a different Makefile for macOS, and you also need cadius for Mac (which you can put with the Makefile.macos and can get from the Brutal Deluxe website).  On the mac version, I have tested:  
 ```
 make zap -f Makefile.macos  
 make indent -f Makefile.macos  
