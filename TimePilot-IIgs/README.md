@@ -23,7 +23,7 @@ clean | clean up built versions of files
 zap | clean and remove intermediate and built files and folders  
 
 ### On macOS
-There is a different Makefile for macOS, and I also included a cadius that I compiled (in cadius.formac/cadius) - or compile your own.  You may also have to set it to be executable with something like `chmod +x cadius.for.mac/cadius.mac`.  On the mac version, I have tested:  
+There is a different Makefile for macOS, and I also included a cadius that I compiled (in cadius.for.mac/cadius) - or compile your own.  You may also have to set it to be executable with something like `chmod +x cadius.for.mac/cadius.mac`.  On the mac version, I have tested:  
 ```
 make zap -f Makefile.macos  
 make indent -f Makefile.macos  
@@ -32,7 +32,7 @@ make -j -f Makefile.macos
 make dsk -f Makefile.macos  
 ```  
   
-You probnably just want to copy Makefile.macos over Makefile so you can give the commands without the trailing `-f Makefile.macos`.  
+You probably just want to copy Makefile.macos over Makefile so you can give the commands without the trailing `-f Makefile.macos`.  
   
 ### Note about png/tpsmall.png  
 Mr Sprite will, at the time of writing, generate code to draw tpsmall that is not correct.  Under "; Line 8" it at some point generates:  
