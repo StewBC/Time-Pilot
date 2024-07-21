@@ -450,20 +450,24 @@ screenSetPixels         entry
                         asl     a
                         adc     ptE2                            ; add row base
                         tax
-                        ldy     #8                              ; draw 8 rows
-sspLoop                 lda     zSkyColor                       ; in this color
+                        lda     zSkyColor                       ; in this color
                         sta     SCREEN_ROW_BASE,x               ; set 4 pixels (2 bytes written)
-                        inx                                     ; move up 2 bytes
-                        inx
-                        sta     SCREEN_ROW_BASE,x               ; set 4 more pixels
-                        dey                                     ; one less row to do
-                        beq     sspDone                         ; if at zero then done
-                        txa
-                        clc                                     ; move to the next row (stride is 160 bytes)
-                        adc     #160-2                          ; minus the 2 already moved
-                        tax
-                        bra     sspLoop
-sspDone                 rts
+                        sta     SCREEN_ROW_BASE+$2,x            ; set 4 more pixels
+                        sta     SCREEN_ROW_BASE+$a0,x           ; set 4 pixels on next screen line
+                        sta     SCREEN_ROW_BASE+$a2,x           ; set 4 more pixels on next screen line
+                        sta     SCREEN_ROW_BASE+$140,x          ; and so on....
+                        sta     SCREEN_ROW_BASE+$142,x
+                        sta     SCREEN_ROW_BASE+$1e0,x
+                        sta     SCREEN_ROW_BASE+$1e2,x
+                        sta     SCREEN_ROW_BASE+$280,x
+                        sta     SCREEN_ROW_BASE+$282,x
+                        sta     SCREEN_ROW_BASE+$320,x
+                        sta     SCREEN_ROW_BASE+$322,x
+                        sta     SCREEN_ROW_BASE+$3c0,x
+                        sta     SCREEN_ROW_BASE+$3c2,x
+                        sta     SCREEN_ROW_BASE+$460,x
+                        sta     SCREEN_ROW_BASE+$462,x          ; loop unrolled & converted to manually incremented STA MEMORY,X
+                        rts
 
 ;-----------------------------------------------------------------------------
 ; MARK: screenTimeWarp

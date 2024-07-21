@@ -42,86 +42,56 @@ pzsPrintChar            long   m
                         lda    font,y              ; get 4 pixels, line 1
                         and    printFontColor      ; mask for color
                         sta    SCREEN_BASE+$000,x  ; write into screen
-                        iny                        ; move to next 4 pixels
-                        iny
-                        lda    font,y              ; second 4 pixels, line 1
+                        lda    font+$2,y           ; get second 4 pixels, line 1
                         and    printFontColor
                         sta    SCREEN_BASE+$002,x
-                        iny
-                        iny
 
-                        lda    font,y              ; line 2
+                        lda    font+$4,y           ; line 2, manually increase both font & SCREEN_BASE for speed ;-p
                         and    printFontColor
                         sta    SCREEN_BASE+$0A0,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$6,y
                         and    printFontColor
-                        sta    SCREEN_BASE+$A2,x
-                        iny
-                        iny
+                        sta    SCREEN_BASE+$0A2,x
 
-                        lda    font,y              ; line 3
+                        lda    font+$8,y           ; line 3
                         and    printFontColor
                         sta    SCREEN_BASE+$140,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$a,y
                         and    printFontColor
                         sta    SCREEN_BASE+$142,x
-                        iny
-                        iny
 
-                        lda    font,y              ; line 4
+                        lda    font+$c,y           ; line 4
                         and    printFontColor
                         sta    SCREEN_BASE+$1E0,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$e,y
                         and    printFontColor
                         sta    SCREEN_BASE+$1E2,x
-                        iny
-                        iny
 
-                        lda    font,y              ; line 5
+                        lda    font+$10,y          ; line 5
                         and    printFontColor
                         sta    SCREEN_BASE+$280,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$12,y
                         and    printFontColor
                         sta    SCREEN_BASE+$282,x
-                        iny
-                        iny
 
-                        lda    font,y              ; line 6
+                        lda    font+$14,y          ; line 6
                         and    printFontColor
                         sta    SCREEN_BASE+$320,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$16,y
                         and    printFontColor
                         sta    SCREEN_BASE+$322,x
-                        iny
-                        iny
 
-                        lda    font,y              ; line 7
+                        lda    font+$18,y          ; line 7
                         and    printFontColor
                         sta    SCREEN_BASE+$3C0,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$1a,y
                         and    printFontColor
                         sta    SCREEN_BASE+$3C2,x
-                        iny
-                        iny
 
-                        lda    font,y              ; line 8
+                        lda    font+$1c,y          ; line 8
                         and    printFontColor
                         sta    SCREEN_BASE+$460,x
-                        iny
-                        iny
-                        lda    font,y
+                        lda    font+$1e,y
                         and    printFontColor
                         sta    SCREEN_BASE+$462,x
 

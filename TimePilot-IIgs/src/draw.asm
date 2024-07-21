@@ -353,17 +353,10 @@ dbspOdd                 lda     it_boss_b,y
 ; MARK: drawBullet
 drawBullet              entry
                         LDAPAL  COLOR_YELLOW
-                        sty     dbuTop+1
+                        tyx
                         short   m
-dbuTop                  sta     >SCREEN_ROW_BASE
-                        long    m
-                        tya
-                        clc
-                        adc     #$a0
-                        sta     dbuBot+1
-                        LDAPAL  COLOR_YELLOW
-                        short   m
-dbuBot                  sta     >SCREEN_ROW_BASE
+                        sta     >SCREEN_ROW_BASE,x
+                        sta     >SCREEN_ROW_BASE+160,x
                         long    m
                         rts
 
@@ -854,17 +847,10 @@ dplDraw                 jsl     PLAYER_000A                   ; draw the player
 ; MARK: drawPlayerBullet
 drawPlayerBullet        entry
                         LDAPAL  COLOR_WHITE
-                        sty     dpbTop+1
+                        tyx
                         short   m
-dpbTop                  sta     >SCREEN_ROW_BASE
-                        long    m
-                        tya
-                        clc
-                        adc     #$a0
-                        sta     dpbBot+1
-                        LDAPAL  COLOR_WHITE
-                        short   m
-dpbBot                  sta     >SCREEN_ROW_BASE
+                        sta     >SCREEN_ROW_BASE,x
+                        sta     >SCREEN_ROW_BASE+160,x
                         long    m
                         rts
 
