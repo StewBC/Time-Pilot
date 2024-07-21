@@ -84,8 +84,8 @@ miClearZPVars           stz           $00,x
                         pla
                         sta           originalKeyDelayRate
 
-                        ~WriteBParam  #5,#44                        ; set key rate to 5
-                        ~WriteBParam  #0,#45                        ; set delay rate to 0
+                        ~WriteBParam  #5,#44                         ; set key rate to 5
+                        ~WriteBParam  #0,#45                         ; set delay rate to 0
 
                         pha
                         ~MMStartUp
