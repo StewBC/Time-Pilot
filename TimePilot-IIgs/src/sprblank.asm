@@ -1222,7 +1222,7 @@ blank48x16              entry
                         lda    STATEREG                ; Direct Page and Stack in Bank 00/
                         and    #$FFCF
                         sta    STATEREG
-blank48x16Stack         lda    #$FFFF                   ; Restore Stack
+blank48x16Stack         lda    #$FFFF                  ; Restore Stack
                         tcs
                         pld                            ; Restore Direct Page
                         cli                            ; Enable Interrupts
