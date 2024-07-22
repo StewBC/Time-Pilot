@@ -4,7 +4,7 @@ These instructions are for playing the game, but mostly for converting the art a
 ## Controls  
 The game uses the keyboard or Joystick to control the player plane.  To use the Joystick, simply press `J` on the title screen.  If the J does not turn green (selected) then the game is not detecting the Joystick.  Controls on the Joystick (in game) are Up, Down, Left, Right and fire, while the second button is Pause.  In the UI, the fire button starts a 1 Player game, and the "Pause" button starts a 2 Player game.  
   
-The keyboard controls are (and these also work when playing with the Joystick) `1` - 1 Player, `2` - 2 Player, `ESC` - back up (and quit) and `P` - Pause.  The in-game keys are (and these rotate keys *do not* work in joystick mode) `Option` to rotate left, `Open Apple` to rotate right, `Space` to fire (just hold, don't have to tap - I felt too sorry for the poor spacebar).  
+The keyboard controls are (and these also work when playing with the Joystick) `1` - 1 Player, `2` - 2 Player, `ESC` - back up (and quit) and `P` - Pause.  The in-game keys are (and these rotate keys *do not* work in joystick mode) `Option` to rotate left, `Open Apple` to rotate right, `Space` (or `ENTER`) to fire (just hold, don't have to tap - I felt too sorry for the poor spacebar).  Fire and Pause will also start a 1 and 2 player game when playing with the keyboard (same as pressing `1` or `2`).  There is also a cheat mode. `C` to activate.  Cheat mode is like practice.  You have endless lives.  In cheat mode the high score table and display are not affected.
   
 ## Getting started  
 The Apple IIgs version is written in 65816 assembly language, targeting the Orca/M assembler and the build process is done using `make`.  Several pieces of software were used to structure the build process, listed below.  Not all are free.  See below.  
@@ -241,7 +241,7 @@ I have to give special thanks to a few people.
 **Andy McFadden** - CiderPress 2 that makes moving code to the actual Apple IIgs a breeze.  
 **Jeremy Rand** - Made BuGS which made me want to make an arcade game for the IIgs.  
 **Mike Westerfield** - Created Orca/M which is a very sophisticated assembler that has been a joy to use.  
-**Brian A. Troha** - Provided the splash screen graphic.  
+**Brian A. Troha** - Provided the splash screen graphic, and some code optimizations.  
 **Emmanuel Marty et al.** - LZSA2 used in the loader - https://github.com/emmanuel-marty/lzsa.git  
   
 Thank you all - you have made my life better! :)  

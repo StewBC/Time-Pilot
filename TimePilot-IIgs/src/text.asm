@@ -51,7 +51,7 @@ TEXT_SCORE00            dc    c'00',h'00'
 TEXT_STEFAN             dc    c'STEFAN WESSELS',h'00'
 TEXT_AND                dc    c'AND',h'00'
 TEXT_TRY_GAME           dc    c'AND TRY THIS GAME',h'00'
-TEXT_VERSION            dc    c'2024 IIGS VERSION 1.5.A BY',h'00'
+TEXT_VERSION            dc    c'2024 IIGS VERSION 1.6 BY',h'00'
 
 thisisformattextdata__  anop
                         END
