@@ -200,17 +200,14 @@ screenDrawPartial       entry
                         sei                                     ; disable Interrupts
                         phb                                     ; save the data bank
                         phd                                     ; save the DP address
-                        lda     zSpriteDataBank
-                        short   m
-                        pha
-                        long    m
+                        pei     zSpriteDataBank-1               ; Compensate for double PLB
+                        plb
                         plb
 
                         lda     zImageAddressPdpB1
                         pha
                         pld
-                        tsc                                     ; backup Stack
-                        sta     >stackAddress
+                        tsx                                     ; backup Stack
                         lda     STATEREG                        ; direct Page and Stack in Bank 01/
                         ora     #$0030
                         sta     STATEREG
@@ -329,8 +326,7 @@ ifreturnAddress         entry
 ifdone                  lda     STATEREG                        ; direct Page and Stack in Bank 00/
                         and     #$FFCF
                         sta     STATEREG
-                        lda     >stackAddress                   ; restore Stack
-                        tcs
+                        txs                                     ; restore Stack
                         pld                                     ; restore the DP address
                         plb                                     ; restore the data bank
                         cli                                     ; enable Interrupts
