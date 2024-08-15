@@ -1,5 +1,5 @@
 # Time Pilot in C for the 68K Mac
-I think you need color - I play on my Centris 650 or in the Basilisk II emulator.  Even thouh vMac looks like a target, that just crashes.  
+I have made this need at least System 7.  It was an arbitrary decision, but I did read something somewhere that made me think this will only work on System 7 and above.  You need color - I tested on my SE/30 with System 7 and the game ran, but the display was very wrong.  Probably a way to make it go but I am not investing in that now.  I play on my Centris 650 or in the Basilisk II emulator.  Even though vMac looks like a target, that just crashes.  
   
 This version was derived from the Windows code which in turn was derived from my original Apple IIgs 65816 code. I cleaned up the code a little, since I couldn't afford the sloppiness that I was allowed in Windows.  This version sorts the sprites by layer only (vs in Y and then overlapping sprites by layer for the IIgs).  The collision routine thus had to change a little as well.  Otherwise, this is pretty much the Windows version.  
   
@@ -15,24 +15,33 @@ The audio works quite well, but there are issues with the code.  I could not get
 ## Graphics  
 The game uses a clever way to draw sprites that don't require a mask. The sprites are encoded as horizontal lines, with a code for draw, skip, etc.  All sprites are software drawn to a back buffer and the back buffer is sent to the screen at (hopefully) 60 FPS.  At 320x200 this worked but it was agonizingly slow (like 2 FPS) at 640x480.  The game now uses dirty rectangles and runs at 320x200 but will stretch by 2x if 640x480 mode is selected.  It runs slow, but almost passable like this.  Not bad for all "C" code.  The sprites and dirty rect code comes from "Tricks of the Mac Game Programming Gurus".  That was an invaluable resource for getting this done.  
   
+I did not get the color cycling to work either.  I must admit that I did not put in a lot of effort, other than trying to swap a couple of colors.  When I looked at the documentation, I could see that there's more to this.  I think it is because applications have to coexist with others, but I try to take over the whole screen, so I don't care so much - but I suppose it's good that the Mac does care.  I'll investigate this down the road somewhere.  
+  
 ## Code Switches  
-There's a define to enable replay recording (see RECORD_REPLAY in globals.h).  When defined, the game starts at Stage 2 and the playing is recorded to a buffer.  When you die or kill the boss, the replay is saved (replayXXX.bin) and played back and the next play will record again.  This is useful for capturing the demo attract sequence.  The saved files are numbered so the highest numbered save is the last one played.  There is, however, an issue with this Mac version where it is somehow not repeatable.  I'll have to think how that came about.  Quite possibly the Audio.
+There's a define to enable replay recording (see RECORD_REPLAY in globals.h).  When defined, the game starts at Stage 2 and the playing is recorded to a buffer.  When you die or kill the boss, the replay is saved (replayXXX.bin) and played back and the next play will record again.  This is useful for capturing the demo attract sequence.  The saved files are numbered so the highest numbered save is the last one played.  There is, however, an issue with this Mac version where it is somehow not repeatable.  I'll have to think how that came about.  Quite possibly the Audio.  
+  
+## Other issues  
+There are quite possibly some other issues.  One is that this code is not up to date with the IIgs version - that's the best version.  I also think there may be other bugs - for example - I think that the parachute, in this version, always scores 1000 points and not 1000, 2000, etc. as it does in the Arcade, and on the IIgs.  Over time, I might address these bugs.  For now I want to move on since I wasn't actually planning to make this now.  
   
 ## Game Input and Keyboard  
 ```
 Hold space to fire (I didn't like tapping the key)  
-Rotate left right with the [ and ] keys (or where they would have been if you have say a French keyboard) - or steer with cursor keys or WASD  
+Rotate left right with the [ and ] keys (or where they would have been if you have say a French keyboard)  
+Steer with cursor keys or WASD in the 4 directions  
 P pauses  
 1 or Space starts a 1P game  
 2 starts a 2P game  
-ESC or command-q quits the game or app if in the ui  
+ESC or command-q quits the in-progress game, or the app if in the ui  
 - and + (or =) will switch the game display between 320x240 and 640x480.
 ```  
   
-At 640x480 the game is too slow on my Centris 650.  
+At 640x480 the game is still a bit too slow on my Centris 650.  
 
 Pressing the J key will supposedly scan for the next usable joystick, but I don't know if there were even any Mac joysticks?  If there were, I don't support them.  For now, this is a keyboard only game and pressing J will have no effect.  
 
+## Image and .bin file  
+In releases (from V1.7) there are 2 Mac 68K files.  One is Time.Pilot68K.bin and the other is Time.Pilot68K.dsk.  When I FTP Time.Pilot68K.bin (which, in development is just called Time.Pilot.bin) to my Centris, the .bin is dropped and that is the game (app) with resource forks and all.  I did also rawwrite (or dd on Linux) Time.Pilot68K.dsk (again just Time.Pilot.dsk in the build folder) to a USB floppy drive on my Windows machine, and I could load that on my Mac.  
+  
 ## VS Code  
 These files are in the .vscode folder, inside the TimePilot-Mac68k folder.
 c_cpp_properties.json:  
