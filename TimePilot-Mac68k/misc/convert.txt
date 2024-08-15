@@ -1,0 +1,54 @@
+
+# python misc/resman.py -v -f -r 160 -i misc/convert.txt -p misc/palette.txt -o src/tpsprs.r -c src/tpsprsd.h
+
+# Optional parameters:
+# 0 - output_name
+# 1 - background_color
+# 2 - frame_width
+# 3 - frame_height
+# 4 - fixed_width
+# 5 - offset_x
+# 6 - offset_y
+# 7 - pad_x
+# 8 - pad_y
+# 9 - scale
+
+# Put the font first for resource number reasons
+# adjust the -128 so this works: -r's 160 + -128 = 32 (space)
+# the first font character is a space (?ID_LETTER_32)
+png/font.png                      LETTER_%c(-128)::8:8:1:1:1:1:1:1 
+
+# The rest of the sprites follow
+png/astro0.png
+png/astro1.png
+png/astro2.png
+png/bomb.png                      ::2
+png/boomerang.png                 ::8
+png/cloud0.png
+png/cloud1.png
+png/cloud2.png
+png/expl_bmrng.png                ::4
+png/expl_large.png                ::4
+png/expl_sblt.png                 ::4
+png/expl_small.png                ::4
+png/expl_wepns.png                ::4
+png/l0enemy.png                   ::16
+png/l1enemy.png                   ::16
+png/l2enemy.png                   ::9
+png/l3enemy.png                   ::16
+png/l4enemy.png                   ::4
+png/l0boss.png                    ::8
+png/l1boss.png                    ::8
+png/l2boss.png                    ::8
+png/l3boss.png                    ::8
+png/l4boss.png                    ::2
+png/l1bomber.png                  ::8
+png/number.png                    ::6
+png/parachute.png                 ::4
+png/player.png                    ::32
+png/progress.png
+png/rocket.png                    ::16
+png/sbullet.png                   ::8
+png/stage.png
+png/timepilot.png
+png/tpsmall.png

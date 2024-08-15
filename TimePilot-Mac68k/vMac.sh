@@ -1,0 +1,2 @@
+cp /home/swessels/develop/personal/github/Time-Pilot/TimePilot-Mac68k/build/time_pilot.dsk /mnt/c/Users/swessels/Games/Mac68k/MinivMac/time_pilot.dsk
+/mnt/c/Users/swessels/Games/Mac68k/MinivMac/Mini\ vMac.exe C:/Users/swessels/Games/Mac68k/MinivMac/HD20_755.dsk C:/Users/swessels/Games/Mac68k/MinivMac/time_pilot.dsk
