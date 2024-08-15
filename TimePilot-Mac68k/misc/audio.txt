@@ -1,0 +1,28 @@
+# This file describes the audio files and how they are to be converted
+# for usei in Time Pilot on the 68K Mac
+
+# The format is Name [loops]:[Hz]:[chanels]:[resID]
+# defaults are loops 0, Hz 22050, chanels 2 (stereo vs 1 = mono), resID 128
+# looping sounds are set to loop the entire sound - but this isn't implemented in my game code
+# using a resID sets the counter to that value, and all subsequent files will count from that ID
+
+audio/big_explosion.wav
+audio/bomb.wav
+audio/bossl0.wav
+audio/bossl1.wav
+audio/bossl2.wav
+audio/bossl3.wav
+audio/coindrop.wav
+audio/enemy_explode.wav
+audio/enemy_shoot.wav
+audio/extra_life.wav
+audio/game_start.wav
+audio/highscore.wav
+audio/next_level.wav
+audio/pickup.wav
+audio/player_shoot.wav
+audio/rocket_fly.wav
+audio/rocket_launch.wav
+audio/timewarp.wav
+audio/wapon_explode.wav
+audio/wave_start.wav

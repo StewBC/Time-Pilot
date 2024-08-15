@@ -1,0 +1,27 @@
+# This file contains the palette info for Time Pilot Apple Mack68k
+# Each entry below is the image color followed by the 
+# palette index the game uses to render that color.
+
+000000 0  # Black
+F0F0F0 1  # White
+F00000 2  # Red 
+00C0F0 3  # Cyan
+C000C0 4  # Magenta
+00C000 5  # Green
+0050F0 6  # Blue
+F0F000 7  # Yellow
+F08000 8  # Orange
+808080 9  # Gray (clouds)
+800000 10 # Dark Red
+608000 11 # Olive Green
+0000A0 11 # Dark Blue (L4 Boss)
+B0B000 12 # Dark Yellow
+123400 13 # Prop 0 (sky or prop)
+432100 14 # prop 1 (prop or sky)
+000060 15 # SKY0
+005060 16 # SKY1
+006050 17 # SKY2
+500050 18 # SKY3
+# 000000 19 # SKY4 Repeat of Black so don't put in the palette
+
+FFFFFF 255 # Font maps to all FF
