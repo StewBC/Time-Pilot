@@ -141,6 +141,9 @@ void uiGameOver() {
             }
             screenClearSection(20, highScoreInitialsY[uiInsertRow], 3, 1, TP_COLOR_BLACK);
             printXY(20, highScoreInitialsY[uiInsertRow], 0, highScoreColorIndex[uiInsertRow], TEXT_INITIALS[uiInsertRow]);
+            if(uiLetterIndex >= 3) {
+                macUpdate(screen);
+            }
         }
         audioStopSource(AUDIO_HIGHSCORE);
     }
