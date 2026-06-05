@@ -11,8 +11,8 @@
 
 extern void clearUpdate(void);
 extern void addRectToUpdate(Rect * inUpdateRect);
+extern void addRectToUpdateUnmerged(Rect * inUpdateRect);
 extern uint32_t getUpdateRectCount(void);
 extern void getUpdateRect(uint32_t inRectIndex, Rect * outUpdateRect);
-extern void increaseUpdateRects(void);
-extern void decreaseUpdateRects(void);
+extern void setUpdateRectLimit(uint32_t inRectLimit);
 extern void adjustRect(Rect * ioRect);

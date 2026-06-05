@@ -13,6 +13,7 @@
 #include "erase.h"
 #include "print.h"
 #include "screen.h"
+#include "update.h"
 
 #include <stdlib.h>
 
@@ -62,6 +63,9 @@ uint16_t screenClips(int16_t X) {
 //-----------------------------------------------------------------------------
 void screenDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
     int16_t dx, dy, sx, sy, err, e2;
+
+    clearUpdate();
+
     dx = abs(x1 - x0);
     sx = x0 < x1 ? 1 : -1;
     dy = -abs(y1 - y0);
@@ -82,11 +86,16 @@ void screenDrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1) {
         }
     }
     macUpdate(screen);
+    clearUpdate();
 }
 
 //-----------------------------------------------------------------------------
 void screenSetColPixel(int16_t x0, int16_t y0) {
-    screenClearSection(x0, y0, 1, 1, drawBackgroundColor);
+    Rect updateRect;
+
+    macFillNoUpdate(x0 * SCOLW, y0 * SROWH, SCOLW, SROWH, drawBackgroundColor);
+    SetRect(&updateRect, x0 * SCOLW, y0 * SROWH, (x0 + 1) * SCOLW, (y0 + 1) * SROWH);
+    addRectToUpdateUnmerged(&updateRect);
 }
 
 //-----------------------------------------------------------------------------
@@ -103,9 +112,16 @@ void screenSetPalette() {
 }
 
 //-----------------------------------------------------------------------------
+static void screenTimeWarpUpdate(void) {
+    macUpdate(screen);
+    clearUpdate();
+}
+
+//-----------------------------------------------------------------------------
 void screenTimeWarp() {
     int16_t x, l, f, i = 0;
 
+    screenTimeWarpUpdate();
     x = timeWarpDrawScript[0];
     do {
         while(x >= 0) {
@@ -132,14 +148,14 @@ void screenTimeWarp() {
             x = timeWarpDrawScript[i];
         }
         drawThing(0);
-        macUpdate(screen);
-        macUpdate(screen);
+        screenTimeWarpUpdate();
+        screenTimeWarpUpdate();
 
         for(x = 0; x < 13; x++) {
             screenClearSection(timeWarpDrawX[x], (PLAYER_Y / SROWH), 2, 2, drawBackgroundColor);
         }
-        macUpdate(screen);
-        macUpdate(screen);
+        screenTimeWarpUpdate();
+        screenTimeWarpUpdate();
 
         i++;
         x = timeWarpDrawScript[i];
@@ -152,6 +168,7 @@ void screenTimeWarp() {
 void screenWipe() {
     int16_t counter;
 
+    clearUpdate();
     counter = PLAYFIELDW / 2 - 1;
     while(counter >= 0) {
         screenDrawLine(PLAYFIELDW / 2 - 1, PLAYFIELDH / 2, counter--, 0);
@@ -185,7 +202,7 @@ void screenWipe() {
 
 //-----------------------------------------------------------------------------
 void screenWipeToStageSky(uint16_t stage) {
-    drawBackgroundColor = TP_COLOR_SKY0 + stage;
+    drawBackgroundColor = (stage == TIME_PERIOD4_2001) ? TP_COLOR_BLACK : TP_COLOR_SKY0 + stage;
     screenWipe();
     activeSky = stage;
 }

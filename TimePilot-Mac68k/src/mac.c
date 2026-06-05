@@ -21,6 +21,7 @@
 #include "mac.h"
 #include "globals.h"
 
+#include "audio.h"
 #include "input.h"
 #include "resids.h"
 #include "sprite.h"
@@ -28,6 +29,19 @@
 
 #include "print.h"
 #include "string.h"
+
+static GWorldPtr sScaledOffScreen;
+static PixMapHandle sScaledOffScreenPixels;
+static Rect sScaledGameRect;
+static uint16_t sDoublePixelTable[256];
+static uint32_t sDoublePixelPairTable[65536];
+
+static void macBlit2xAlignedPairsAsm(unsigned char *srcRow,
+                                     unsigned char *destRow0,
+                                     uint32_t srcRowBytes,
+                                     uint32_t destRowBytes,
+                                     uint32_t width,
+                                     uint32_t height);
 
 //-----------------------------------------------------------------------------
 void macAnimatePalette() {
@@ -42,10 +56,232 @@ void macAnimatePalette() {
 }
 
 //-----------------------------------------------------------------------------
-void macBlitToScreen(Rect *srcCopyRect) {
-    CGrafPtr oldPort;                   // the graf port that is in place when we are called
-    GDHandle oldDevice;                 // the gdevice that is in place when we are called
+static void macCopyBytes(unsigned char *destPtr, unsigned char *srcPtr, uint32_t byteCount) {
+    while(byteCount >= sizeof(uint32_t)) {
+        *((uint32_t *) destPtr) = *((uint32_t *) srcPtr);
+        destPtr += sizeof(uint32_t);
+        srcPtr += sizeof(uint32_t);
+        byteCount -= sizeof(uint32_t);
+    }
+
+    if(byteCount >= sizeof(uint16_t)) {
+        *((uint16_t *) destPtr) = *((uint16_t *) srcPtr);
+        destPtr += sizeof(uint16_t);
+        srcPtr += sizeof(uint16_t);
+        byteCount -= sizeof(uint16_t);
+    }
+
+    if(byteCount) {
+        *destPtr = *srcPtr;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// Copy an 8-bit indexed source image into an 8-bit indexed destination image
+// while scaling it by 2x in both directions.
+//
+// Example:
+//
+// Source:
+//   A B C
+//   D E F
+//
+// Destination:
+//   A A B B C C
+//   A A B B C C
+//   D D E E F F
+//   D D E E F F
+//
+// There are two main execution paths:
+//   1. Unaligned destination path
+//      Used when the destination address is not 16-bit aligned.
+//      Expands pixels one at a time.
+//
+//   2. Aligned destination path
+//      Used when the destination address is 16-bit aligned.
+//      Uses lookup tables to expand 2 pixels at once for better speed.
+//
+// The source and destination must both be 8-bit indexed pixmaps.
+//-----------------------------------------------------------------------------
+static int16_t macBlit2xIndexedToPixmap(Rect *srcCopyRect, PixMapHandle destPixels, Rect *destCopyRect)
+{
+    unsigned char *srcBase;
+    unsigned char *destBase;
+    unsigned char *srcRow;
+    unsigned char *destRow0;
+    unsigned char *destRow1;
+    unsigned char *srcPtr;
+    unsigned char *destPtr0;
+    unsigned char *destPtr1;
+    uint32_t srcRowBytes;
+    uint32_t destRowBytes;
+    uint32_t width;
+    uint32_t height;
+    uint32_t xCounter;
+    uint32_t yCounter;
+    unsigned char pixel;
+
+    if(!destPixels || (*offScreenPixels)->pixelSize != 8 || (*destPixels)->pixelSize != 8) {
+        return 0;
+    }
+
+    srcBase = (unsigned char *)GetPixBaseAddr(offScreenPixels);
+    destBase = (unsigned char *)GetPixBaseAddr(destPixels);
+
+    if(!srcBase || !destBase) {
+        return 0;
+    }
+
+    srcRowBytes = (*offScreenPixels)->rowBytes & 0x3fff;
+    destRowBytes = (*destPixels)->rowBytes & 0x3fff;
+
+    width = srcCopyRect->right - srcCopyRect->left;
+    height = srcCopyRect->bottom - srcCopyRect->top;
+
+    srcRow = srcBase +
+        (srcCopyRect->top - (*offScreenPixels)->bounds.top) * srcRowBytes +
+        (srcCopyRect->left - (*offScreenPixels)->bounds.left);
+
+    destRow0 = destBase +
+        (destCopyRect->top - (*destPixels)->bounds.top) * destRowBytes +
+        (destCopyRect->left - (*destPixels)->bounds.left);
+
+    if(((uint32_t)destRow0) & 1) {
+        // Slow-safe path.  If destRow0 is odd-aligned, do not use 16-bit or 32-bit destination
+        // stores. Write bytes only.
+        for(yCounter = 0; yCounter < height; yCounter++) {
+            srcPtr = srcRow;
+            destPtr0 = destRow0;
+            destPtr1 = destRow0 + destRowBytes;
+
+            for(xCounter = 0; xCounter < width; xCounter++) {
+                pixel = *srcPtr++;
+
+                *destPtr0++ = pixel;
+                *destPtr0++ = pixel;
+
+                *destPtr1++ = pixel;
+                *destPtr1++ = pixel;
+            }
+
+            srcRow += srcRowBytes;
+            destRow0 += destRowBytes << 1;
+        }
+    } else {
+        // Fast path. Destination is 16-bit aligned, so 16-bit and 32-bit stores are safe.
+        for(yCounter = 0; yCounter < height; yCounter++) {
+            srcPtr = srcRow;
+            destRow1 = destRow0 + destRowBytes;
+            destPtr0 = destRow0;
+            destPtr1 = destRow1;
+            xCounter = width;
+
+            // Fastest subpath.  If source is also 16-bit aligned, read two source pixels at once.
+            // Source:
+            //   A B
+            // Table output:
+            //   A A B B
+            // Write the expanded 32-bit value to both destination rows.
+            if(!(((uint32_t)srcPtr) & 1)) {
+                macBlit2xAlignedPairsAsm(srcRow, destRow0, srcRowBytes, destRowBytes, width, height);
+                return 1;
+            } else {
+                // Source is unaligned. Destination is aligned, so use 16-bit destination
+                // stores, but source must be read one byte at a time.
+                while(xCounter) {
+                    uint16_t expandedPixel;
+
+                    pixel = *srcPtr++;
+                    expandedPixel = sDoublePixelTable[pixel];
+
+                    *((uint16_t *)destPtr0) = expandedPixel;
+                    *((uint16_t *)destPtr1) = expandedPixel;
+
+                    destPtr0 += sizeof(uint16_t);
+                    destPtr1 += sizeof(uint16_t);
+                    xCounter--;
+                }
+            }
+
+            srcRow += srcRowBytes;
+            destRow0 += destRowBytes << 1;
+        }
+    }
+
+    return 1;
+}
+
+//-----------------------------------------------------------------------------
+static int16_t macBlit2xIndexedToScaledGWorld(Rect *srcCopyRect, Rect *scaledSrcRect) {
+    int16_t result;
+
+    *scaledSrcRect = *srcCopyRect;
+    scaledSrcRect->top <<= 1;
+    scaledSrcRect->left <<= 1;
+    scaledSrcRect->right <<= 1;
+    scaledSrcRect->bottom <<= 1;
+    result = macBlit2xIndexedToPixmap(srcCopyRect, sScaledOffScreenPixels, scaledSrcRect);
+    return result;
+}
+
+//-----------------------------------------------------------------------------
+static void macBlit2xAlignedPairsAsm(unsigned char *srcRow,
+                                     unsigned char *destRow0,
+                                     uint32_t srcRowBytes,
+                                     uint32_t destRowBytes,
+                                     uint32_t width,
+                                     uint32_t height) {
+    uint32_t pairCount;
+    uint32_t yCounter;
+
+    pairCount = width >> 1;
+    for(yCounter = 0; yCounter < height; yCounter++) {
+        unsigned char *srcPtr;
+        unsigned char *destPtr0;
+        unsigned char *destPtr1;
+
+        srcPtr = srcRow;
+        destPtr0 = destRow0;
+        destPtr1 = destRow0 + destRowBytes;
+
+        if(pairCount) {
+            uint32_t loopCounter;
+
+            loopCounter = pairCount - 1;
+            __asm__ volatile(
+                "1:\n\t"
+                "moveq #0,%%d0\n\t"
+                "move.w (%[src])+,%/d0\n\t"
+                "lsl.l #2,%/d0\n\t"
+                "move.l (%[table],%/d0.l),%/d1\n\t"
+                "move.l %/d1,(%[dst0])+\n\t"
+                "move.l %/d1,(%[dst1])+\n\t"
+                "dbra %[count],1b"
+                : [src] "+a" (srcPtr),
+                  [dst0] "+a" (destPtr0),
+                  [dst1] "+a" (destPtr1),
+                  [count] "+d" (loopCounter)
+                : [table] "a" (sDoublePixelPairTable)
+                : "d0", "d1", "memory");
+        }
+
+        if(width & 1) {
+            uint16_t expandedPixel;
+
+            expandedPixel = sDoublePixelTable[*srcPtr];
+            *((uint16_t *)destPtr0) = expandedPixel;
+            *((uint16_t *)destPtr1) = expandedPixel;
+        }
+
+        srcRow += srcRowBytes;
+        destRow0 += destRowBytes << 1;
+    }
+}
+
+//-----------------------------------------------------------------------------
+static void macBlitToPreparedScreen(Rect *srcCopyRect) {
     Rect destCopyRect;
+    Rect scaledSrcRect;
 
     destCopyRect = *srcCopyRect;
 
@@ -58,8 +294,18 @@ void macBlitToScreen(Rect *srcCopyRect) {
 
     OffsetRect(&destCopyRect, displayPoint.h, displayPoint.v);
 
+    if(globalScale && macBlit2xIndexedToScaledGWorld(srcCopyRect, &scaledSrcRect)) {
+        CopyBits((BitMap *) (*sScaledOffScreenPixels), &(screen->portBits), &scaledSrcRect, &destCopyRect, srcCopy, (RgnHandle) nil);
+    } else {
+        // copy the buffer to the screen
+        CopyBits((BitMap *) (*offScreenPixels), &(screen->portBits), srcCopyRect, &destCopyRect, srcCopy, (RgnHandle) nil);
+    }
+}
+
+//-----------------------------------------------------------------------------
+static void macBeginScreenBlits(CGrafPtr *outOldPort, GDHandle *outOldDevice) {
     // save the current port and gdevice
-    GetGWorld(&oldPort, &oldDevice);
+    GetGWorld(outOldPort, outOldDevice);
 
     // set the drawing environment to the screen
     SetGWorld((CWindowPtr) screen, GetMainDevice());
@@ -70,19 +316,44 @@ void macBlitToScreen(Rect *srcCopyRect) {
 
     // Copy the screen's color table seed into the source pixmap.
     // This will minimize CopyBits' setup time.
-    (*((*offScreenPixels)->pmTable))->ctSeed = (*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
+    long ctSeed = (*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
+    (*((*offScreenPixels)->pmTable))->ctSeed = ctSeed;
+    if(sScaledOffScreenPixels) {
+        (*((*sScaledOffScreenPixels)->pmTable))->ctSeed = ctSeed;
+    }
+}
 
-    // copy the buffer to the screen
-    CopyBits((BitMap *) (*offScreenPixels), &(screen->portBits), srcCopyRect, &destCopyRect, srcCopy, (RgnHandle) nil);
-
+//-----------------------------------------------------------------------------
+static void macEndScreenBlits(CGrafPtr oldPort, GDHandle oldDevice) {
     // restore the current port and gdevice
     SetGWorld(oldPort, oldDevice);
+}
+
+//-----------------------------------------------------------------------------
+void macBlitToScreen(Rect *srcCopyRect) {
+    CGrafPtr oldPort;                   // the graf port that is in place when we are called
+    GDHandle oldDevice;                 // the gdevice that is in place when we are called
+
+    LockPixels(offScreenPixels);
+    if(sScaledOffScreenPixels) {
+        LockPixels(sScaledOffScreenPixels);
+    }
+
+    macBeginScreenBlits(&oldPort, &oldDevice);
+    macBlitToPreparedScreen(srcCopyRect);
+    macEndScreenBlits(oldPort, oldDevice);
 }
 
 //-----------------------------------------------------------------------------
 void macCleanup() {
     if(screen) {
         SetGWorld((CWindowPtr) screen, GetMainDevice());
+        if(sScaledOffScreenPixels) {
+            UnlockPixels(sScaledOffScreenPixels);
+        }
+        if(sScaledOffScreen) {
+            DisposeGWorld(sScaledOffScreen);
+        }
         UnlockPixels(offScreenPixels);
         DisposeGWorld(offScreen);
         // show the menu bar again
@@ -124,6 +395,13 @@ void macFill(int16_t X, int16_t Y, int16_t W, int16_t H, uint16_t color) {
 }
 
 //-----------------------------------------------------------------------------
+void macFillNoUpdate(int16_t X, int16_t Y, int16_t W, int16_t H, uint16_t color) {
+    Rect fillRect = { Y, X, Y + H, X + W };
+    RGBForeColor(&colors[color]);
+    PaintRect(&fillRect);
+}
+
+//-----------------------------------------------------------------------------
 void macHideMenuBar(void) {
     GDHandle mainScreen;                // the information on the main screen
     Rect mainScreenRect;                // the rect that bounds the menu barRgn
@@ -154,6 +432,7 @@ void macHideMenuBar(void) {
 int16_t macInit() {
     TrapType trType;
     uint32_t response;
+    uint16_t tableCounter;
 
     // Init toolboxes
     InitGraf(&(qd.thePort));
@@ -178,6 +457,16 @@ int16_t macInit() {
     // get the enitre heap
     MaxApplZone();
 
+    for(tableCounter = 0; tableCounter < 256; tableCounter++) {
+        sDoublePixelTable[tableCounter] = (tableCounter << 8) | tableCounter;
+    }
+    for(response = 0; response < 65536; response++) {
+        uint32_t leftPixel = (response >> 8) & 0xff;
+        uint32_t rightPixel = response & 0xff;
+        sDoublePixelPairTable[response] =
+            (leftPixel << 24) | (leftPixel << 16) | (rightPixel << 8) | rightPixel;
+    }
+
     // Install our custom palette
     macSetPaletteFromResource(RID_CLUT0);
     macHideMenuBar();
@@ -196,8 +485,10 @@ int16_t macInit() {
     gameRect.left = gameRect.top = 0;
     gameRect.right = 320;
     gameRect.bottom = 240;
-    // And set the scale to draw this rect as, at 1
-    macSetScale(1);
+    // Prefer 2x when the display can fit it, but fall back to 1x on smaller screens.
+    if(!macSetScale(2)) {
+        macSetScale(1);
+    }
 
     // Create an off screen (back) buffer the size of the screen buffer
     if(0 != NewGWorld(&offScreen,       // Handle
@@ -210,6 +501,19 @@ int16_t macInit() {
         return 0;
     }
     offScreenPixels = GetGWorldPixMap(offScreen);
+
+    sScaledGameRect.left = sScaledGameRect.top = 0;
+    sScaledGameRect.right = gameRect.right << 1;
+    sScaledGameRect.bottom = gameRect.bottom << 1;
+    if(0 == NewGWorld(&sScaledOffScreen,
+                      0,
+                      &sScaledGameRect,
+                      NULL,
+                      NULL,
+                      keepLocal)) {
+        sScaledOffScreenPixels = GetGWorldPixMap(sScaledOffScreen);
+        LockPixels(sScaledOffScreenPixels);
+    }
 
     if(!(screen && offScreen && offScreenPixels)) {
         return 0;
@@ -227,6 +531,12 @@ int16_t macInit() {
     LockPixels(offScreenPixels);
     spriteStartDraw(offScreenPixels);
     PaintRect(&gameRect);
+
+    if(sScaledOffScreen) {
+        SetGWorld(sScaledOffScreen, NULL);
+        PaintRect(&sScaledGameRect);
+        SetGWorld(offScreen, NULL);
+    }
 
     // Get KeyUp events
     SetEventMask(everyEvent | keyUpMask);
@@ -310,10 +620,12 @@ void macShowMenuBar(void) {
 //-----------------------------------------------------------------------------
 void macUpdate(WindowPtr screen) {
     EventRecord theEvent;               // a place to put an event
+    CGrafPtr oldPort;                   // the graf port that is in place when we are called
+    GDHandle oldDevice;                 // the gdevice that is in place when we are called
 
     UnlockPixels(offScreenPixels);
     rawKey = 0;
-    while(WaitNextEvent(everyEvent, &theEvent, 1L, (RgnHandle) nil) == true) {
+    while(WaitNextEvent(everyEvent, &theEvent, 0L, (RgnHandle) nil) == true) {
         switch (theEvent.what) {
         case keyDown:
             rawKey = (theEvent.message & charCodeMask);
@@ -349,23 +661,32 @@ void macUpdate(WindowPtr screen) {
         }
     }
 
+    LockPixels(offScreenPixels);
+    if(sScaledOffScreenPixels) {
+        LockPixels(sScaledOffScreenPixels);
+    }
+
+    macBeginScreenBlits(&oldPort, &oldDevice);
+
     // Copy the off-screen to the screen
     if(0) {
-        macBlitToScreen(&gameRect);
+        macBlitToPreparedScreen(&gameRect);
     } else {
         uint32_t rectCounter;           // a counter to scan all the rects
         Rect updateRect;                // the rect that needs to be updated
+
         // copy each of the update rects to the screen
         for(rectCounter = 0; rectCounter < getUpdateRectCount(); rectCounter++) {
             // get one of the update rects
             getUpdateRect(rectCounter, &updateRect);
             // copy the buffer to the screen
-            macBlitToScreen(&updateRect);
+            macBlitToPreparedScreen(&updateRect);
         }
     }
 
+    macEndScreenBlits(oldPort, oldDevice);
+
     // Set offScreen as active and clear it
     SetGWorld(offScreen, NULL);
-    LockPixels(offScreenPixels);
     spriteStartDraw(offScreenPixels);
 }

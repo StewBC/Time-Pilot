@@ -15,6 +15,11 @@
 //-----------------------------------------------------------------------------
 void eraseThing(int16_t X) {
     Rect thingRect;
+    uint32_t fillColor;
+    uint32_t width;
+    uint32_t height;
+    uint32_t yCounter;
+    unsigned char *destRow;
 
     thingRect.top = activeMinY[X];
     thingRect.bottom = thingRect.top + activeHeight[X];
@@ -33,7 +38,26 @@ void eraseThing(int16_t X) {
         thingRect.bottom = spriteClipRect.bottom;
     }
 
-    RGBForeColor(&colors[TP_COLOR_SKY0 + activeSky]);
-    PaintRect(&thingRect);
+    fillColor = drawBackgroundColor;
+    width = thingRect.right - thingRect.left;
+    height = thingRect.bottom - thingRect.top;
+    destRow = baseAddr + thingRect.top * rowBytes + thingRect.left;
+    for(yCounter = 0; yCounter < height; yCounter++) {
+        unsigned char *destPtr;
+        uint32_t xCounter;
+
+        destPtr = destRow;
+        xCounter = width;
+        while(xCounter >= sizeof(uint32_t)) {
+            *((uint32_t *)destPtr) = (fillColor << 24) | (fillColor << 16) | (fillColor << 8) | fillColor;
+            destPtr += sizeof(uint32_t);
+            xCounter -= sizeof(uint32_t);
+        }
+        while(xCounter) {
+            *destPtr++ = fillColor;
+            xCounter--;
+        }
+        destRow += rowBytes;
+    }
     addRectToUpdate(&thingRect);
 }

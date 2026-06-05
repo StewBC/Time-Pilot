@@ -138,39 +138,42 @@ void addRectToUpdate(Rect *inUpdateRect) {
     }
 }
 
+//-----------------------------------------------------------------------------
+void addRectToUpdateUnmerged(Rect *inUpdateRect) {
+    Rect newRect;
+
+    newRect = *inUpdateRect;
+    adjustRect(&newRect);
+
+    if(sUpdateRectCount < kMaxRects) {
+        sUpdateRects[sUpdateRectCount] = newRect;
+        sUpdateRectCount++;
+    } else {
+        addRectToUpdate(&newRect);
+    }
+}
+
 
 //-----------------------------------------------------------------------------
 uint32_t getUpdateRectCount(void) {
     return sUpdateRectCount;
 }
 
+//-----------------------------------------------------------------------------
+void setUpdateRectLimit(uint32_t inRectLimit) {
+    if(inRectLimit < 1) {
+        inRectLimit = 1;
+    } else if(inRectLimit > kMaxRects) {
+        inRectLimit = kMaxRects;
+    }
+    sNumUpdateRects = inRectLimit;
+    clearUpdate();
+}
 
 //-----------------------------------------------------------------------------
 void getUpdateRect(uint32_t inRectIndex, Rect *outUpdateRect) {
     // return the correct rect
     *outUpdateRect = sUpdateRects[inRectIndex];
-}
-
-//-----------------------------------------------------------------------------
-void increaseUpdateRects(void) {
-    // make sure that we are not already at the maximum
-    if(sNumUpdateRects == kMaxRects) {
-        return;
-    }
-
-    // increase the number
-    sNumUpdateRects++;
-}
-
-//-----------------------------------------------------------------------------
-void decreaseUpdateRects(void) {
-    // make sure that we are not already at the minumum
-    if(sNumUpdateRects == 1) {
-        return;
-    }
-
-    // increase the number
-    sNumUpdateRects--;
 }
 
 //-----------------------------------------------------------------------------

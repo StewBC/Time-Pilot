@@ -1,0 +1,21 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "TimePilot-Mac68k",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "toolchainFile": "$env{RETRO68}/toolchain/m68k-apple-macos/cmake/retro68.toolchain.cmake",
+            "cacheVariables": {
+                "ARGS_CREATOR": "SWTP",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "TimePilot-Mac68k",
+            "configurePreset": "TimePilot-Mac68k"
+        }
+    ]
+}

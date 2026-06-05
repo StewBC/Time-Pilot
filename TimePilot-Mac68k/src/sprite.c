@@ -14,6 +14,44 @@
 #include "update.h"
 
 //-----------------------------------------------------------------------------
+static void spriteCopyRun(unsigned char **ioDestPtr, unsigned char **ioSrcPtr, uint32_t byteCount) {
+    unsigned char *destPtr;
+    unsigned char *srcPtr;
+    uint32_t longCount;
+
+    destPtr = *ioDestPtr;
+    srcPtr = *ioSrcPtr;
+    longCount = byteCount >> 2;
+    if(longCount) {
+        uint32_t loopCounter;
+
+        loopCounter = longCount - 1;
+        __asm__ volatile(
+            "1:\n\t"
+            "move.l (%[src])+,(%[dst])+\n\t"
+            "dbra %[count],1b"
+            : [src] "+a" (srcPtr),
+              [dst] "+a" (destPtr),
+              [count] "+d" (loopCounter)
+            :
+            : "memory");
+    }
+
+    if(byteCount & 2) {
+        *((unsigned short *)destPtr) = *((unsigned short *)srcPtr);
+        destPtr += sizeof(unsigned short);
+        srcPtr += sizeof(unsigned short);
+    }
+
+    if(byteCount & 1) {
+        *destPtr++ = *srcPtr++;
+    }
+
+    *ioDestPtr = destPtr;
+    *ioSrcPtr = srcPtr;
+}
+
+//-----------------------------------------------------------------------------
 void spriteDispose(tSpriteInfo *spriteInfo) {
     // dump the sprite resource
     ReleaseResource(spriteInfo->spriteData);
@@ -50,6 +88,7 @@ void spriteDraw(tSpriteInfo *spriteInfo, Point location) {
 //-----------------------------------------------------------------------------
 void spriteDrawClipped(tSpriteInfo *spriteInfo, Rect *inDestRect) {
     Rect clipRect;                      // the rect that defines the clipped shape
+    Rect updateRect;                    // the clipped rect in destination coordinates
     unsigned char *rowStart;            // the pointer to the start of this row
     unsigned char *srcPtr;              // the current position in the sprite data
     unsigned char *destPtr;             // the current position in the destination pixmap
@@ -69,7 +108,10 @@ void spriteDrawClipped(tSpriteInfo *spriteInfo, Rect *inDestRect) {
     clipRect.bottom =
         inDestRect->bottom > spriteClipRect.bottom ? spriteClipRect.bottom - inDestRect->top : inDestRect->bottom - inDestRect->top;
 
-    addRectToUpdate(&clipRect);
+    updateRect = clipRect;
+    OffsetRect(&updateRect, inDestRect->left, inDestRect->top);
+    addRectToUpdate(&updateRect);
+
     // set up the counters
     yCount = 0;
 
@@ -247,49 +289,7 @@ void spriteDrawUnclipped(tSpriteInfo *spriteInfo, Rect *inDestRect) {
         // depending on the token
         switch (tokenOp) {
         case DRAW_PIXELS_TOKEN:
-            miscCounter = tokenData;
-
-            // move data in the biggest chunks we can find
-#ifdef powerc
-            // move in doubles while we can
-            while(miscCounter >= sizeof(double)) {
-                *((double *) destPtr) = *((double *) srcPtr);
-                destPtr += sizeof(double);
-                srcPtr += sizeof(double);
-                miscCounter -= sizeof(double);
-            }
-
-            // move a long if we can
-            if(miscCounter >= sizeof(uint32_t)) {
-                *((uint32_t *) destPtr) = *((uint32_t *) srcPtr);
-                destPtr += sizeof(uint32_t);
-                srcPtr += sizeof(uint32_t);
-                miscCounter -= sizeof(uint32_t);
-            }
-#else
-            // move in longs while we can
-            while(miscCounter >= sizeof(uint32_t)) {
-                *((uint32_t *) destPtr) = *((uint32_t *) srcPtr);
-                destPtr += sizeof(uint32_t);
-                srcPtr += sizeof(uint32_t);
-                miscCounter -= sizeof(uint32_t);
-            }
-#endif
-
-            // move a short if we can
-            if(miscCounter >= sizeof(unsigned short)) {
-                *((unsigned short *) destPtr) = *((unsigned short *) srcPtr);
-                destPtr += sizeof(unsigned short);
-                srcPtr += sizeof(unsigned short);
-                miscCounter -= sizeof(unsigned short);
-            }
-            // move a char if we can
-            if(miscCounter >= sizeof(unsigned char)) {
-                *((unsigned char *) destPtr) = *((unsigned char *) srcPtr);
-                destPtr += sizeof(unsigned char);
-                srcPtr += sizeof(unsigned char);
-                miscCounter -= sizeof(unsigned char);
-            }
+            spriteCopyRun(&destPtr, &srcPtr, tokenData);
             // adjust for the padding
             srcPtr += ((tokenData & 3L) == 0) ? 0 : (4 - (tokenData & 3L));
             break;

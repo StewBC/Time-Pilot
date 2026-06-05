@@ -1,28 +1,28 @@
 # This file describes the audio files and how they are to be converted
 # for usei in Time Pilot on the 68K Mac
 
-# The format is Name [loops]:[Hz]:[chanels]:[resID]
-# defaults are loops 0, Hz 22050, chanels 2 (stereo vs 1 = mono), resID 128
-# looping sounds are set to loop the entire sound - but this isn't implemented in my game code
+# The format is Name [loops]:[Hz]:[channels]:[resID]:[gain percent]
+# defaults are loops 0, Hz 11025, channels 1 (mono), resID auto, gain 100
+# looping sounds are set to loop the entire sound
 # using a resID sets the counter to that value, and all subsequent files will count from that ID
 
-audio/big_explosion.wav
-audio/bomb.wav
-audio/bossl0.wav
-audio/bossl1.wav
-audio/bossl2.wav
-audio/bossl3.wav
+audio/big_explosion.wav ::::160
+audio/bomb.wav ::::180
+audio/bossl0.wav 1::::230
+audio/bossl1.wav 1::::190
+audio/bossl2.wav 1::::50
+audio/bossl3.wav 1::::35
 audio/coindrop.wav
-audio/enemy_explode.wav
-audio/enemy_shoot.wav
-audio/extra_life.wav
-audio/game_start.wav
+audio/enemy_explode.wav ::::170
+audio/enemy_shoot.wav ::::15
+audio/extra_life.wav ::::250
+audio/game_start.wav ::::250
 audio/highscore.wav
-audio/next_level.wav
-audio/pickup.wav
-audio/player_shoot.wav
-audio/rocket_fly.wav
-audio/rocket_launch.wav
-audio/timewarp.wav
-audio/wapon_explode.wav
-audio/wave_start.wav
+audio/next_level.wav ::::170
+audio/pickup.wav ::::240
+audio/player_shoot.wav ::::12
+audio/rocket_fly.wav ::::20
+audio/rocket_launch.wav ::::25
+audio/timewarp.wav ::::200
+audio/wapon_explode.wav ::::180
+audio/wave_start.wav ::::240

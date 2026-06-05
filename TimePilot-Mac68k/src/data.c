@@ -811,6 +811,8 @@ void dataCleanup() {
 //-----------------------------------------------------------------------------
 int16_t dataInit() {
     uint16_t i;
+    uint16_t audioChannelCount = 0;
+    uint16_t audioResourceCount = 0;
 
     // First the graphics
     for(i = SID_LETTER_32; i <= SID_TPSMALL; i++) {
@@ -825,9 +827,7 @@ int16_t dataInit() {
         SndNewChannel(&audioSourceChannels[i], sampledSynth, initMono, audioCallback);
         if(audioSourceChannels[i]) {
             audioSourceChannels[i]->userInfo = -1;
-        }
-        else {
-            audioIsInit = 0;
+            audioChannelCount++;
         }
     }
 
@@ -836,9 +836,9 @@ int16_t dataInit() {
         if(audioSourceHandles[i]) {
             DetachResource(audioSourceHandles[i]);
             HLock(audioSourceHandles[i]);
-        } else {
-            audioIsInit = 0;
+            audioResourceCount++;
         }
     }
+    audioIsInit = audioChannelCount && (audioResourceCount == (AUDIO_WAVE_START + 1));
     return 1;
 }

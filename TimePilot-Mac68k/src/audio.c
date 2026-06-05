@@ -20,7 +20,7 @@ void audioCallback(SndChannelPtr theChan, SndCommand *theCmd) {
     SCStatus status;
     int16_t i;
     for(i=0; i < AUDIO_CHANNELS; i++) {
-        if(audioSourceChannels[i]->userInfo >= 0) {
+        if(audioSourceChannels[i] && audioSourceChannels[i]->userInfo >= 0) {
             SndChannelStatus(audioSourceChannels[i], sizeof(SCStatus), &status);
             if(!status.scChannelBusy) {
                 audioSourceChannels[i]->userInfo = -1;
@@ -41,13 +41,26 @@ void audioInit() {
 }
 
 //-----------------------------------------------------------------------------
+static int16_t audioIsBossSource(int16_t source) {
+    return source >= AUDIO_BOSSL0 && source <= AUDIO_BOSSL3;
+}
+
+//-----------------------------------------------------------------------------
+static int16_t audioIsSingleInstanceSource(int16_t source) {
+    return audioIsBossSource(source) ||
+           source == AUDIO_GAME_START ||
+           source == AUDIO_HIGHSCORE ||
+           source == AUDIO_PLAYER_SHOOT ||
+           source == AUDIO_ROCKET_FLY;
+}
+
+//-----------------------------------------------------------------------------
 int16_t audioIsSourcePlaying(int16_t source) {
-    if(audioIsInit) {
-        int16_t i;
-        for(i=0; i < AUDIO_CHANNELS; i++) {
-            if(audioSourceChannels[i]->userInfo == source) {
-                return 1;
-            }
+    int16_t i;
+
+    for(i=0; i < AUDIO_CHANNELS; i++) {
+        if(audioSourceChannels[i] && audioSourceChannels[i]->userInfo == source) {
+            return 1;
         }
     }
     return 0;
@@ -55,12 +68,18 @@ int16_t audioIsSourcePlaying(int16_t source) {
 
 //-----------------------------------------------------------------------------
 void audioPlaySource(int16_t source) {
-    if(audioInit) {
-        long offset;
+    if(audioSourceHandles[source]) {
         SndCommand soundCommand;
         int16_t channel = (audio_channel + 1) % AUDIO_CHANNELS;
-        while(channel != audio_channel) {
-            if(audioSourceChannels[channel]->userInfo < 0) {
+        int16_t channelsChecked = 0;
+
+        if(audioIsSingleInstanceSource(source) && audioIsSourcePlaying(source)) {
+            return;
+        }
+
+        while(channelsChecked < AUDIO_CHANNELS) {
+            if(audioSourceChannels[channel] && audioSourceChannels[channel]->userInfo < 0) {
+                audio_channel = channel;
                 audioSourceChannels[channel]->userInfo = source;
                 SndPlay(audioSourceChannels[channel], (SndListHandle)audioSourceHandles[source], TRUE);
 
@@ -71,23 +90,24 @@ void audioPlaySource(int16_t source) {
                 return;
             }
             channel = (channel + 1) % AUDIO_CHANNELS;
+            channelsChecked++;
         }
     }
 }
 
 //-----------------------------------------------------------------------------
 void audioStopSource(int16_t source) {
-    if(audioIsInit) {
-        int16_t i;
-        for(i=0; i < AUDIO_CHANNELS; i++) {
-            if(audioSourceChannels[i]->userInfo == source) {
-                SndCommand soundCommand;
-                soundCommand.cmd = quietCmd;
-                soundCommand.param1 = 0;
-                soundCommand.param2 = 0;
-                SndDoImmediate(audioSourceChannels[i], &soundCommand);
-                break;
-            }
+    int16_t i;
+
+    for(i=0; i < AUDIO_CHANNELS; i++) {
+        if(audioSourceChannels[i] && audioSourceChannels[i]->userInfo == source) {
+            SndCommand soundCommand;
+            soundCommand.cmd = quietCmd;
+            soundCommand.param1 = 0;
+            soundCommand.param2 = 0;
+            SndDoImmediate(audioSourceChannels[i], &soundCommand);
+            audioSourceChannels[i]->userInfo = -1;
+            break;
         }
     }
 }

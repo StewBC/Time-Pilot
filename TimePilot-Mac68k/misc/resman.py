@@ -200,7 +200,7 @@ def pad_image(image, pad_value):
 # MARK: parse_audio_params
 def parse_audio_params(params):
     
-    audio_defaults = [0, 11025, 1, -1]  # Default parameter values loops, rate, channels, resID
+    audio_defaults = [0, 11025, 1, -1, 100]  # loops, rate, channels, resID, gain percent
     parsed_params = params.split(':')
     parsed_params.extend([''] * (len(audio_defaults) - len(parsed_params)))  # Extend parsed_params with empty strings
     parsed_params = [int(val) if val else int(audio_defaults[i]) for i, val in enumerate(parsed_params)]
@@ -226,13 +226,17 @@ def parse_image_params(params):
 
 #------------------------------------------------------------------------------
 # MARK: convert_audio_to_blob
-def convert_audio_to_blob(file_name, loops, rate, channels):
+def convert_audio_to_blob(file_name, loops, rate, channels, gain_percent):
     output = []
+    audio_filter = 'loudnorm'
+
+    if gain_percent != 100:
+        audio_filter += f',volume={gain_percent / 100.0}'
     
     # Use ffmpeg to convert the audio to 8-bit unsigned PCM
     command = [
         'ffmpeg', '-i', file_name, '-ar', str(rate), '-ac', str(channels),
-        '-filter:a', 'loudnorm', '-f', 'u8', '-acodec', 'pcm_u8', 'pipe:1'
+        '-filter:a', audio_filter, '-f', 'u8', '-acodec', 'pcm_u8', 'pipe:1'
     ]
     
     # Run the command and capture the output
@@ -299,7 +303,7 @@ def process_audio(args):
                 
                 # Parse parameters
                 parsed_params, defaults = parse_audio_params(params)
-                loops, rate, channels, resID = parsed_params
+                loops, rate, channels, resID, gain_percent = parsed_params
 
                 if resID != -1:
                     resource_id = resID
@@ -311,10 +315,11 @@ def process_audio(args):
                                 (f"loop={loops}", loops, defaults[0]),
                                 (f'rate={rate}', rate, defaults[1]), 
                                 (f'chan={channels}', channels, defaults[2]), 
-                                (f'res ={resID}', resID, defaults[3])] if var_value != default_value)))
+                                (f'res ={resID}', resID, defaults[3]),
+                                (f'gain={gain_percent}', gain_percent, defaults[4])] if var_value != default_value)))
 
                 # Convert the audio to a blob
-                audio_blob = convert_audio_to_blob(file_name, loops, rate, channels)
+                audio_blob = convert_audio_to_blob(file_name, loops, rate, channels, gain_percent)
                 
                 # Write the blob to the resource file
                 save_bytes_data(resource_file, output_name, 'snd ', resource_id, audio_blob)

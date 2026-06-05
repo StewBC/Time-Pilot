@@ -25,10 +25,6 @@
 #ifdef RECORD_REPLAY
 #include <stdio.h>
 #endif
-//#define SHOW_FPS
-#ifdef SHOW_FPS
-uint16_t fps = 0;
-#endif
 
 //-----------------------------------------------------------------------------
 // Check
@@ -73,10 +69,11 @@ void gameAddScoreInternal(int16_t A) {
 void gameInit() {
     int16_t i;
 
-    audioPlaySource(AUDIO_GAME_START);
-
     // Init some variables, incl. the player structures
     globalsGameInit();
+    audioStopSource(AUDIO_COINDROP);
+    audioStopSource(AUDIO_HIGHSCORE);
+    audioPlaySource(AUDIO_GAME_START);
 
     // Set up a player
     gameRestorePlayer();
@@ -115,7 +112,6 @@ int16_t gameNextPlayer() {
 //-----------------------------------------------------------------------------
 // Check
 void gamePostFrame() {
-
     if(prePlayTimer) {
         if(--prePlayTimer == 0) {
             uiErasePreGameLabels();
@@ -129,12 +125,6 @@ void gamePostFrame() {
 
     thingsSortAndCollide();
     invPlayerAngle = playerAngle ^ (32 / 2); // 32/2 not-16-bit
-
-#ifdef SHOW_FPS
-    printXY(0, 0, PF_RIGHT, TP_COLOR_BLACK, "%d", fps);
-    fps = (uint16_t) (1.0 / time());    // SQW - fix for Mac
-    printXY(0, 0, PF_RIGHT, TP_COLOR_CYAN, "%d", fps);
-#endif
 
     if(activeStage < TIME_PERIOD3_1982 && !(frameCounter & 3)) {
         macAnimatePalette();
@@ -252,7 +242,7 @@ void gameStageInit() {
             audioPlaySource(AUDIO_NEXT_LEVEL);
         }
     } else {
-        drawBackgroundColor = TP_COLOR_SKY0 + activeStage;
+        drawBackgroundColor = (activeStage == TIME_PERIOD4_2001) ? TP_COLOR_BLACK : TP_COLOR_SKY0 + activeStage;
         screenClearSection(0, 0, PLAYFIELDW, PLAYFIELDH, drawBackgroundColor);
     }
 
@@ -299,10 +289,6 @@ void gameStageInit() {
 
     // Do a pass over the spaned things to sort them (player is not sorted so it can be in pos 0)
     thingsSortAndCollide();
-
-#ifdef SHOW_FPS
-    // SQW - Something for the Mac here
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -319,6 +305,7 @@ void gameStart() {
             if(playerExitTimer >= 0 && !(exitGameMask & EXIT_USER_QUIT)) {
                 // Bit of a hack to delay starting the sound by 1 second
                 if(playerExitTimer == 60 && (exitGameMask & EXIT_STAGE_CLEAR) && !(exitGameMask & EXIT_PLAYER_DIED)) {
+                    audioStopSource(AUDIO_GAME_START);
                     audioPlaySource(AUDIO_TIMEWARP);
                 }
                 continue;

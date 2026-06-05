@@ -18,6 +18,7 @@
 #include "sprite.h"
 #include "text.h"
 #include "ui.h"
+#include "update.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -231,6 +232,7 @@ void uiPause() {
     printXY(11, 10, 0, TP_COLOR_RED, TEXT_PAUSE);
     while(1) {
         macUpdate(screen);
+        clearUpdate();
         inputInUI();
         if(inputMaskDebounced & (INPUT_PAUSE | INPUT_QUIT)) {
             break;

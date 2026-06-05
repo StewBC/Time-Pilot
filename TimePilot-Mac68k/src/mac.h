@@ -18,6 +18,7 @@ void macBlitToScreen(Rect *srcCopyRect);
 void macCleanup();
 void macClearScreen();
 void macFill(int16_t X, int16_t Y, int16_t W, int16_t H, uint16_t color);
+void macFillNoUpdate(int16_t X, int16_t Y, int16_t W, int16_t H, uint16_t color);
 void macHideMenuBar(void);
 int16_t macInit();
 void macSetPaletteFromResource(int16_t res_id);
