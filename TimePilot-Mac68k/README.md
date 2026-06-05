@@ -1,4 +1,7 @@
 # Time Pilot in C for the 68K Mac
+
+Updates appended at the bottom of the document.
+
 I have made this need at least System 7.  It was an arbitrary decision, but I did read something somewhere that made me think this will only work on System 7 and above.  You need color - I tested on my SE/30 with System 7 and the game ran, but the display was very wrong.  Probably a way to make it go but I am not investing in that now.  I play on my Centris 650 or in the Basilisk II emulator.  Even though vMac looks like a target, that just crashes.  
   
 This version was derived from the Windows code which in turn was derived from my original Apple IIgs 65816 code. I cleaned up the code a little, since I couldn't afford the sloppiness that I was allowed in Windows.  This version sorts the sprites by layer only (vs in Y and then overlapping sprites by layer for the IIgs).  The collision routine thus had to change a little as well.  Otherwise, this is pretty much the Windows version.  
@@ -133,3 +136,12 @@ This was a lot of fun.  I really wanted to make a 68K Mac game - I just wasn't e
 Thank you  
 Stefan Wessels  
 14 August 2024  
+
+
+Updates:
+1. The game now runs at 60 FPS on my Centris 650 due to some rendering changes.  
+2. Default is now 640x480.  Can still switch to 1x.
+3. The audio stuff was improved with demand load so more sounds play.  Better balance, etc.
+4. Fixed the parachute scoring so it does increment
+
+5 June 2026
