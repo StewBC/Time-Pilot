@@ -17,12 +17,12 @@ audio/enemy_explode.wav ::::170
 audio/enemy_shoot.wav ::::15
 audio/extra_life.wav ::::250
 audio/game_start.wav ::::250
-audio/highscore.wav
+audio/highscore.wav 1
 audio/next_level.wav ::::170
 audio/pickup.wav ::::240
 audio/player_shoot.wav ::::12
-audio/rocket_fly.wav ::::20
-audio/rocket_launch.wav ::::25
+audio/rocket_fly.wav 1::::20
+audio/rocket_launch.wav ::::50
 audio/timewarp.wav ::::200
 audio/wapon_explode.wav ::::180
 audio/wave_start.wav ::::240

@@ -801,7 +801,6 @@ void dataCleanup() {
 
     for(i = 0; i <= AUDIO_WAVE_START; i++) {
         if(audioSourceHandles[i]) {
-            HUnlock(audioSourceHandles[i]);
             ReleaseResource(audioSourceHandles[i]);
             audioSourceHandles[i] = 0;
         }
@@ -812,7 +811,6 @@ void dataCleanup() {
 int16_t dataInit() {
     uint16_t i;
     uint16_t audioChannelCount = 0;
-    uint16_t audioResourceCount = 0;
 
     // First the graphics
     for(i = SID_LETTER_32; i <= SID_TPSMALL; i++) {
@@ -832,13 +830,8 @@ int16_t dataInit() {
     }
 
     for(i = 0; i <= AUDIO_WAVE_START; i++) {
-        audioSourceHandles[i] = GetResource('snd ', RAU_BIG_EXPLOSION + i);
-        if(audioSourceHandles[i]) {
-            DetachResource(audioSourceHandles[i]);
-            HLock(audioSourceHandles[i]);
-            audioResourceCount++;
-        }
+        audioSourceHandles[i] = 0;
     }
-    audioIsInit = audioChannelCount && (audioResourceCount == (AUDIO_WAVE_START + 1));
+    audioIsInit = audioChannelCount > 0;
     return 1;
 }
