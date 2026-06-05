@@ -541,6 +541,8 @@ void aiNonWrapping(int16_t X) {
 
 //-----------------------------------------------------------------------------
 void aiParachute(int16_t X) {
+    uint16_t wasRemove = activeFlags[X] & ACTIVEFLAGS_REMOVE;
+
     if(!(frameCounter & 15)) {
         if(--activeExtra[X] < 0) {
             activeExtra[X] = 5;
@@ -551,7 +553,9 @@ void aiParachute(int16_t X) {
     aiNonWrapping(X);
     if(activeFlags[X] & ACTIVEFLAGS_REMOVE) {
         parachuteTimer = PARACHUTE_TIMER;
-        parachuteScore = 0;
+        if(!wasRemove) {
+            parachuteScore = 0;
+        }
     }
 }
 
