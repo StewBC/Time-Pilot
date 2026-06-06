@@ -58,7 +58,7 @@ set_source_files_properties(
     PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tpr.r
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_OPTIONS "-O2;-ffunction-sections")
+set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_OPTIONS "-O2;-ffunction-sections;-m68030")
 if(CMAKE_SYSTEM_NAME MATCHES Retro68)
     set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS "-Wl,-gc-sections -Wl,--mac-strip-macsbug")
 else()

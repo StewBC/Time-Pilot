@@ -139,9 +139,12 @@ Stefan Wessels
 
 
 Updates:
-1. The game now runs at 60 FPS on my Centris 650 due to some rendering changes.  
+1. The game now runs at 60 FPS on my Centris 650 & LC 475 due to some rendering changes.  Still too slow for LC II.
 2. Default is now 640x480.  Can still switch to 1x.
 3. The audio stuff was improved with demand load so more sounds play.  Better balance, etc.
-4. Fixed the parachute scoring so it does increment
+4. Fixed the parachute scoring so it does increment.
+5. Code generation is 68030 so a 68030 is, at least, required.
+6. Fixed an audio caused BUS ERROR (Noticed on my LC 475).
+7. Removed BasicliskII and vMac files
 
-5 June 2026
+6 June 2026

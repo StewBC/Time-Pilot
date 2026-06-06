@@ -37,33 +37,11 @@ static const int16_t sAudioResourceIDs[AUDIO_WAVE_START + 1] = {
 };
 
 //-----------------------------------------------------------------------------
-// None of this is how it's supposed to be but I could not for the life of
-// me get theCmd->param[1|2] of theChan->userInfo to be correct.  It's as 
-// though the pointers are all wrong. Obviously something I don't understand
-// but since this works with no A5 World issues, it is now how it is.
+// Keep Sound Manager callbacks inert.  audioUpdate handles cleanup and looping
+// from normal application context.
 void audioCallback(SndChannelPtr theChan, SndCommand *theCmd) {
-    SCStatus status;
-    int16_t i;
-    for(i=0; i < AUDIO_CHANNELS; i++) {
-        if(audioSourceChannels[i] && audioSourceChannels[i]->userInfo >= 0) {
-            SndChannelStatus(audioSourceChannels[i], sizeof(SCStatus), &status);
-            if(!status.scChannelBusy) {
-                int16_t source = audioSourceChannels[i]->userInfo;
-                if(source == AUDIO_ROCKET_FLY && numberOfRockets && audioSourceHandles[source]) {
-                    SndCommand soundCommand;
-
-                    SndPlay(audioSourceChannels[i], (SndListHandle)audioSourceHandles[source], TRUE);
-                    soundCommand.cmd = callBackCmd;
-                    soundCommand.param1 = 0;
-                    soundCommand.param2 = 0;
-                    SndDoCommand(audioSourceChannels[i], &soundCommand, FALSE);
-                    continue;
-                }
-                audioSourceChannels[i]->userInfo = -1;
-                audioReleaseSourceIfIdle(source);
-            }
-        }
-    }
+    (void)theChan;
+    (void)theCmd;
 }
 
 //-----------------------------------------------------------------------------
@@ -84,6 +62,9 @@ static Handle audioLoadSource(int16_t source) {
     }
     if(!audioSourceHandles[source]) {
         audioSourceHandles[source] = GetResource('snd ', sAudioResourceIDs[source]);
+        if(audioSourceHandles[source]) {
+            HNoPurge(audioSourceHandles[source]);
+        }
     }
     return audioSourceHandles[source];
 }
@@ -134,12 +115,11 @@ int16_t audioIsSourcePlaying(int16_t source) {
 void audioPlaySource(int16_t source) {
     Handle sourceHandle;
 
-    if(source < 0 || source > AUDIO_WAVE_START) {
+    if(!audioIsInit || source < 0 || source > AUDIO_WAVE_START) {
         return;
     }
     sourceHandle = audioLoadSource(source);
     if(sourceHandle) {
-        SndCommand soundCommand;
         int16_t channel = (audio_channel + 1) % AUDIO_CHANNELS;
         int16_t channelsChecked = 0;
 
@@ -152,11 +132,6 @@ void audioPlaySource(int16_t source) {
                 audio_channel = channel;
                 audioSourceChannels[channel]->userInfo = source;
                 SndPlay(audioSourceChannels[channel], (SndListHandle)sourceHandle, TRUE);
-
-                soundCommand.cmd = callBackCmd;
-                soundCommand.param1 = 0;
-                soundCommand.param2 = 0;
-                SndDoCommand(audioSourceChannels[channel], &soundCommand, FALSE);
                 return;
             }
             channel = (channel + 1) % AUDIO_CHANNELS;
@@ -169,6 +144,9 @@ void audioPlaySource(int16_t source) {
 void audioStopSource(int16_t source) {
     int16_t i;
 
+    if(!audioIsInit) {
+        return;
+    }
     for(i=0; i < AUDIO_CHANNELS; i++) {
         if(audioSourceChannels[i] && audioSourceChannels[i]->userInfo == source) {
             SndCommand soundCommand;
@@ -179,6 +157,31 @@ void audioStopSource(int16_t source) {
             audioSourceChannels[i]->userInfo = -1;
             audioReleaseSourceIfIdle(source);
             break;
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void audioUpdate() {
+    SCStatus status;
+    int16_t i;
+
+    if(!audioIsInit) {
+        return;
+    }
+
+    for(i=0; i < AUDIO_CHANNELS; i++) {
+        if(audioSourceChannels[i] && audioSourceChannels[i]->userInfo >= 0) {
+            SndChannelStatus(audioSourceChannels[i], sizeof(SCStatus), &status);
+            if(!status.scChannelBusy) {
+                int16_t source = audioSourceChannels[i]->userInfo;
+                if(source == AUDIO_ROCKET_FLY && numberOfRockets && audioSourceHandles[source]) {
+                    SndPlay(audioSourceChannels[i], (SndListHandle)audioSourceHandles[source], TRUE);
+                    continue;
+                }
+                audioSourceChannels[i]->userInfo = -1;
+                audioReleaseSourceIfIdle(source);
+            }
         }
     }
 }

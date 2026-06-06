@@ -13,3 +13,4 @@ void audioInit();
 int16_t audioIsSourcePlaying(int16_t source);
 void audioPlaySource(int16_t source);
 void audioStopSource(int16_t source);
+void audioUpdate();

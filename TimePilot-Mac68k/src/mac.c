@@ -481,10 +481,10 @@ int16_t macInit() {
                         1               // reference counter
         );
 
-    // Create the off-screen rect at 320x200
+    // Create the off-screen rect at the logical game size
     gameRect.left = gameRect.top = 0;
-    gameRect.right = 320;
-    gameRect.bottom = 240;
+    gameRect.right = SCREENW;
+    gameRect.bottom = SCREENH;
     // Prefer 2x when the display can fit it, but fall back to 1x on smaller screens.
     if(!macSetScale(2)) {
         macSetScale(1);
@@ -622,6 +622,8 @@ void macUpdate(WindowPtr screen) {
     EventRecord theEvent;               // a place to put an event
     CGrafPtr oldPort;                   // the graf port that is in place when we are called
     GDHandle oldDevice;                 // the gdevice that is in place when we are called
+
+    audioUpdate();
 
     UnlockPixels(offScreenPixels);
     rawKey = 0;

@@ -822,7 +822,7 @@ int16_t dataInit() {
 
     // init all handles and buffers (to nil if something fails, but still a known value)
     for(i = 0; i < AUDIO_CHANNELS; i++) {
-        SndNewChannel(&audioSourceChannels[i], sampledSynth, initMono, audioCallback);
+        SndNewChannel(&audioSourceChannels[i], sampledSynth, initMono, nil);
         if(audioSourceChannels[i]) {
             audioSourceChannels[i]->userInfo = -1;
             audioChannelCount++;
