@@ -33,9 +33,13 @@
 static GWorldPtr sScaledOffScreen;
 static PixMapHandle sScaledOffScreenPixels;
 static Rect sScaledGameRect;
+static RGBColor sPropAnimColor0;
+static RGBColor sPropAnimColor1;
+static uint16_t sPaletteAnimating;
 static uint16_t sDoublePixelTable[256];
 static uint32_t sDoublePixelPairTable[65536];
 
+static void macSetPixMapColor(PixMapHandle pixels, int16_t entry, RGBColor *color);
 static void macBlit2xAlignedPairsAsm(unsigned char *srcRow,
                                      unsigned char *destRow0,
                                      uint32_t srcRowBytes,
@@ -45,14 +49,57 @@ static void macBlit2xAlignedPairsAsm(unsigned char *srcRow,
 
 //-----------------------------------------------------------------------------
 void macAnimatePalette() {
-    // This does not work (and is not correct but if it doesn't work, it doesn't matter)
-    if(frameCounter & 4) {
-        AnimateEntry(screen, 13, &colors[15+activeStage]);
-        AnimateEntry(screen, 14, &colors[16+activeStage]);
-    } else {
-        AnimateEntry(screen, 13, &colors[16+activeStage]);
-        AnimateEntry(screen, 14, &colors[15+activeStage]);
+    CGrafPtr oldPort;
+    GDHandle oldDevice;
+    RGBColor *skyColor;
+    RGBColor *propColor;
+
+    if(!macPalette) {
+        return;
     }
+
+    skyColor = &colors[TP_COLOR_SKY0 + activeStage];
+    propColor = &colors[TP_COLOR_PROP1];
+
+    sPaletteAnimating = 1;
+    GetGWorld(&oldPort, &oldDevice);
+    SetGWorld((CWindowPtr) screen, GetMainDevice());
+
+    if(frameCounter & 4) {
+        sPropAnimColor0 = *skyColor;
+        sPropAnimColor1 = *propColor;
+        SetEntryColor(macPalette, TP_COLOR_PROP0, skyColor);
+        SetEntryColor(macPalette, TP_COLOR_PROP1, propColor);
+        AnimateEntry(screen, TP_COLOR_PROP0, skyColor);
+        AnimateEntry(screen, TP_COLOR_PROP1, propColor);
+    } else {
+        sPropAnimColor0 = *propColor;
+        sPropAnimColor1 = *skyColor;
+        SetEntryColor(macPalette, TP_COLOR_PROP0, propColor);
+        SetEntryColor(macPalette, TP_COLOR_PROP1, skyColor);
+        AnimateEntry(screen, TP_COLOR_PROP0, propColor);
+        AnimateEntry(screen, TP_COLOR_PROP1, skyColor);
+    }
+    ActivatePalette(screen);
+
+    SetGWorld(oldPort, oldDevice);
+}
+
+//-----------------------------------------------------------------------------
+static void macSetPixMapColor(PixMapHandle pixels, int16_t entry, RGBColor *color) {
+    CTabHandle colorTable;
+
+    if(!pixels || !(*pixels)->pmTable) {
+        return;
+    }
+
+    colorTable = (*pixels)->pmTable;
+    if(entry > (*colorTable)->ctSize) {
+        return;
+    }
+
+    (*colorTable)->ctTable[entry].rgb = *color;
+    CTabChanged(colorTable);
 }
 
 //-----------------------------------------------------------------------------
@@ -314,17 +361,31 @@ static void macBeginScreenBlits(CGrafPtr *outOldPort, GDHandle *outOldDevice) {
     ForeColor(blackColor);
     BackColor(whiteColor);
 
-    // Copy the screen's color table seed into the source pixmap.
-    // This will minimize CopyBits' setup time.
-    long ctSeed = (*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
-    (*((*offScreenPixels)->pmTable))->ctSeed = ctSeed;
-    if(sScaledOffScreenPixels) {
-        (*((*sScaledOffScreenPixels)->pmTable))->ctSeed = ctSeed;
+    if(sPaletteAnimating) {
+        macSetPixMapColor(offScreenPixels, TP_COLOR_PROP0, &sPropAnimColor0);
+        macSetPixMapColor(offScreenPixels, TP_COLOR_PROP1, &sPropAnimColor1);
+        macSetPixMapColor(sScaledOffScreenPixels, TP_COLOR_PROP0, &sPropAnimColor0);
+        macSetPixMapColor(sScaledOffScreenPixels, TP_COLOR_PROP1, &sPropAnimColor1);
+    } else {
+        // Copy the screen's color table seed into the source pixmap.
+        // This will minimize CopyBits' setup time.
+        long ctSeed = (*((*((*(GetGDevice()))->gdPMap))->pmTable))->ctSeed;
+        (*((*offScreenPixels)->pmTable))->ctSeed = ctSeed;
+        if(sScaledOffScreenPixels) {
+            (*((*sScaledOffScreenPixels)->pmTable))->ctSeed = ctSeed;
+        }
     }
 }
 
 //-----------------------------------------------------------------------------
 static void macEndScreenBlits(CGrafPtr oldPort, GDHandle oldDevice) {
+    if(sPaletteAnimating) {
+        macSetPixMapColor(offScreenPixels, TP_COLOR_PROP0, &colors[TP_COLOR_PROP0]);
+        macSetPixMapColor(offScreenPixels, TP_COLOR_PROP1, &colors[TP_COLOR_PROP1]);
+        macSetPixMapColor(sScaledOffScreenPixels, TP_COLOR_PROP0, &colors[TP_COLOR_PROP0]);
+        macSetPixMapColor(sScaledOffScreenPixels, TP_COLOR_PROP1, &colors[TP_COLOR_PROP1]);
+    }
+
     // restore the current port and gdevice
     SetGWorld(oldPort, oldDevice);
 }
@@ -467,8 +528,6 @@ int16_t macInit() {
             (leftPixel << 24) | (leftPixel << 16) | (rightPixel << 8) | rightPixel;
     }
 
-    // Install our custom palette
-    macSetPaletteFromResource(RID_CLUT0);
     macHideMenuBar();
     screenRect = qd.thePort->portRect;
     screen = NewCWindow(NULL,           // Heap storage
@@ -480,6 +539,9 @@ int16_t macInit() {
                         false,          // close box does not exist
                         1               // reference counter
         );
+    // Install our custom palette after the window exists so the animated
+    // entries belong to the game window.
+    macSetPaletteFromResource(RID_CLUT0);
 
     // Create the off-screen rect at the logical game size
     gameRect.left = gameRect.top = 0;
@@ -558,8 +620,16 @@ void macSetPaletteFromResource(int16_t res_id) {
     CTabHandle macColorTable;
     macColorTable = GetCTable(res_id);
     if(macColorTable) {
+        if(macPalette) {
+            DisposePalette(macPalette);
+        }
         macPalette = NewPalette((*macColorTable)->ctSize, macColorTable, pmExplicit + pmTolerant, 0);
-        SetPalette((WindowPtr) - 1L, macPalette, false);
+        if(macPalette) {
+            SetEntryUsage(macPalette, TP_COLOR_PROP0, pmAnimated, 0);
+            SetEntryUsage(macPalette, TP_COLOR_PROP1, pmAnimated, 0);
+            SetPalette(screen, macPalette, true);
+            ActivatePalette(screen);
+        }
     }
 }
 

@@ -202,7 +202,7 @@ void screenWipe() {
 
 //-----------------------------------------------------------------------------
 void screenWipeToStageSky(uint16_t stage) {
-    drawBackgroundColor = (stage == TIME_PERIOD4_2001) ? TP_COLOR_BLACK : TP_COLOR_SKY0 + stage;
+    drawBackgroundColor = TP_COLOR_SKY0 + stage;
     screenWipe();
     activeSky = stage;
 }
