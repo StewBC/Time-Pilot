@@ -550,43 +550,35 @@ def save_palette(palette, palette_file):
 # MARK: save_resource_palette
 def save_resource_palette(file, palette, res_id):
     palette_data = []
-    palette_by_index = {}
-
-    for color, index in sorted(palette.items(), key=lambda item: item[1]):
-        # Index 255 is used by the sprite/font data as a transparent marker.
-        # It is not part of the runtime CLUT.
-        if index == 255:
-            continue
-        if index not in palette_by_index:
-            palette_by_index[index] = color
-        else:
-            print(f"Dropping color {color} with duplicate index {index}")
-
-    # SKY4 intentionally maps to black, but palette.txt omits it so image
-    # conversion does not collapse black art pixels onto the SKY4 index.
-    if 19 not in palette_by_index:
-        palette_by_index[19] = "000000"
-
+    # Use a set to track unique indices
+    used_indices = set()
+    # Sort the palette dictionary items by the palette index (value)
+    sorted_palette = sorted(palette.items(), key=lambda item: item[1])
     # Header
     append_bytes(palette_data, 0, 4)
     append_bytes(palette_data, 0x8000, 2)
     append_bytes(palette_data, 0, 2)
-
-    for index in range(max(palette_by_index.keys()) + 1):
-        color = palette_by_index.get(index, "000000")
-        r, g, b = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
-        append_bytes(palette_data, 0x8000, 2)
-        r = (r << 8) | r
-        g = (g << 8) | g
-        b = (b << 8) | b
-        append_bytes(palette_data, r, 2)
-        append_bytes(palette_data, g, 2)
-        append_bytes(palette_data, b, 2)
-
+    # Iterate over the sorted items
+    for color, index in sorted_palette:
+        if index not in used_indices:
+            # If the index is unique, write it to the file
+            # file.write(f"{color} {index}\n")
+            r, g, b = tuple(int(color[i:i+2], 16) for i in (0, 2, 4))
+            append_bytes(palette_data, 0x8000, 2)
+            r = (r << 8) | r
+            g = (g << 8) | g
+            b = (b << 8) | b
+            append_bytes(palette_data, r, 2)
+            append_bytes(palette_data, g, 2)
+            append_bytes(palette_data, b, 2)
+            # Mark this index as used
+            used_indices.add(index)
+        else:
+            # If the index is already used, print the dropped color
+            print(f"Dropping color {color} with duplicate index {index}")
     # Update header with the size
-    palette_size = max(palette_by_index.keys()) + 1
-    palette_data[6] = int(palette_size / 256)
-    palette_data[7] = palette_size % 256
+    palette_data[6] = int(len(used_indices) / 256)
+    palette_data[7] = len(used_indices) % 256
     save_bytes_data(file, 'palette', 'clut', res_id, palette_data)
 
 #------------------------------------------------------------------------------
