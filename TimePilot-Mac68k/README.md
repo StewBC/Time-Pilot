@@ -147,5 +147,6 @@ Updates:
 6. Fixed an audio caused BUS ERROR (Noticed on my LC 475).
 7. Removed BasicliskII and vMac files
 8. a8848f4 Palette Anim looked okay on BasiliskII but rubbish (very slow on hardware).  Now done with alternate sprites.
+9. Fixed replay so it is deterministic.
 
-8 June 2026
+9 June 2026

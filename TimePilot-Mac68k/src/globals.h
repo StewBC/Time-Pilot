@@ -352,7 +352,7 @@ extern uint16_t demoAttractScore;
 #ifdef  RECORD_REPLAY
 extern int16_t demoRecordMode;
 #endif
-#define DEMO_ATTRACT_LENGTH 1968
+#define DEMO_ATTRACT_LENGTH 1451
 // This is filled in, in data.c
 extern uint8_t demoAttractBuffer[DEMO_ATTRACT_LENGTH];
 

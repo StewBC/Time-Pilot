@@ -100,8 +100,8 @@ void inputInGame() {
         if(inputMask & INPUT_ROTATE_RIGHT) {
             playerAngle = (playerAngle + 1) & 31;
         }
-        // fire on kbd is not debounced because that just sucks
-        if(keyMask & INPUT_FIRE || inputMaskDebounced & INPUT_FIRE) {
+        // Fire is held so replay playback matches live keyboard behavior.
+        if(inputMask & INPUT_FIRE) {
             if(!bulletTimer) {
                 bulletTimer = PLAYER_BULLET_FIRE_TIMER;
             }
