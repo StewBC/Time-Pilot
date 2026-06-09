@@ -62,4 +62,4 @@ const char *TEXT_SCORE00 = "00";
 const char *TEXT_STEFAN = "STEFAN WESSELS 2024";
 const char *TEXT_TRY_GAME = "AND TRY THIS GAME";
 const char *TEXT_VERSION = "THIS VERSION BY";
-const char *TEXT_VER_UPDATE = "V1.1 - 2026";
+const char *TEXT_VER_UPDATE = "V1.8 - 2026";
