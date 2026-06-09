@@ -242,7 +242,7 @@ void gameStageInit() {
             audioPlaySource(AUDIO_NEXT_LEVEL);
         }
     } else {
-        drawBackgroundColor = (activeStage == TIME_PERIOD4_2001) ? TP_COLOR_BLACK : TP_COLOR_SKY0 + activeStage;
+        drawBackgroundColor = TP_COLOR_SKY0 + activeStage;
         screenClearSection(0, 0, PLAYFIELDW, PLAYFIELDH, drawBackgroundColor);
     }
 
@@ -293,11 +293,19 @@ void gameStageInit() {
 
 //-----------------------------------------------------------------------------
 void gameStart() {
-    uint16_t rasterLine = 0;
+    uint32_t lastFrameTick = TickCount();
+
     gameInit();
     while(!(exitGameMask & EXIT_USER_QUIT)) {
         gameStageInit();
         while(1) {
+            uint32_t frameTick;
+
+            do {
+                frameTick = TickCount();
+            } while(frameTick == lastFrameTick);
+            lastFrameTick = frameTick;
+
             frameCounter++;
             gameProcessThings();
             gamePostFrame();
