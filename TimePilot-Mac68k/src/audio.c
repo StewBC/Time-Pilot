@@ -96,7 +96,8 @@ static int16_t audioIsSingleInstanceSource(int16_t source) {
            source == AUDIO_GAME_START ||
            source == AUDIO_HIGHSCORE ||
            source == AUDIO_PLAYER_SHOOT ||
-           source == AUDIO_ROCKET_FLY;
+           source == AUDIO_ROCKET_FLY ||
+           source == AUDIO_TIMEWARP;
 }
 
 //-----------------------------------------------------------------------------
