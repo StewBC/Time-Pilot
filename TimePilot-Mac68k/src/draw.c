@@ -17,6 +17,34 @@
 #include "update.h"
 
 //-----------------------------------------------------------------------------
+static tSpriteInfo *drawPropAnimatedSprite(int16_t sid) {
+    if(!(frameCounter & 4)) {
+        return spritePtrs[sid];
+    }
+
+    if(sid >= SID_L0ENEMY0 && sid <= SID_L0ENEMY15) {
+        return spritePtrs[SID_L0ENEMY0_PROP + sid - SID_L0ENEMY0];
+    }
+    if(sid >= SID_L1ENEMY0 && sid <= SID_L1ENEMY15) {
+        return spritePtrs[SID_L1ENEMY0_PROP + sid - SID_L1ENEMY0];
+    }
+    if(sid >= SID_L2ENEMY0 && sid <= SID_L2ENEMY8) {
+        return spritePtrs[SID_L2ENEMY0_PROP + sid - SID_L2ENEMY0];
+    }
+    if(sid >= SID_L1BOSS0 && sid <= SID_L1BOSS7) {
+        return spritePtrs[SID_L1BOSS0_PROP + sid - SID_L1BOSS0];
+    }
+    if(sid >= SID_L2BOSS0 && sid <= SID_L2BOSS7) {
+        return spritePtrs[SID_L2BOSS0_PROP + sid - SID_L2BOSS0];
+    }
+    if(sid >= SID_L1BOMBER0 && sid <= SID_L1BOMBER7) {
+        return spritePtrs[SID_L1BOMBER0_PROP + sid - SID_L1BOMBER0];
+    }
+
+    return spritePtrs[sid];
+}
+
+//-----------------------------------------------------------------------------
 void draw11x11Expl_boom(int16_t X) {
     spriteDraw(spritePtrs[SID_EXPL_BMRNG0 + activeFrame[X]], spritePos);
 }
@@ -59,7 +87,7 @@ void drawAstros2(int16_t X) {
 //-----------------------------------------------------------------------------
 void drawBomber(int16_t X) {
     int16_t bomber = SID_L1BOMBER0 + ((activeFlags[X] & ACTIVEFLAGS_DIR_RIGHT) ? 0 : 4) + activeFrame[X];
-    spriteDraw(spritePtrs[bomber], spritePos);
+    spriteDraw(drawPropAnimatedSprite(bomber), spritePos);
 }
 
 //-----------------------------------------------------------------------------
@@ -108,7 +136,7 @@ void drawEnemy(int16_t X) {
     } else {
         enemy += activeFrame[X] >> 1;
     }
-    spriteDraw(spritePtrs[enemy], spritePos);
+    spriteDraw(drawPropAnimatedSprite(enemy), spritePos);
 }
 
 //-----------------------------------------------------------------------------
@@ -127,7 +155,7 @@ void drawLevelBoss(int16_t X) {
     if(activeStage != TIME_PERIOD4_2001) {
         boss += ((activeFlags[X] & ACTIVEFLAGS_DIR_RIGHT) ? 0 : 4);
     }
-    spriteDraw(spritePtrs[boss], spritePos);
+    spriteDraw(drawPropAnimatedSprite(boss), spritePos);
 }
 
 //-----------------------------------------------------------------------------

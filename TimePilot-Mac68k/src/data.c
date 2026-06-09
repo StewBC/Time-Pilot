@@ -813,7 +813,7 @@ int16_t dataInit() {
     uint16_t audioChannelCount = 0;
 
     // First the graphics
-    for(i = SID_LETTER_32; i <= SID_TPSMALL; i++) {
+    for(i = SID_LETTER_32; i < SID_COUNT; i++) {
         spritePtrs[i] = spriteLoad(i + RID_LETTER_32);
         if(!spritePtrs[i]) {
             return 0;

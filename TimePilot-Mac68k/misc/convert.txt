@@ -12,6 +12,7 @@
 # 7 - pad_x
 # 8 - pad_y
 # 9 - scale
+# 10 - prop animation background color index (-1 disables)
 
 # Put the font first for resource number reasons
 # adjust the -128 so this works: -r's 160 + -128 = 32 (space)
@@ -32,17 +33,17 @@ png/expl_large.png                ::4
 png/expl_sblt.png                 ::4
 png/expl_small.png                ::4
 png/expl_wepns.png                ::4
-png/l0enemy.png                   ::16
-png/l1enemy.png                   ::16
-png/l2enemy.png                   ::9
+png/l0enemy.png                   ::16:::::::1:15
+png/l1enemy.png                   ::16:::::::1:16
+png/l2enemy.png                   ::9:::::::1:17
 png/l3enemy.png                   ::16
 png/l4enemy.png                   ::4
 png/l0boss.png                    ::8
-png/l1boss.png                    ::8
-png/l2boss.png                    ::8
+png/l1boss.png                    ::8:::::::1:16
+png/l2boss.png                    ::8:::::::1:17
 png/l3boss.png                    ::8
 png/l4boss.png                    ::2
-png/l1bomber.png                  ::8
+png/l1bomber.png                  ::8:::::::1:16
 png/number.png                    ::6
 png/parachute.png                 ::4
 png/player.png                    ::32

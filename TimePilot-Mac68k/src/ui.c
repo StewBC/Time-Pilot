@@ -264,6 +264,7 @@ void uiShowCommonLabels() {
     printXY(8, 19, 0, TP_COLOR_WHITE, TEXT_KONAMI);
     printXY(7, 22, 0, TP_COLOR_BLUE, TEXT_VERSION);
     printXY(5, 24, 0, TP_COLOR_BLUE, TEXT_STEFAN);
+    printXY(9, 26, 0, TP_COLOR_RED, TEXT_VER_UPDATE);
 }
 
 //-----------------------------------------------------------------------------

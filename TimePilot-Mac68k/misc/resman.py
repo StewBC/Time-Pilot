@@ -26,6 +26,10 @@ SKIP_PIXELS_TOKEN = 3
 LINE_START_TOKEN  = 1
 END_SHAPE_TOKEN   = 0
 
+TP_COLOR_PROP0    = 13
+TP_COLOR_PROP1    = 14
+TP_COLOR_SKY0     = 15
+
 # Audio resource base ID
 AUDIO_BASE_RESID  = 8192
 
@@ -86,6 +90,14 @@ def crop_images(images, bounding_box):
         cropped_images.append(cropped_image)
     return cropped_images
     
+#------------------------------------------------------------------------------
+# MARK: encode_image
+def remap_indexed_image(image, color_map):
+    remapped_image = image.copy()
+    remapped_pixels = [color_map.get(pixel, pixel) for pixel in remapped_image.getdata()]
+    remapped_image.putdata(remapped_pixels)
+    return remapped_image
+
 #------------------------------------------------------------------------------
 # MARK: encode_image
 def encode_image(image, transparent_pixel):
@@ -218,7 +230,7 @@ def parse_image_params(params):
         except ValueError:
             return val
     
-    defaults = [None, None, 1, 1, 0, 0, 0, 0, 0, 1]  # Default parameter values
+    defaults = [None, None, 1, 1, 0, 0, 0, 0, 0, 1, -1]  # Default parameter values
     parsed_params = params.split(':')
     parsed_params.extend([''] * (len(defaults) - len(parsed_params)))  # Extend parsed_params with empty strings
     parsed_params = [convert_value(val, defaults[i]) for i, val in enumerate(parsed_params)]
@@ -364,6 +376,7 @@ def process_images(image_lines, palette, args):
 
         # a list of resouce (sprite) names with their respective IDs
         resource_list = []
+        prop_anim_frames = []
         pallet_number = 0
         verbose_name = ""
 
@@ -382,7 +395,8 @@ def process_images(image_lines, palette, args):
             params = parts[1] if len(parts) > 1 else ''  # Extract parameters if provided
             
             # Parse parameters
-            output_name, background_color, frame_width, frame_height, fixed_width, offset_x, offset_y, pad_x, pad_y, scale_factor  = parse_image_params(params)
+            output_name, background_color, frame_width, frame_height, fixed_width, offset_x, offset_y, pad_x, pad_y, scale_factor, prop_anim_bg = parse_image_params(params)
+            prop_anim = prop_anim_bg >= 0
             if output_name is None:
                 output_name = os.path.splitext(os.path.basename(file_name))[0].upper()
             else:
@@ -469,9 +483,6 @@ def process_images(image_lines, palette, args):
                         print(hex_string)
                     print("")
 
-                # Encode the frame
-                encoded_data = encode_image(frame, args.transparent)
-
                 # Each frame gets a unique name
                 if format_string:
                     output_adjusted = args.resource_number + output_adjust
@@ -484,13 +495,37 @@ def process_images(image_lines, palette, args):
                 else:
                     frame_name = f"{output_name}{frame_counter}" if num_frames > 1 else output_name
 
+                prop_frame_base = frame
+                if prop_anim:
+                    frame = remap_indexed_image(prop_frame_base, {
+                        TP_COLOR_PROP0: TP_COLOR_PROP1,
+                        TP_COLOR_PROP1: prop_anim_bg,
+                    })
+
                 # Save encoded data to output file
+                encoded_data = encode_image(frame, args.transparent)
                 save_bytes_data(resource_file, frame_name, 'Sprt', args.resource_number, encoded_data)
                 resource_list.append([f"{frame_name}", args.resource_number])
 
                 # Next frame has next number, both resource and counter
                 args.resource_number += 1
+
+                if prop_anim:
+                    prop_anim_frames.append((frame_name, prop_frame_base, prop_anim_bg))
+
                 frame_counter += 1
+
+        for frame_name, frame, prop_anim_bg in prop_anim_frames:
+            color_map = {
+                TP_COLOR_PROP0: prop_anim_bg,
+                TP_COLOR_PROP1: TP_COLOR_PROP1,
+            }
+            prop_frame = remap_indexed_image(frame, color_map)
+            prop_frame_name = f"{frame_name}_PROP"
+            encoded_data = encode_image(prop_frame, args.transparent)
+            save_bytes_data(resource_file, prop_frame_name, 'Sprt', args.resource_number, encoded_data)
+            resource_list.append([f"{prop_frame_name}", args.resource_number])
+            args.resource_number += 1
 
         # Save the color palette (unique by index) to the output file
         save_resource_palette(resource_file, palette, args.resource_clut_id+pallet_number)
@@ -611,6 +646,11 @@ def save_to_code_file(code_file, resource_list, prefix, map_to_array):
     # Update the dictionary with the current resource list
     for name, resource_number in resource_list:
         resource_dict[f"{prefix}{name}"] = resource_number - map_to_array
+
+    if prefix == "SID_":
+        sprite_ids = [resource_number - map_to_array for name, resource_number in resource_list if not name.startswith("CLUT")]
+        if sprite_ids:
+            resource_dict["SID_COUNT"] = max(sprite_ids) + 1
 
     # Calculate the appropriate width for alignment based on both file and new entries
     max_width = 1 + max(len(name) for name in resource_dict.keys())

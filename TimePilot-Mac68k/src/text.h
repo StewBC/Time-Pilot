@@ -48,3 +48,4 @@ extern const char *TEXT_SCORE00;
 extern const char *TEXT_STEFAN;
 extern const char *TEXT_TRY_GAME;
 extern const char *TEXT_VERSION;
+extern const char *TEXT_VER_UPDATE;

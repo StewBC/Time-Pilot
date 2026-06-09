@@ -23,7 +23,7 @@ Rect spriteClipRect;                    // the rectangle to clip to
 RGBColor colors[TP_NUM_COLORS];
 RgnHandle macOriginalGrayRgn;
 short macMenuBarHeight;
-tSpriteInfo *spritePtrs[SID_TPSMALL + 1];
+tSpriteInfo *spritePtrs[SID_COUNT];
 uint16_t drawBackgroundColor;
 uint16_t globalScale;
 uint16_t keyMask;
