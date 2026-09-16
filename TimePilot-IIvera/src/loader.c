@@ -153,7 +153,7 @@ int main(void) {
 
     text40();
     home();
-    put_line(0, 0, "TIME PILOT FOR APPLE II VERA");
+    put_line(0, 0, "TIME PILOT FOR APPLE II VERA v1.9");
     put_line(1, 0, "BY ANOMIXER https://github.com/anomixer");
     put_line(2, 0, "---------------------------------------");
 
