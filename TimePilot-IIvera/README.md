@@ -1,5 +1,7 @@
 # Time Pilot for Apple IIe (Enhanced) / IIgs + VERA (TimePilot-IIvera)
 
+**Software version: v1.91**
+
 <div align="center">
 
 [English](#english) | [繁體中文](#繁體中文)
@@ -31,7 +33,7 @@ Traditional Apple II games attempting to play digitized sound effects or stream 
 
 **TimePilot-IIvera** achieves an uncompromising **100% Zero-Disk Runtime Engine**:
 1. **One-Time Boot Streaming (VERA 128KB VRAM as High-Speed SSD)**:
-   * During boot, ProDOS Direct Block MLI (`$80`) streams **87,837 bytes (172 disk blocks) of 15 authentic arcade PCM samples** (game start theme, heavy explosions, parachute rescue, time warp whoosh, bombs, sirens, weapon explosions, gunfire, and missiles) and **56,640 bytes (111 disk blocks) of all-era sprite artwork** directly into VERA's 128 KB dual-bank VRAM (Bank 0 and Bank 1).
+   * During boot, ProDOS MLI reads the `PCM` and `ART` files and streams **53,560 bytes of 15 authentic arcade PCM samples** (game start theme, heavy explosions, parachute rescue, time warp whoosh, bombs, sirens, weapon explosions, gunfire, and missiles) and **56,000 bytes of all-era sprite artwork** directly into VERA's 128 KB dual-bank VRAM (Bank 0 and Bank 1). The 140 KB floppy images retain their dual-drive block-streaming path.
 2. **Disk Drive Completely Silent During Entire Play Session**:
    * Once the title screen appears and throughout all active gameplay, **the disk drive goes completely silent and the activity LED remains off**.
    * Dogfights, heavy explosions, multi-squad formation attacks, guided missile tracking, and even inter-era stage transitions (Boss Explosion ➔ Time Warp hyperspace beam) execute with **zero disk reads**.
@@ -197,12 +199,17 @@ cmake -B build
 cmake --build build
 ```
 
+The HDV build uses Cadius to create the ProDOS volume and add `PRODOS` and
+`CLOCK.SYSTEM`. Windows builds use the bundled `tools/cadius.exe`; macOS/Linux
+builds need a Cadius executable available on `PATH` or supplied with
+`-DCADIUS_EXECUTABLE=/path/to/cadius`.
+
 Build pipeline:
 1. `tools/mkart.py`: packs the sprite art in `src/art.h` into `art.blob` and regenerates `src/art_table.h`.
 2. `mos-apple2e-clang`: compiles `MAIN.BIN` (Slot 2, `VERA_BASE=0xC200`), `MAIN4.BIN` (Slot 4, `VERA_BASE=0xC400`), and `TPILOT.SYSTEM` (ProDOS SYS loader) with `-Oz`.
 3. `tools/check_size.py`: verifies the game image stays below `$B800`.
-4. `tools/build_hdv.py`: packages the 800 KB ProDOS bootable image `disks/TimePilot-IIvera.hdv` (using authentic 4-voice PSG hardware synthesis for the opening theme, saving 45KB of VRAM and 89 disk blocks).
-5. `tools/build_disk.py`: packages the dual 140 KB 5.25" floppies `disks/TimePilot-IIvera-D1.po` (Boot + Slot 2 Binary + Art) and `disks/TimePilot-IIvera-D2.po` (PCM Audio + Slot 4 Binary).
+4. `tools/build_hdv.py`: uses Cadius to create the 800 KB ProDOS volume and add the system files, then writes the boot files and ordinary `ART` and `PCM` ProDOS files. HDV runtime loading opens these assets by filename, so their allocated blocks are not fixed. (The authentic 4-voice PSG hardware synthesis for the opening theme saves 45KB of VRAM and 89 disk blocks.)
+5. `tools/build_disk.py`: uses Cadius to create two 140 KB ProDOS volumes, then packages the dual 5.25" floppies `disks/TimePilot-IIvera-D1.po` (Boot + Slot 2 Binary + Art) and `disks/TimePilot-IIvera-D2.po` (PCM Audio + Slot 4 Binary).
 
 Disk images land in `disks/` and are not committed — rebuild them from a clean clone at any time.
 
@@ -236,8 +243,8 @@ clangd works without hand-editing. It is git-ignored precisely because it holds 
 | Path | Contents |
 | --- | --- |
 | `src/` | C and 6502 sources, headers, `TPILOT.SYSTEM` loader (`loader.c` / `loader.s`) |
-| `assets/` | ProDOS templates (`800kb.hdv`, `140kb.po`) and the converted `pcm.blob` |
-| `tools/` | Build-time tools, driven by CMake |
+| `assets/` | Extracted ProDOS system files and converted `pcm.blob` |
+| `tools/` | Build-time tools, including bundled Windows Cadius, driven by CMake |
 | `tools/offline/` | One-time asset conversions, run by hand — never during a build |
 | `disks/` | Built disk images (git-ignored) |
 
@@ -257,7 +264,12 @@ that are not in this repository, which is exactly why their outputs are committe
 ### Running in Emulator or Real Hardware
 Boot chain: ProDOS → (HDV: `CLOCK.SYSTEM`) → `TPILOT.SYSTEM` (VERA slot detect + splash on text page 1) → `MAIN.BIN` / `MAIN4.BIN` at `$0800`.
 * **800KB Hard Disk Mode**: Load `TimePilot-IIvera.hdv` into **Apple2TS** or any Apple II emulator/storage controller (CFFA3000, FujiNet, wDrive).
-* **Dual 140KB 5.25" Floppy Mode**: Mount `TimePilot-IIvera-D1.po` into Drive 1 and `TimePilot-IIvera-D2.po` into Drive 2; boot Drive 1. The game auto-detects floppy mode, streams art from Drive 1 and audio from Drive 2 seamlessly!
+* **Dual 140KB 5.25" Floppy Mode (floppy hardware only)**: Mount `TimePilot-IIvera-D1.po` (`TIME.PILOT`) into Drive 1 and `TimePilot-IIvera-D2.po` (`TIME.PILOT.2`) into Drive 2; boot Drive 1. The game auto-detects floppy mode, streams art from Drive 1 and audio from Drive 2 seamlessly. Newly generated file entries on both disks receive local build timestamps. **For hard-disk installation, use the HDV version below; the two floppy images are not a hard-disk install.**
+
+### File-level installation
+The HDV is built with the ProDOS volume name `TIME.PILOT`. Newly generated game file entries receive the local build date and time; the volume header retains its ProDOS metadata. For a file-level hard-disk install, use this HDV version: copy all files from `disks/TimePilot-IIvera.hdv` into your target ProDOS volume or directory, except `PRODOS`. Keep the `TIME.PILOT` marker file in the game directory; the loader checks it before reading game files. Set the ProDOS prefix to that location and launch `TPILOT.SYSTEM`. The loader and game read `MAIN.BIN`/`MAIN4.BIN`, `ART`, and `PCM` by filename, so their disk block allocation can differ from the HDV image. The dual-floppy images use fixed-block loading and are only for dual-floppy environments.
+
+雙軟碟版只適用於雙軟碟機環境：D1 volume name 為 `TIME.PILOT`，D2 為 `TIME.PILOT.2`，新產生的檔案項目會寫入本機建置時間。要安裝到硬碟，請使用 HDV 版本，不要把兩張軟碟分別複製成兩個硬碟目錄。HDV 製作時會將 ProDOS volume name 設為 `TIME.PILOT`，並為新產生的遊戲檔案項目寫入本機建置日期與時間；volume header 的 ProDOS 中繼資料會保留原樣。檔案式安裝時，將 `disks/TimePilot-IIvera.hdv` 內所有檔案複製到同一個目標 ProDOS volume 或目錄，唯獨 `PRODOS` 不需複製。請保留遊戲目錄中的 `TIME.PILOT` 標記檔；啟動器會先確認此檔，再讀取遊戲檔案。將 ProDOS prefix 設為該位置，再執行 `TPILOT.SYSTEM`。啟動器與遊戲會依檔名讀取 `MAIN.BIN`／`MAIN4.BIN`、`ART` 和 `PCM`，不依賴它們在 HDV 中的磁區配置。
 
 ---
 
@@ -266,6 +278,8 @@ Boot chain: ProDOS → (HDV: `CLOCK.SYSTEM`) → `TPILOT.SYSTEM` (VERA slot dete
 
 1982 Konami 街機經典《Time Pilot》（時空領航員）65C02 架構 Apple II 系列 + VERA 擴充卡 100% 原版規格高傳真移植版。  
 本專案直接繼承與改編自 Stefan Wessels 於 2024 年發布之 **TimePilot-CX16** 與 Apple IIgs 版本。
+
+**軟體版本：v1.91**
 
 ---
 
@@ -458,12 +472,16 @@ cmake -B build
 cmake --build build
 ```
 
+HDV 建置會使用 Cadius 建立 ProDOS volume，並加入 `PRODOS` 與
+`CLOCK.SYSTEM`。Windows 會使用附帶的 `tools/cadius.exe`；macOS/Linux
+需將 Cadius 放在 `PATH`，或以 `-DCADIUS_EXECUTABLE=/path/to/cadius` 指定。
+
 建置流程：
 1. `tools/mkart.py`：將 `src/art.h` 的精靈圖檔打包為 `art.blob`，並重新產生 `src/art_table.h`。
 2. `mos-apple2e-clang`：以 `-Oz` 極限優化編譯 `MAIN.BIN`（Slot 2，`VERA_BASE=0xC200`）、`MAIN4.BIN`（Slot 4，`VERA_BASE=0xC400`）與 `TPILOT.SYSTEM`（ProDOS SYS 載入程式）。
 3. `tools/check_size.py`：確認遊戲映像未超過 `$B800`。
-4. `tools/build_hdv.py`：生成 800 KB ProDOS 開機硬碟映像檔 `disks/TimePilot-IIvera.hdv`（採用 4 聲道硬體 PSG 即時演奏遊戲開頭音樂，節省 45KB VRAM 與 89 個磁區空間）。
-5. `tools/build_disk.py`：生成兩張 140 KB 5.25" 軟碟 `disks/TimePilot-IIvera-D1.po`（開機引導 + Slot 2 主程式 + 圖形）與 `disks/TimePilot-IIvera-D2.po`（PCM 音效庫 + Slot 4 主程式）。
+4. `tools/build_hdv.py`：使用 Cadius 建立 800 KB ProDOS volume、加入系統檔，再寫入開機檔與一般 ProDOS `ART`、`PCM` 檔案。HDV 執行時依檔名開啟資產，磁區配置不固定。（開頭音樂採用 4 聲道硬體 PSG 即時演奏，節省 45KB VRAM 與 89 個磁區空間。）
+5. `tools/build_disk.py`：使用 Cadius 建立兩個 140 KB ProDOS volume，再打包成 5.25" 雙軟碟 `disks/TimePilot-IIvera-D1.po`（開機引導 + Slot 2 主程式 + 圖形）與 `disks/TimePilot-IIvera-D2.po`（PCM 音效庫 + Slot 4 主程式）。
 
 磁碟映像檔輸出至 `disks/`，不納入版本控制；隨時皆可從乾淨的 clone 重新建置。
 
@@ -496,8 +514,8 @@ clangd 無需手動修改即可運作。該檔案含有絕對路徑，因此已�
 | 路徑 | 內容 |
 | --- | --- |
 | `src/` | C 與 6502 原始碼、標頭檔、`TPILOT.SYSTEM` 載入程式（`loader.c` / `loader.s`） |
-| `assets/` | ProDOS 範本映像（`800kb.hdv`、`140kb.po`）與轉換完成的 `pcm.blob` |
-| `tools/` | 建置時工具，由 CMake 呼叫 |
+| `assets/` | 擷取出的 ProDOS 系統檔與轉換完成的 `pcm.blob` |
+| `tools/` | 建置時工具（含 Windows 隨附的 Cadius），由 CMake 呼叫 |
 | `tools/offline/` | 一次性資產轉換工具，手動執行，建置時絕不會被呼叫 |
 | `disks/` | 建置產出的磁碟映像檔（已列入 `.gitignore`） |
 
@@ -517,4 +535,4 @@ clangd 無需手動修改即可運作。該檔案含有絕對路徑，因此已�
 ### 模擬器或實機載入執行
 開機鏈：ProDOS →（HDV：`CLOCK.SYSTEM`）→ `TPILOT.SYSTEM`（偵測 VERA 槽位並在 text page 1 顯示啟動畫面）→ 於 `$0800` 載入 `MAIN.BIN` / `MAIN4.BIN`。
 * **800KB 硬碟模式**：支援 **Apple2TS** 網頁模擬器或任何支援 VERA 擴充卡之 Apple II 模擬器／實機儲存卡（CFFA3000、FujiNet、wDrive），將 `TimePilot-IIvera.hdv` 掛載至硬碟槽即可自動引導開機啟動！
-* **雙 140KB 5.25" 軟碟模式**：將 `TimePilot-IIvera-D1.po` 掛載至 Drive 1，`TimePilot-IIvera-D2.po` 掛載至 Drive 2，自 Drive 1 開機。程式自動識別軟碟容量，圖形自 D1 讀取、音效自 D2 載入，完美相容雙軟碟機配置！
+* **雙 140KB 5.25" 軟碟模式（僅限雙軟碟環境）**：將 `TimePilot-IIvera-D1.po` 掛載至 Drive 1，`TimePilot-IIvera-D2.po` 掛載至 Drive 2，自 Drive 1 開機。程式自動識別軟碟容量，圖形自 D1 讀取、音效自 D2 載入。要安裝到硬碟，請使用 HDV 版本，不要將雙碟映像分別複製到兩個硬碟目錄。

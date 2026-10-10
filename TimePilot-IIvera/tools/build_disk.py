@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """build_disk.py - Package Time Pilot IIvera into two 140KB ProDOS floppies.
 
-Disk 1 (TimePilot-IIvera-D1.po):
-  - PRODOS (preserved from the 140kb.po template)
+Disk 1 (TimePilot-IIvera-D1.po; volume TIME.PILOT):
+  - PRODOS (added by Cadius)
   - TPILOT.SYSTEM (slot detect + loader)
   - MAIN.BIN (Slot 2 binary)
   - ART      (art.blob at fixed block 128)
 
-Disk 2 (TimePilot-IIvera-D2.po):
-  - Blank volume (TIMEPILOT2)
+Disk 2 (TimePilot-IIvera-D2.po; volume TIME.PILOT.2):
   - PCM       (pcm.blob audio at fixed block 7)
   - MAIN4.BIN (Slot 4 binary)
 
@@ -18,16 +17,38 @@ Boot sequence:
   3. Slot 2 -> load MAIN.BIN to $0800; Slot 4 -> Disk 2, load MAIN4.BIN to $0800.
   4. In game, disk_init detects 140KB floppy mode: ART streams from Drive 1
      (block 128), PCM streams from Drive 2 (block 7).
+
+The floppy images use fixed-block loading and are intended for a dual-floppy
+setup. Use the HDV image for hard-disk installations.
 """
 
 import argparse
+from datetime import datetime
 import os
+import subprocess
 import sys
 
 BLOCK = 512
 TOTAL_BLOCKS = 280
 ART_BASE_BLOCK = 128    # Disk 1, fixed
 PCM_BASE_BLOCK = 7      # Disk 2, fixed
+DISK1_VOLUME_NAME = "TIME.PILOT"
+DISK2_VOLUME_NAME = "TIME.PILOT.2"
+BUILD_DATETIME = datetime.now()
+
+
+def prodos_datetime(value):
+    """Pack local build time using ProDOS's Y2K date and time fields."""
+    full_year = value.year
+    year = full_year - 2000 if full_year >= 2000 else full_year - 1900
+    if year < 0 or year > 99:
+        raise ValueError(f"ProDOS timestamps cannot represent year {full_year}")
+    date = ((year & 0x7F) << 9) | ((value.month & 0x0F) << 5) | (value.day & 0x1F)
+    time = ((value.hour & 0x1F) << 8) | (value.minute & 0x3F)
+    return (date & 0xFF, date >> 8, time & 0xFF, time >> 8)
+
+
+BUILD_PRODOS_DATETIME = prodos_datetime(BUILD_DATETIME)
 
 
 class DiskFull(SystemExit):
@@ -142,9 +163,11 @@ class Disk:
         vol[off + 0x15] = e["eof"] & 0xFF
         vol[off + 0x16] = (e["eof"] >> 8) & 0xFF
         vol[off + 0x17] = (e["eof"] >> 16) & 0xFF
+        vol[off + 0x18:off + 0x1C] = bytes(BUILD_PRODOS_DATETIME)
         vol[off + 0x1E] = 0xC3
         vol[off + 0x1F] = e["aux"] & 0xFF
         vol[off + 0x20] = (e["aux"] >> 8) & 0xFF
+        vol[off + 0x21:off + 0x25] = bytes(BUILD_PRODOS_DATETIME)
         vol[off + 0x25] = 2          # parent = volume directory block 2
         vol[off + 0x26] = 0
 
@@ -187,16 +210,20 @@ def main():
     ap.add_argument("--assets-dir", default=os.path.join(project_root, "assets"))
     ap.add_argument("--build-dir", default=os.path.join(project_root, "build"))
     ap.add_argument("--out-dir", default=os.path.join(project_root, "disks"))
+    ap.add_argument("--cadius-path", default=os.path.join(here, "cadius.exe"))
     args = ap.parse_args()
 
-    base_po = os.path.join(args.assets_dir, "140kb.po")
+    base_d1 = os.path.join(args.build_dir, "disk1-base.po")
+    base_d2 = os.path.join(args.build_dir, "disk2-base.po")
+    prodos_path = os.path.join(args.assets_dir, "prodos-system", "PRODOS#FF0000")
     pcm_path = os.path.join(args.assets_dir, "pcm.blob")
     art_path = os.path.join(args.build_dir, "art.blob")
     sys_path = os.path.join(args.build_dir, "tpilot.sys")
     main_path = os.path.join(args.build_dir, "main.bin")
     main4_path = os.path.join(args.build_dir, "main4.bin")
 
-    for p, what in ((base_po, "base 140KB PO template"),
+    for p, what in ((args.cadius_path, "Cadius executable"),
+                    (prodos_path, "ProDOS system file"),
                     (pcm_path, "PCM audio asset"),
                     (art_path, "art.blob (run tools/mkart.py)"),
                     (sys_path, "compiled tpilot.sys"),
@@ -205,7 +232,16 @@ def main():
         if not os.path.exists(p):
             raise SystemExit(f"error: {what} not found: {p}")
 
-    with open(base_po, "rb") as f:
+    os.makedirs(args.build_dir, exist_ok=True)
+    for image, volume in ((base_d1, DISK1_VOLUME_NAME),
+                          (base_d2, DISK2_VOLUME_NAME)):
+        if os.path.exists(image):
+            os.remove(image)
+        subprocess.run([args.cadius_path, "CREATEVOLUME", image, volume, "140KB"], check=True)
+    subprocess.run([args.cadius_path, "ADDFILE", base_d1,
+                    f"/{DISK1_VOLUME_NAME}", prodos_path], check=True)
+
+    with open(base_d1, "rb") as f:
         base_image = f.read()
     with open(pcm_path, "rb") as f:
         pcm = f.read()
@@ -248,7 +284,7 @@ def main():
         d1.write_dir_entry(entry_idx, e)
         entry_idx += 1
 
-    d1.set_volume_header("TIMEPILOT1")
+    d1.set_volume_header(DISK1_VOLUME_NAME)
     d1.set_file_count(len(preserved) + len(app_files))
     d1.mark_bitmap()
 
@@ -263,7 +299,9 @@ def main():
 
     # ---------------- Disk 2 ----------------
     print("\nBuilding Disk 2: TimePilot-IIvera-D2.po ...")
-    d2 = Disk(base_image, first_free=0, used=range(0, 7))
+    with open(base_d2, "rb") as f:
+        base_image2 = f.read()
+    d2 = Disk(base_image2, first_free=0, used=range(0, 7))
     d2.clear_dir_entries()
     pcm_blocks = d2.place_blob(pcm, PCM_BASE_BLOCK)
     d2.next_free = PCM_BASE_BLOCK + pcm_blocks
@@ -276,7 +314,7 @@ def main():
         d2.write_dir_entry(entry_idx, e)
         entry_idx += 1
 
-    d2.set_volume_header("TIMEPILOT2")
+    d2.set_volume_header(DISK2_VOLUME_NAME)
     d2.set_file_count(2)
     d2.mark_bitmap()
 

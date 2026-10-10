@@ -23,6 +23,19 @@ mli_buf_hi: .byte 0          ; (high)
 mli_blk_lo: .byte 0          ; block number (low)
 mli_blk_hi: .byte 0          ; (high)
 mli_status: .byte 0          ; $00 = success, $27 = I/O error, ...
+mli_zp_save: .byte 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+        .section .data
+        .global mli_open_params
+mli_open_params: .byte 3,0,0,0,0,0
+        .global mli_close_params
+mli_close_params: .byte 1,0
+        .global mli_read_params
+mli_read_params: .byte 4,0,0,0,0,0,0,0
+        .global mli_mark_params
+mli_mark_params: .byte 2,0,0,0,0
+        .global mli_prefix_params
+mli_prefix_params: .byte 1,0,0
 
         .section .bss
         .global mlib_params
@@ -54,3 +67,31 @@ mlib_read_block:
         .word mlib_params
         STA mli_status
         RTS
+
+        .macro CALL_MLI name, opcode, params
+        .global \name
+\name:
+        LDX #15
+.Lsave\@:
+        LDA $40,X
+        STA mli_zp_save,X
+        DEX
+        BPL .Lsave\@
+        JSR $BF00
+        .byte \opcode
+        .word \params
+        STA mli_status
+        LDX #15
+.Lrest\@:
+        LDA mli_zp_save,X
+        STA $40,X
+        DEX
+        BPL .Lrest\@
+        RTS
+        .endmacro
+
+        CALL_MLI mlib_open, $C8, mli_open_params
+        CALL_MLI mlib_close, $CC, mli_close_params
+        CALL_MLI mlib_read, $CA, mli_read_params
+        CALL_MLI mlib_set_mark, $CE, mli_mark_params
+        CALL_MLI mlib_get_prefix, $C7, mli_prefix_params
