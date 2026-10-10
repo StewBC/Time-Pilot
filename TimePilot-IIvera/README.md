@@ -199,12 +199,17 @@ cmake -B build
 cmake --build build
 ```
 
+The HDV build uses Cadius to create the ProDOS volume and add `PRODOS` and
+`CLOCK.SYSTEM`. Windows builds use the bundled `tools/cadius.exe`; macOS/Linux
+builds need a Cadius executable available on `PATH` or supplied with
+`-DCADIUS_EXECUTABLE=/path/to/cadius`.
+
 Build pipeline:
 1. `tools/mkart.py`: packs the sprite art in `src/art.h` into `art.blob` and regenerates `src/art_table.h`.
 2. `mos-apple2e-clang`: compiles `MAIN.BIN` (Slot 2, `VERA_BASE=0xC200`), `MAIN4.BIN` (Slot 4, `VERA_BASE=0xC400`), and `TPILOT.SYSTEM` (ProDOS SYS loader) with `-Oz`.
 3. `tools/check_size.py`: verifies the game image stays below `$B800`.
-4. `tools/build_hdv.py`: packages the 800 KB ProDOS bootable image `disks/TimePilot-IIvera.hdv` (using authentic 4-voice PSG hardware synthesis for the opening theme, saving 45KB of VRAM and 89 disk blocks).
-5. `tools/build_disk.py`: packages the dual 140 KB 5.25" floppies `disks/TimePilot-IIvera-D1.po` (Boot + Slot 2 Binary + Art) and `disks/TimePilot-IIvera-D2.po` (PCM Audio + Slot 4 Binary).
+4. `tools/build_hdv.py`: uses Cadius to create the 800 KB ProDOS volume and add the system files, then writes the boot files and ordinary `ART` and `PCM` ProDOS files. HDV runtime loading opens these assets by filename, so their allocated blocks are not fixed. (The authentic 4-voice PSG hardware synthesis for the opening theme saves 45KB of VRAM and 89 disk blocks.)
+5. `tools/build_disk.py`: uses Cadius to create two 140 KB ProDOS volumes, then packages the dual 5.25" floppies `disks/TimePilot-IIvera-D1.po` (Boot + Slot 2 Binary + Art) and `disks/TimePilot-IIvera-D2.po` (PCM Audio + Slot 4 Binary).
 
 Disk images land in `disks/` and are not committed — rebuild them from a clean clone at any time.
 
@@ -238,8 +243,8 @@ clangd works without hand-editing. It is git-ignored precisely because it holds 
 | Path | Contents |
 | --- | --- |
 | `src/` | C and 6502 sources, headers, `TPILOT.SYSTEM` loader (`loader.c` / `loader.s`) |
-| `assets/` | ProDOS templates (`800kb.hdv`, `140kb.po`) and the converted `pcm.blob` |
-| `tools/` | Build-time tools, driven by CMake |
+| `assets/` | Extracted ProDOS system files and converted `pcm.blob` |
+| `tools/` | Build-time tools, including bundled Windows Cadius, driven by CMake |
 | `tools/offline/` | One-time asset conversions, run by hand — never during a build |
 | `disks/` | Built disk images (git-ignored) |
 
@@ -467,12 +472,16 @@ cmake -B build
 cmake --build build
 ```
 
+HDV 建置會使用 Cadius 建立 ProDOS volume，並加入 `PRODOS` 與
+`CLOCK.SYSTEM`。Windows 會使用附帶的 `tools/cadius.exe`；macOS/Linux
+需將 Cadius 放在 `PATH`，或以 `-DCADIUS_EXECUTABLE=/path/to/cadius` 指定。
+
 建置流程：
 1. `tools/mkart.py`：將 `src/art.h` 的精靈圖檔打包為 `art.blob`，並重新產生 `src/art_table.h`。
 2. `mos-apple2e-clang`：以 `-Oz` 極限優化編譯 `MAIN.BIN`（Slot 2，`VERA_BASE=0xC200`）、`MAIN4.BIN`（Slot 4，`VERA_BASE=0xC400`）與 `TPILOT.SYSTEM`（ProDOS SYS 載入程式）。
 3. `tools/check_size.py`：確認遊戲映像未超過 `$B800`。
-4. `tools/build_hdv.py`：生成 800 KB ProDOS 開機硬碟映像檔 `disks/TimePilot-IIvera.hdv`（採用 4 聲道硬體 PSG 即時演奏遊戲開頭音樂，節省 45KB VRAM 與 89 個磁區空間）。
-5. `tools/build_disk.py`：生成兩張 140 KB 5.25" 軟碟 `disks/TimePilot-IIvera-D1.po`（開機引導 + Slot 2 主程式 + 圖形）與 `disks/TimePilot-IIvera-D2.po`（PCM 音效庫 + Slot 4 主程式）。
+4. `tools/build_hdv.py`：使用 Cadius 建立 800 KB ProDOS volume、加入系統檔，再寫入開機檔與一般 ProDOS `ART`、`PCM` 檔案。HDV 執行時依檔名開啟資產，磁區配置不固定。（開頭音樂採用 4 聲道硬體 PSG 即時演奏，節省 45KB VRAM 與 89 個磁區空間。）
+5. `tools/build_disk.py`：使用 Cadius 建立兩個 140 KB ProDOS volume，再打包成 5.25" 雙軟碟 `disks/TimePilot-IIvera-D1.po`（開機引導 + Slot 2 主程式 + 圖形）與 `disks/TimePilot-IIvera-D2.po`（PCM 音效庫 + Slot 4 主程式）。
 
 磁碟映像檔輸出至 `disks/`，不納入版本控制；隨時皆可從乾淨的 clone 重新建置。
 
@@ -505,8 +514,8 @@ clangd 無需手動修改即可運作。該檔案含有絕對路徑，因此已�
 | 路徑 | 內容 |
 | --- | --- |
 | `src/` | C 與 6502 原始碼、標頭檔、`TPILOT.SYSTEM` 載入程式（`loader.c` / `loader.s`） |
-| `assets/` | ProDOS 範本映像（`800kb.hdv`、`140kb.po`）與轉換完成的 `pcm.blob` |
-| `tools/` | 建置時工具，由 CMake 呼叫 |
+| `assets/` | 擷取出的 ProDOS 系統檔與轉換完成的 `pcm.blob` |
+| `tools/` | 建置時工具（含 Windows 隨附的 Cadius），由 CMake 呼叫 |
 | `tools/offline/` | 一次性資產轉換工具，手動執行，建置時絕不會被呼叫 |
 | `disks/` | 建置產出的磁碟映像檔（已列入 `.gitignore`） |
 

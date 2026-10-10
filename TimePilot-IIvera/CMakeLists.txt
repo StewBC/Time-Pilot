@@ -86,6 +86,27 @@ set(ASSETS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets")
 set(DISKS_DIR  "${CMAKE_CURRENT_SOURCE_DIR}/disks")
 set(STAGE_DIR  "${CMAKE_CURRENT_BINARY_DIR}/stage")
 
+# Cadius creates the bootable ProDOS volume used by the HDV packager. The
+# Windows executable is bundled; macOS/Linux users can provide their Cadius
+# binary with -DCADIUS_EXECUTABLE=/path/to/cadius.
+set(CADIUS_EXECUTABLE "" CACHE FILEPATH "Path to the Cadius disk-image utility")
+if(NOT CADIUS_EXECUTABLE AND WIN32 AND EXISTS "${TOOLS_DIR}/cadius.exe")
+    set(CADIUS_EXECUTABLE "${TOOLS_DIR}/cadius.exe")
+endif()
+if(NOT CADIUS_EXECUTABLE)
+    find_program(_CADIUS_EXECUTABLE NAMES cadius Cadius cadius.exe
+        HINTS "${TOOLS_DIR}")
+    if(_CADIUS_EXECUTABLE)
+        set(CADIUS_EXECUTABLE "${_CADIUS_EXECUTABLE}" CACHE FILEPATH
+            "Path to the Cadius disk-image utility" FORCE)
+    endif()
+endif()
+if(NOT CADIUS_EXECUTABLE OR NOT EXISTS "${CADIUS_EXECUTABLE}")
+    message(FATAL_ERROR
+        "Cadius was not found. Windows builds use tools/cadius.exe; on macOS/Linux, "
+        "install Cadius or configure with -DCADIUS_EXECUTABLE=/path/to/cadius.")
+endif()
+
 file(MAKE_DIRECTORY "${STAGE_DIR}")
 
 set(GAME_SOURCES
@@ -201,8 +222,12 @@ add_custom_command(
             --assets-dir "${ASSETS_DIR}"
             --build-dir "${STAGE_DIR}"
             --out-dir "${DISKS_DIR}"
+            --cadius-path "${CADIUS_EXECUTABLE}"
     DEPENDS "${TOOLS_DIR}/build_hdv.py"
-            "${ASSETS_DIR}/800kb.hdv" "${ASSETS_DIR}/pcm.blob"
+            "${CADIUS_EXECUTABLE}"
+            "${ASSETS_DIR}/prodos-system/PRODOS#FF0000"
+            "${ASSETS_DIR}/prodos-system/CLOCK.SYSTEM#FF0000"
+            "${ASSETS_DIR}/pcm.blob"
             "${STAGE_DIR}/art.blob"
             "${STAGE_DIR}/tpilot.sys"
             "${STAGE_DIR}/main.bin" "${STAGE_DIR}/main4.bin"
@@ -218,8 +243,11 @@ add_custom_command(
             --assets-dir "${ASSETS_DIR}"
             --build-dir "${STAGE_DIR}"
             --out-dir "${DISKS_DIR}"
+            --cadius-path "${CADIUS_EXECUTABLE}"
     DEPENDS "${TOOLS_DIR}/build_disk.py"
-            "${ASSETS_DIR}/140kb.po" "${ASSETS_DIR}/pcm.blob"
+            "${CADIUS_EXECUTABLE}"
+            "${ASSETS_DIR}/prodos-system/PRODOS#FF0000"
+            "${ASSETS_DIR}/pcm.blob"
             "${STAGE_DIR}/art.blob"
             "${STAGE_DIR}/tpilot.sys"
             "${STAGE_DIR}/main.bin" "${STAGE_DIR}/main4.bin"
