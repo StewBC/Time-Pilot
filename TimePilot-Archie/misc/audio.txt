@@ -1,0 +1,29 @@
+# This file describes the audio files and how they are converted into
+# generated sample data for Time Pilot.
+
+# The format is Name [loops]:[Hz]:[chanels]:[resID]
+# defaults are loops 0, Hz 5512, chanels 1 (mono), resID -1
+# For Archie output, resman.py emits signed 8-bit mono linear PCM samples in C,
+# along with the sample rate and loop flag for each sound.
+# using a resID sets the counter to that value, and all subsequent files will count from that ID
+
+audio/big_explosion.wav
+audio/bomb.wav
+audio/bossl0.wav
+audio/bossl1.wav
+audio/bossl2.wav
+audio/bossl3.wav
+audio/coindrop.wav
+audio/enemy_explode.wav
+audio/enemy_shoot.wav
+audio/extra_life.wav
+audio/game_start.wav
+audio/highscore.wav
+audio/next_level.wav
+audio/pickup.wav
+audio/player_shoot.wav
+audio/rocket_fly.wav
+audio/rocket_launch.wav
+audio/timewarp.wav
+audio/wapon_explode.wav
+audio/wave_start.wav
