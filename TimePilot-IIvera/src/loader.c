@@ -170,6 +170,7 @@ static void mli_read(uint8_t unit, uint16_t blk, uint8_t *dest) {
 }
 
 static void prompt_disk2(void) {
+    home();
     put_line(20, 4, "PLEASE INSERT DISK 2 IN DRIVE 2");
     put_line(21, 6, "PRESS ANY KEY TO CONTINUE...");
     wait_key();

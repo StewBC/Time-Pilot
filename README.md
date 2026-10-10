@@ -4,11 +4,12 @@ Remake of the Time Pilot arcade game, released in 1982 by Konami.
 Video of Windows/Linux/macOS and Commander X16 versions on YouTube: https://youtu.be/EGAHTqTvGlY  
     
 ## Versions  
+[Acorn Archimedes Readme](TimePilot-Archie/README.md)  
+[Apple //e & IIgs Vera Readme - port by anomixer](TimePilot-IIvera/README.md)  
 [Apple IIgs Readme](TimePilot-IIgs/README.md)  
-[Windows/Linux/macOS](TimePilot-16bit-C/README.md)  
 [Commander X16 Readme](TimePilot-CX16/README.md)  
 [Mac 68K Readme](TimePilot-Mac68k/README.md)  
-[Apple //e & IIgs Vera Readme - port by anomixer](TimePilot-IIvera/README.md)  
+[Windows/Linux/macOS Readme](TimePilot-16bit-C/README.md)  
   
 ## About Time Pilot from Wikipedia:  
 Time Pilot is a multidirectional shooter arcade video game designed by Yoshiki Okamoto and released by Konami in 1982. While engaging in aerial combat, the player-controlled jet flies across open airspace that scrolls indefinitely in all directions.  

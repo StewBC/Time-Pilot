@@ -115,6 +115,14 @@ static void prompt_disk2(void) {
     volatile uint8_t *t10 = (volatile uint8_t *)0x0428;
     volatile uint8_t *t12 = (volatile uint8_t *)0x0528;
 
+    // HOME: clear the full Apple II text page before prompting for disk 2.
+    for (uint8_t r = 0; r < 24; r++) {
+        uint16_t addr = (uint16_t)(0x0400u + ((uint16_t)(r & 7) << 7)
+                                   + (uint16_t)(r & 0x18) * 5u);
+        volatile uint8_t *row = (volatile uint8_t *)addr;
+        for (uint8_t c = 0; c < 40; c++) row[c] = 0xA0;
+    }
+
     for (uint8_t i = 0; m1[i]; i++) t10[i + 4] = (uint8_t)(m1[i] | 0x80);
     for (uint8_t i = 0; m2[i]; i++) t12[i + 6] = (uint8_t)(m2[i] | 0x80);
 
