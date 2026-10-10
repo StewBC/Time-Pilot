@@ -1,9 +1,10 @@
 /* TPILOT.SYSTEM — ProDOS SYS loader. Replaces BASIC.SYSTEM + STARTUP + BRUN.
  *
  * ProDOS loads this at $2000. We detect the VERA slot, optionally wait for
- * floppy disk 2, then copy a trampoline to $300 which READ_BLOCKs MAIN.BIN
- * (or MAIN4.BIN) to $0800 and jumps there. The trampoline lives below the
- * game image so the load may overlay this SYS.
+ * floppy disk 2, then copy a trampoline to $300. HDV installs read the marked
+ * game's MAIN.BIN (or MAIN4.BIN) by pathname; floppy installs retain the
+ * fixed-block loader. The trampoline lives below the game image so the load
+ * may overlay this SYS.
  */
 #include <stdint.h>
 
@@ -12,8 +13,13 @@ extern uint8_t mli_buf_lo, mli_buf_hi;
 extern uint8_t mli_blk_lo, mli_blk_hi;
 extern uint8_t mli_status;
 extern void mlib_read_block(void);
-extern const uint8_t trampoline_src[];
-extern const uint8_t trampoline_src_end[];
+extern uint8_t mli_open_params[], mli_close_params[], mli_read_params[];
+extern uint8_t mli_prefix_params[];
+extern void mlib_open(void), mlib_close(void), mlib_get_prefix(void);
+extern const uint8_t file_trampoline_src[];
+extern const uint8_t file_trampoline_src_end[];
+extern const uint8_t block_trampoline_src[];
+extern const uint8_t block_trampoline_src_end[];
 extern void launch_game(void);
 
 #define BLOCK_BYTES 512
@@ -24,6 +30,69 @@ extern void launch_game(void);
  * $0C00 is below the SYS and off the text screen. */
 static uint8_t * const mli_buf = (uint8_t *)0x0C00;
 static uint8_t * const idx_buf = (uint8_t *)0xB800;
+static uint8_t prefix_path[65];
+static uint8_t main_path[65];
+
+static uint8_t open_prefix_file(const char *name) {
+    uint8_t len, i;
+    uintptr_t p = (uintptr_t)prefix_path;
+    mli_prefix_params[1] = (uint8_t)p;
+    mli_prefix_params[2] = (uint8_t)(p >> 8);
+    mlib_get_prefix();
+    if (mli_status || prefix_path[0] > 63) return 0;
+
+    len = prefix_path[0];
+    for (i = 0; i < len; i++) main_path[i + 1] = prefix_path[i + 1];
+    if (len && main_path[len] != '/') {
+        if (len >= 63) return 0;
+        main_path[++len] = '/';
+    }
+    for (i = 0; name[i]; i++) {
+        if (len >= 64) return 0;
+        main_path[++len] = (uint8_t)name[i];
+    }
+    main_path[0] = len;
+
+    p = (uintptr_t)main_path;
+    mli_open_params[1] = (uint8_t)p;
+    mli_open_params[2] = (uint8_t)(p >> 8);
+    mli_open_params[3] = 0x00;
+    mli_open_params[4] = 0xB8; /* ProDOS file I/O buffer at $B800 */
+    mli_open_params[5] = 0;
+    mlib_open();
+    return mli_status == 0;
+}
+
+static uint8_t try_launch_file(const char *name) {
+    uint8_t i;
+    /* Only use pathname loading when the active ProDOS prefix is this game. */
+    if (!open_prefix_file("TIME.PILOT")) return 0;
+    mli_close_params[1] = mli_open_params[5];
+    mlib_close();
+    if (mli_status) return 0;
+
+    if (!open_prefix_file(name)) return 0;
+
+    /* Page-3 trampoline reads the opened file over the former SYS image. */
+    *(volatile uint8_t *)0x03C0 = 4;
+    *(volatile uint8_t *)0x03C1 = mli_open_params[5];
+    *(volatile uint8_t *)0x03C2 = 0x00;
+    *(volatile uint8_t *)0x03C3 = 0x08;
+    *(volatile uint8_t *)0x03C4 = 0x00;
+    *(volatile uint8_t *)0x03C5 = 0x02; /* 512-byte chunks */
+    *(volatile uint8_t *)0x03C6 = 0;
+    *(volatile uint8_t *)0x03C7 = 0;
+
+    *(volatile uint8_t *)0x03D0 = 1;
+    *(volatile uint8_t *)0x03D1 = mli_open_params[5];
+    {
+        uint8_t n = (uint8_t)(file_trampoline_src_end - file_trampoline_src);
+        uint8_t *tp = (uint8_t *)0x0300;
+        for (i = 0; i < n; i++) tp[i] = file_trampoline_src[i];
+    }
+    launch_game();
+    return 1;
+}
 
 static uint8_t *line_ptr(uint8_t row) {
     return (uint8_t *)(uint16_t)(0x0400u + ((uint16_t)(row & 7) << 7)
@@ -153,7 +222,7 @@ int main(void) {
 
     text40();
     home();
-    put_line(0, 0, "TIME PILOT FOR APPLE II VERA v1.9");
+    put_line(0, 0, "TIME PILOT FOR APPLE II VERA v1.91");
     put_line(1, 0, "BY ANOMIXER https://github.com/anomixer");
     put_line(2, 0, "---------------------------------------");
 
@@ -201,11 +270,16 @@ int main(void) {
         }
     }
 
+    /* HDV and file-level installs read the game by pathname. Keep the raw
+     * block loader below as a compatibility path for legacy images/floppies. */
+    if (!floppy)
+        (void)try_launch_file(fname);
+
     if (!find_file(unit, fname, &st, &key, &eof) || eof == 0)
         hang("ERROR: CANNOT FIND GAME FILE.");
 
     nblocks = (uint16_t)((eof + (BLOCK_BYTES - 1)) / BLOCK_BYTES);
-    if (nblocks == 0 || nblocks > 255)
+    if (nblocks == 0 || nblocks > 88)
         hang("ERROR: GAME FILE TOO LARGE.");
 
     if (st == 1) {
@@ -236,10 +310,10 @@ int main(void) {
             bm[i] = 0;
     }
 
-    n = (uint8_t)(trampoline_src_end - trampoline_src);
+    n = (uint8_t)(block_trampoline_src_end - block_trampoline_src);
     tp = (uint8_t *)0x0300;
     for (uint8_t i = 0; i < n; i++)
-        tp[i] = trampoline_src[i];
+        tp[i] = block_trampoline_src[i];
 
     *(volatile uint8_t *)0x3C1 = unit;
     *(volatile uint8_t *)0x3C8 = (uint8_t)nblocks;

@@ -10,6 +10,7 @@ get index blocks pointing at their fixed data so CATALOG lists them.
 """
 
 import argparse
+from datetime import datetime
 import os
 import sys
 
@@ -18,6 +19,21 @@ PCM_START_BLOCK = 200   # keep in sync with offline/mkpcm_blob.mjs
 ART_START_BLOCK = 900   # keep in sync with mkart.py
 SYSTEM_RESERVE = 100    # blocks 0..99 belong to ProDOS + system files
 KEEP_FILES = ("PRODOS", "CLOCK.SYSTEM")
+BUILD_DATETIME = datetime.now()
+
+
+def prodos_datetime(value):
+    """Pack local build time using ProDOS's Y2K date and time fields."""
+    full_year = value.year
+    year = full_year - 2000 if full_year >= 2000 else full_year - 1900
+    if year < 0 or year > 99:
+        raise ValueError(f"ProDOS timestamps cannot represent year {full_year}")
+    date = ((year & 0x7F) << 9) | ((value.month & 0x0F) << 5) | (value.day & 0x1F)
+    time = ((value.hour & 0x1F) << 8) | (value.minute & 0x3F)
+    return (date & 0xFF, date >> 8, time & 0xFF, time >> 8)
+
+
+BUILD_PRODOS_DATETIME = prodos_datetime(BUILD_DATETIME)
 
 
 class Allocator:
@@ -113,9 +129,11 @@ def write_dir_entry(vol, off, e):
     vol[off + 0x15] = e["eof"] & 0xFF
     vol[off + 0x16] = (e["eof"] >> 8) & 0xFF
     vol[off + 0x17] = (e["eof"] >> 16) & 0xFF
+    vol[off + 0x18:off + 0x1C] = bytes(BUILD_PRODOS_DATETIME)
     vol[off + 0x1E] = 0xC3
     vol[off + 0x1F] = e["aux"] & 0xFF
     vol[off + 0x20] = (e["aux"] >> 8) & 0xFF
+    vol[off + 0x21:off + 0x25] = bytes(BUILD_PRODOS_DATETIME)
     vol[off + 0x25] = 2          # parent = volume directory block 2
     vol[off + 0x26] = 0
 
@@ -185,6 +203,8 @@ def main():
     if len(sys_raw) >= 4 and (sys_raw[0] | (sys_raw[1] << 8)) == 0x2000:
         sys_raw = sys_raw[4:]
 
+    f_marker = write_file(disk, alloc, "TIME.PILOT", 0x06, 0x2000,
+                          b"Time Pilot for Apple II VERA\r\n")
     f_sys = write_file(disk, alloc, "TPILOT.SYSTEM", 0xFF, 0x2000, sys_raw)
     f_main = write_file(disk, alloc, "MAIN.BIN", 0x06, main_load_addr, main_bin)
     print(f"  TPILOT.SYSTEM {len(sys_raw)}B (key={f_sys['key_block']}, "
@@ -192,7 +212,7 @@ def main():
     print(f"  MAIN.BIN  {len(main_bin)}B (load=${main_load_addr:X}, "
           f"key={f_main['key_block']}, {f_main['total_blocks']} blocks)")
 
-    app_files = [f_sys, f_main]
+    app_files = [f_marker, f_sys, f_main]
     if os.path.exists(main4_path):
         with open(main4_path, "rb") as f:
             raw4 = f.read()
@@ -214,6 +234,11 @@ def main():
 
     # ---- Rewrite the root directory (block 2) ----
     vol = memoryview(disk)[2 * BLOCK:3 * BLOCK]
+    volume_name = b"TIME.PILOT"
+    vol[4] = 0xF0 | len(volume_name)
+    vol[5:20] = volume_name.ljust(15, b"\0")
+    # Keep the volume header's special date and structural fields from the
+    # template intact. Generated ordinary file entries are timestamped below.
     keep = []
     for i in range(1, 13):
         off = 4 + i * 39
