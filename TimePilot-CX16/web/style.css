@@ -1,0 +1,156 @@
+:root {
+  color-scheme: dark;
+  --line: #213650;
+  --text: #e9f2ff;
+  --dim: #8fa7c4;
+  --cyan: #61e6ff;
+  --gold: #ffd34d;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(38, 94, 160, .4), transparent 60%),
+    linear-gradient(#05080e, #02040a 70%);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px 22px;
+  border-bottom: 1px solid rgba(33, 54, 80, .65);
+}
+.back { color: var(--cyan); text-decoration: none; font-size: 13px; white-space: nowrap; }
+.tag { color: var(--dim); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; text-align: right; }
+main {
+  width: min(1000px, 100%);
+  margin: 0 auto;
+  padding: 18px;
+}
+#screen {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #2a405e;
+  border-radius: 12px;
+  background: #000;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .65);
+}
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  image-rendering: pixelated;
+  outline: none;
+  background: #000;
+}
+#boot[hidden] { display: none; }
+#boot {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 26px;
+  text-align: center;
+  background: rgba(3, 7, 14, .78);
+  backdrop-filter: blur(2px);
+}
+#boot h1 { margin: 0; }
+#boot h1 img {
+  width: min(360px, 58vw);
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 20px rgba(255, 180, 40, .2));
+}
+#boot p { margin: 0; max-width: 560px; color: var(--dim); font-size: 13px; line-height: 1.6; }
+#boot .hint { font-size: 12px; }
+#boot button {
+  border: 1px solid #8c6b1d;
+  background: linear-gradient(#1c2431, #0e1622);
+  color: var(--gold);
+  border-radius: 8px;
+  padding: 11px 20px;
+  font: 600 14px/1.2 "Segoe UI", system-ui, sans-serif;
+  letter-spacing: .06em;
+  cursor: pointer;
+}
+#boot button:hover { border-color: var(--gold); }
+.err {
+  color: #ffb4b8;
+  border: 1px solid #5b2e35;
+  background: #1a0e12;
+  border-radius: 8px;
+  padding: 9px 12px;
+  max-width: 620px;
+}
+#error {
+  position: absolute;
+  inset: auto 18px 18px;
+  z-index: 3;
+  color: #ffb4b8;
+  border: 1px solid #5b2e35;
+  background: rgba(26, 14, 18, .96);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  color: var(--dim);
+  font-size: 12px;
+}
+.buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.buttons button {
+  border: 1px solid var(--line);
+  background: #0d1524;
+  color: var(--text);
+  border-radius: 7px;
+  padding: 7px 11px;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.buttons button:hover:not(:disabled) { border-color: #4b7aa6; }
+.buttons button:disabled { opacity: .45; cursor: default; }
+.notes {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  background: rgba(10, 18, 30, .7);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--dim);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.notes summary { cursor: pointer; color: var(--cyan); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.notes h2 { color: var(--text); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; margin: 18px 0 6px; }
+.notes a { color: #8fc7ef; }
+.notes table { width: 100%; border-collapse: collapse; margin: 6px 0; }
+.notes th, .notes td { text-align: left; padding: 5px 8px; border-bottom: 1px solid rgba(33, 54, 80, .5); }
+.notes th { color: var(--text); font-weight: 600; }
+kbd {
+  border: 1px solid #314b69;
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  background: #101d2e;
+  color: #dcebff;
+  padding: 2px 6px;
+  font: 11px/1.4 "Cascadia Mono", Consolas, monospace;
+}
+@media (max-width: 640px) {
+  .tag { display: none; }
+  main { padding: 10px; }
+}

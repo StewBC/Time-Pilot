@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Time Pilot — WebAssembly</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<style>
+  :root {
+    color-scheme: dark;
+    --ink: #070b14;
+    --panel: #0d1524;
+    --line: #213650;
+    --text: #e9f2ff;
+    --dim: #8fa7c4;
+    --gold: #ffd34d;
+    --red: #ff5a5f;
+    --cyan: #61e6ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(ellipse at 50% -10%, rgba(38, 94, 160, .45), transparent 60%),
+      linear-gradient(#05080e, #02040a 70%);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+  .shell {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 22px 18px 30px;
+  }
+  header.topbar {
+    width: min(980px, 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+  .brand img {
+    width: clamp(210px, 34vw, 360px);
+    height: auto;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 6px 18px rgba(255, 170, 30, .18));
+  }
+  .brand .sub {
+    font-size: 11px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    border-left: 1px solid var(--line);
+    padding-left: 14px;
+    display: none;
+  }
+  @media (min-width: 680px) { .brand .sub { display: block; } }
+  .top-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .btn {
+    border: 1px solid var(--line);
+    background: linear-gradient(#122036, #0b1422);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color .15s, transform .15s;
+  }
+  .btn:hover { border-color: #4b7aa6; transform: translateY(-1px); }
+  .btn.gold { border-color: #8c6b1d; color: var(--gold); }
+  main.stage {
+    width: min(980px, 100%);
+    display: grid;
+    gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .screen-wrap {
+    position: relative;
+    border: 1px solid #2a405e;
+    border-radius: 14px;
+    background: #000;
+    box-shadow:
+      0 24px 70px rgba(0, 0, 0, .65),
+      inset 0 0 0 1px rgba(120, 190, 255, .07);
+    overflow: hidden;
+  }
+  .screen-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, .16) 0 1px,
+      transparent 1px 3px
+    );
+    mix-blend-mode: multiply;
+    opacity: .45;
+  }
+  canvas#game {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 320 / 200;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    background: #000;
+  }
+  .start-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(3, 7, 14, .62);
+    backdrop-filter: blur(2px);
+    cursor: pointer;
+    text-align: center;
+    padding: 20px;
+    transition: opacity .18s ease;
+  }
+  .start-overlay.hidden { opacity: 0; pointer-events: none; }
+  .start-overlay .coin {
+    font-size: clamp(18px, 4vw, 30px);
+    font-weight: 800;
+    letter-spacing: .22em;
+    color: var(--gold);
+    text-shadow: 0 0 24px rgba(255, 200, 80, .35);
+  }
+  .start-overlay .hint { color: var(--dim); font-size: 13px; max-width: 460px; line-height: 1.55; }
+  .start-overlay .loading { color: var(--cyan); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; }
+  .info {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(15, 26, 43, .92), rgba(8, 14, 24, .92));
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  @media (min-width: 720px) { .info { grid-template-columns: 1.1fr 1fr; } }
+  .info h2 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .info p { margin: 0; color: var(--dim); font-size: 13px; line-height: 1.6; }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  kbd {
+    border: 1px solid #314b69;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: #101d2e;
+    color: #dcebff;
+    padding: 3px 7px;
+    font: 11px/1.4 "Cascadia Mono", Consolas, monospace;
+  }
+  .keys button {
+    min-width: 42px;
+    min-height: 36px;
+    border: 1px solid #314b69;
+    border-bottom-width: 2px;
+    border-radius: 5px;
+    background: #101d2e;
+    color: #dcebff;
+    padding: 4px 10px;
+    font: 12px/1.4 "Cascadia Mono", Consolas, monospace;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .keys button.active,
+  .keys button:active {
+    background: #1d3652;
+    border-color: #5c8fc0;
+    color: #fff;
+    transform: translateY(1px);
+  }
+  @media (pointer: coarse) {
+    .keys { gap: 10px; }
+    .keys button { min-width: 54px; min-height: 50px; font-size: 16px; }
+  }
+  footer {
+    width: min(980px, 100%);
+    color: #58708c;
+    font-size: 11px;
+    letter-spacing: .08em;
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  footer a { color: #7fa7cc; text-decoration: none; }
+  footer a:hover { color: var(--cyan); }
+  .err {
+    display: none;
+    margin-top: 10px;
+    border: 1px solid #5b2e35;
+    background: #1a0e12;
+    color: #ffb4b8;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .exit-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(2, 6, 12, .78);
+    backdrop-filter: blur(3px);
+  }
+  .exit-dialog[hidden] { display: none; }
+  .exit-card {
+    width: min(380px, 100%);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: linear-gradient(180deg, #122036, #080f1b);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .7);
+    padding: 22px;
+    text-align: center;
+  }
+  .exit-card h2 {
+    margin: 0 0 8px;
+    color: var(--gold);
+    font-size: 18px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .exit-card p {
+    margin: 0;
+    color: var(--dim);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .exit-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .exit-actions .btn { min-height: 42px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/timepilot-logo.png" alt="TIME PILOT">
+      <span class="sub">16-bit C · WebAssembly port</span>
+    </div>
+    <div class="top-actions">
+      <a class="btn" href="../index.html">All versions</a>
+      <button class="btn" id="restart" type="button">Restart</button>
+      <button class="btn gold" id="fullscreen" type="button">Fullscreen</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <div class="screen-wrap">
+      <canvas id="game" width="320" height="200" tabindex="0" aria-label="Time Pilot game screen"></canvas>
+      <div class="start-overlay" id="start-overlay">
+        <div class="coin">INSERT COIN</div>
+        <div class="hint">Click or tap to continue to the title screen and attract demo. Press <kbd>1</kbd> or <kbd>2</kbd> to start a game. Sound begins after your first interaction.</div>
+        <div class="loading" id="loading">Loading Time Pilot…</div>
+      </div>
+    </div>
+
+    <div class="info">
+      <div>
+        <h2>Controls</h2>
+        <p>Rotate with <kbd>[</kbd> <kbd>]</kbd>, move with the arrow keys, fire with <kbd>1</kbd> or <kbd>Space</kbd>, pause with <kbd>P</kbd>. Press <kbd>J</kbd> on the title screen to scan for a joystick. <kbd>Esc</kbd> asks before leaving the game. A connected gamepad also works; on a touchscreen use the buttons below.</p>
+        <div class="keys" aria-label="On-screen controls">
+          <button type="button" data-code="170" aria-label="Move left">←</button>
+          <button type="button" data-code="171" aria-label="Move up">↑</button>
+          <button type="button" data-code="172" aria-label="Move right">→</button>
+          <button type="button" data-code="173" aria-label="Move down">↓</button>
+          <button type="button" data-code="193" data-char="1" aria-label="Rotate left">[</button>
+          <button type="button" data-code="195" data-char="1" aria-label="Rotate right">]</button>
+          <button type="button" data-code="49" data-char="1" aria-label="Fire">1</button>
+          <button type="button" data-code="165" aria-label="Fire (Space)">Space</button>
+          <button type="button" data-code="80" data-char="1" aria-label="Pause">P</button>
+        </div>
+      </div>
+      <div>
+        <h2>About this port</h2>
+        <p>This is Stefan Wessels' 16-bit C version, compiled to WebAssembly and rendered at its native 320×200 resolution. The graphics backend is a custom browser implementation of the <em>tigr</em> API; sound uses the Web Audio API. No desktop emulator is involved.</p>
+        <div class="err" id="error"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <span>Time Pilot · 1982 Konami · 16-bit C remake by Stefan Wessels / Brutal Deluxe</span>
+    <span><a href="../index.html">Other ports</a> · <a href="https://github.com/anomixer/Time-Pilot" target="_blank" rel="noopener">Source</a></span>
+  </footer>
+</div>
+
+<div class="exit-dialog" id="exit-dialog" hidden aria-hidden="true">
+  <div class="exit-card" role="dialog" aria-modal="true" aria-labelledby="exit-heading">
+    <h2 id="exit-heading">Exit game?</h2>
+    <p>Return to the title screen and attract demo, or leave the arcade. Your current game will end.</p>
+    <div class="exit-actions">
+      <button class="btn gold" id="exit-title" type="button">YES — RETURN TO TITLE</button>
+      <button class="btn" id="exit-ports" type="button">LEAVE — ALL VERSIONS</button>
+      <button class="btn" id="exit-cancel" type="button">NO — KEEP PLAYING</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Set before the emitted Emscripten script runs.
+  var Module = {
+    tpCanvas: document.getElementById('game'),
+    print: function (text) { console.log(text); },
+    printErr: function (text) { console.error(text); },
+    onAbort: function (what) { showError('The WebAssembly module stopped: ' + what); }
+  };
+
+  function showError(message) {
+    var box = document.getElementById('error');
+    if (!box) return;
+    box.textContent = message;
+    box.style.display = 'block';
+  }
+
+  var overlay = document.getElementById('start-overlay');
+  var loading = document.getElementById('loading');
+  var started = false;
+  var exitDialog = document.getElementById('exit-dialog');
+  var lastFocused = null;
+
+  // The overlay is only a curtain: it must not choose a player. Clicking it
+  // reveals the title screen and attract demo, exactly as the arcade does.
+  function start() {
+    if (started) return;
+    started = true;
+    overlay.classList.add('hidden');
+    var canvas = document.getElementById('game');
+    if (canvas && canvas.focus) canvas.focus();
+    if (Module && Module._webAudioResume) Module._webAudioResume();
+    if (Module && Module._tpClearKeys) Module._tpClearKeys();
+  }
+
+  function openExitDialog() {
+    if (!exitDialog || !exitDialog.hidden) return;
+    lastFocused = document.activeElement;
+    exitDialog.hidden = false;
+    exitDialog.setAttribute('aria-hidden', 'false');
+    if (Module && Module._tpClearKeys) Module._tpClearKeys();
+    var cancel = document.getElementById('exit-cancel');
+    if (cancel && cancel.focus) cancel.focus();
+  }
+
+  function closeExitDialog() {
+    if (!exitDialog || exitDialog.hidden) return;
+    exitDialog.hidden = true;
+    exitDialog.setAttribute('aria-hidden', 'true');
+    if (Module && Module._tpClearKeys) Module._tpClearKeys();
+    if (lastFocused && lastFocused.focus) lastFocused.focus();
+  }
+
+  function reloadAttract() {
+    var params = new URLSearchParams(location.search);
+    params.set('attract', '1');
+    location.search = params.toString();
+  }
+
+  // Match the native Windows port: while a game is running, its own Escape
+  // path wipes back to the title screen.  At the title screen that same input
+  // would stop the C runtime, so reloading with the attract curtain hidden is
+  // the browser equivalent of leaving the program.
+  function returnToTitle() {
+    closeExitDialog();
+    if (Module && Module._tpIsGameActive && Module._tpIsGameActive() &&
+        Module._tpKeyEvent) {
+      Module._tpKeyEvent(164, 1);
+      setTimeout(function () { Module._tpKeyEvent(164, 0); }, 80);
+      return;
+    }
+    reloadAttract();
+  }
+
+  overlay.addEventListener('click', start);
+  overlay.addEventListener('pointerdown', start);
+
+  // Escape is intercepted before the C game so the browser can ask first.  A
+  // confirmed exit while a game is running is passed to the native quit path
+  // below, which preserves the radar wipe back to the title screen.
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (!exitDialog.hidden) closeExitDialog(); else openExitDialog();
+      return;
+    }
+    if (!exitDialog.hidden) {
+      if (event.key === 'Tab') return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        var focused = document.activeElement;
+        if (focused && exitDialog.contains(focused) && focused.tagName === 'BUTTON') {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+          focused.click();
+        }
+        return;
+      }
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }, true);
+
+  document.addEventListener('keydown', function (event) {
+    if (!started && (event.key === 'Enter' || event.key === ' ')) start();
+  }, true);
+
+  document.getElementById('exit-title').addEventListener('click', returnToTitle);
+  document.getElementById('exit-ports').addEventListener('click', function () {
+    location.href = '../index.html';
+  });
+  document.getElementById('exit-cancel').addEventListener('click', closeExitDialog);
+  exitDialog.addEventListener('click', function (event) {
+    if (event.target === exitDialog) closeExitDialog();
+  });
+
+  // A confirmed exit at the title screen returns here via reload instead of
+  // leaving a dead black canvas.  In-game exits use the native wipe instead.
+  if (/(?:^|[?&])attract=1(?:&|$)/.test(location.search)) {
+    started = true;
+    overlay.classList.add('hidden');
+  }
+
+  // tigr key numbering (see tigr.h): printable keys use ASCII, special keys
+  // start at 128.  Letters are normalised to uppercase, matching the game.
+  // Values from the TKey enum in tigr.h.  Special keys start at 128, not at
+  // their browser keyCode values; getting this table wrong makes every
+  // non-ASCII control silently do nothing.
+  var TK = {
+    Escape: 164, Space: 165, Left: 170, Up: 171, Right: 172, Down: 173,
+    LeftSquare: 193, RightSquare: 195, Return: 158, Backspace: 156, Tab: 157
+  };
+  function tigrKey(event) {
+    switch (event.key) {
+      case 'Escape': return TK.Escape;
+      case ' ': case 'Spacebar': return TK.Space;
+      case 'ArrowLeft': return TK.Left;
+      case 'ArrowUp': return TK.Up;
+      case 'ArrowRight': return TK.Right;
+      case 'ArrowDown': return TK.Down;
+      case '[': return TK.LeftSquare;
+      case ']': return TK.RightSquare;
+      case 'Enter': return TK.Return;
+      case 'Backspace': return TK.Backspace;
+      case 'Tab': return TK.Tab;
+      default:
+        if (event.key && event.key.length === 1) {
+          var ch = event.key;
+          if (ch >= 'a' && ch <= 'z') ch = ch.toUpperCase();
+          return ch.charCodeAt(0);
+        }
+        return 0;
+    }
+  }
+
+  function send(event, down) {
+    if (!Module || !Module._tpKeyEvent) return;
+    var code = tigrKey(event);
+    if (!code) return;
+    Module._tpKeyEvent(code, down ? 1 : 0);
+    if (down && !event.repeat && event.key && event.key.length === 1) {
+      if (Module._tpCharEvent) Module._tpCharEvent(code);
+    }
+  }
+
+  function sendTouchCode(code, down, wantsChar) {
+    if (!Module || !Module._tpKeyEvent) return;
+    Module._tpKeyEvent(code, down ? 1 : 0);
+    if (down && wantsChar && Module._tpCharEvent) Module._tpCharEvent(code);
+  }
+
+  // The on-screen keycaps are real controls, not just labels.  Pointer events
+  // keep directions and fire independent so a touchscreen can hold two at once.
+  var touchButtons = document.querySelectorAll('.keys button[data-code]');
+  Array.prototype.forEach.call(touchButtons, function (button) {
+    var code = parseInt(button.getAttribute('data-code'), 10);
+    var wantsChar = button.hasAttribute('data-char');
+    var active = false;
+
+    function press(event) {
+      if (event) event.preventDefault();
+      if (!started) start();
+      if (active) return;
+      active = true;
+      button.classList.add('active');
+      sendTouchCode(code, true, wantsChar);
+      if (button.setPointerCapture && event && event.pointerId !== undefined) {
+        try { button.setPointerCapture(event.pointerId); } catch (ignore) {}
+      }
+    }
+
+    function release(event) {
+      if (!active) return;
+      active = false;
+      button.classList.remove('active');
+      sendTouchCode(code, false, false);
+      if (button.releasePointerCapture && event && event.pointerId !== undefined) {
+        try {
+          if (button.hasPointerCapture(event.pointerId)) {
+            button.releasePointerCapture(event.pointerId);
+          }
+        } catch (ignore) {}
+      }
+    }
+
+    button.addEventListener('pointerdown', press);
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    button.addEventListener('pointerleave', function (event) {
+      if (event.pointerType === 'mouse') release(event);
+    });
+    button.addEventListener('contextmenu', function (event) { event.preventDefault(); });
+  });
+
+  var canvas = document.getElementById('game');
+  canvas.addEventListener('pointerdown', function (event) {
+    if (!started) {
+      event.preventDefault();
+      start();
+    } else if (event.pointerType === 'mouse') {
+      canvas.focus();
+    }
+  });
+
+  window.addEventListener('keydown', function (event) {
+    if (['ArrowLeft','ArrowUp','ArrowRight','ArrowDown',' ','Tab'].indexOf(event.key) >= 0) {
+      event.preventDefault();
+    }
+    // Do not let the browser turn Space into a page scroll while playing.
+    send(event, true);
+  });
+  window.addEventListener('keyup', function (event) { send(event, false); });
+  window.addEventListener('blur', function () {
+    if (Module && Module._tpClearKeys) Module._tpClearKeys();
+  });
+
+  document.getElementById('restart').addEventListener('click', function () {
+    location.reload();
+  });
+  document.getElementById('fullscreen').addEventListener('click', function () {
+    var wrap = document.querySelector('.screen-wrap');
+    if (!document.fullscreenElement) {
+      (wrap.requestFullscreen || wrap.webkitRequestFullscreen || function () {}).call(wrap);
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  // Basic gamepad support: D-pad / left stick map to arrows, A/B fire, Start pauses.
+  var padPrev = {};
+  function pollGamepad() {
+    if (!navigator.getGamepads) { requestAnimationFrame(pollGamepad); return; }
+    var pads = navigator.getGamepads();
+    for (var p = 0; p < pads.length; p++) {
+      var pad = pads[p];
+      if (!pad) continue;
+      var state = {};
+      state[TK.Left] = pad.buttons[14] && pad.buttons[14].pressed;
+      state[TK.Right] = pad.buttons[13] && pad.buttons[13].pressed;
+      state[TK.Up] = pad.buttons[12] && pad.buttons[12].pressed;
+      state[TK.Down] = pad.buttons[15] && pad.buttons[15].pressed;
+      state[TK.Space] = (pad.buttons[0] && pad.buttons[0].pressed) ||
+                        (pad.buttons[1] && pad.buttons[1].pressed);
+      state[80] = pad.buttons[9] && pad.buttons[9].pressed;
+      var ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
+      if (ax < -0.55) state[TK.Left] = true;
+      if (ax >  0.55) state[TK.Right] = true;
+      if (ay < -0.55) state[TK.Up] = true;
+      if (ay >  0.55) state[TK.Down] = true;
+      Object.keys(state).forEach(function (key) {
+        var code = parseInt(key, 10);
+        var now = !!state[key];
+        var id = p + ':' + code;
+        if (now !== !!padPrev[id]) {
+          padPrev[id] = now;
+          if (Module && Module._tpKeyEvent) Module._tpKeyEvent(code, now ? 1 : 0);
+        }
+      });
+    }
+    requestAnimationFrame(pollGamepad);
+  }
+  requestAnimationFrame(pollGamepad);
+
+  // Hide the "loading" line once the runtime is ready.  The generated loader
+  // calls this hook after instantiation.
+  Module.onRuntimeInitialized = function () {
+    if (loading) loading.textContent = 'Ready — click to continue';
+  };
+</script>
+{{{ SCRIPT }}}
+</body>
+</html>

@@ -5,3 +5,13 @@ replay*
 *.pdb
 *.xcf
 TimePilot-Mac68k/BootImage/MacintoshHD.dsk
+
+# Toolchain caches and generated browser builds.
+TimePilot-web/dist/
+TimePilot-CX16/web/dist/
+TimePilot-CX16/web/assets/
+TimePilot-CX16/web/test-site/
+TimePilot-CX16/web/.cache/
+TimePilot-CX16/build-web/
+web/_site/
+*.tmp

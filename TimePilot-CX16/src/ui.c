@@ -147,7 +147,9 @@ void uiGameOver() {
 void uiInit() {
     // Clear the keyboard and keyboard-joystick
     while(cbm_k_getin()) {;}
+#ifndef TP_CX16_NO_JOYSTICK
     while((cx16_k_joystick_get(0) & 0xFFFF) != 0xFFFF) {;}
+#endif
 
     printXY(1, 29, 1, 0, TP_COLOR_RED   | (TP_COLOR_EXTRA << 4), TEXT_HIGH);
     printXY(1, 35, 4, 0, TP_COLOR_RED   | (TP_COLOR_EXTRA << 4), TEXT_1UP);
