@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" data-timepilot-repo="anomixer/Time-Pilot" data-timepilot-ref="master">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Pilot on a 68K Macintosh &mdash; System 7.5 in the browser</title>
+<meta name="description" content="TimePilot-Mac68k running under System 7.5 in Infinite Mac, with the Time Pilot disk image mounted as a second drive.">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/favicon-180.png">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="stylesheet" href="../style.css">
+<style>
+  html, body { min-height: 100%; }
+  body { margin: 0; }
+
+  .mac-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 64px;
+    background: rgba(7, 8, 13, .96);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+  }
+  .mac-top-inner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    max-width: 1180px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .mac-id { min-width: 0; }
+  .mac-id .eyebrow { margin: 0 0 3px; font-size: 10px; }
+  .mac-id strong {
+    display: block;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mac-machine {
+    margin-left: auto;
+    color: var(--dim);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .mac-top .btn { flex: none; }
+  .mac-top .mac-back { flex: none; }
+
+  .mac-play {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mac-screen {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 64px);
+    min-height: 0;
+    background: #000;
+    overflow: hidden;
+  }
+  @supports (height: 100dvh) {
+    .mac-screen { height: calc(100dvh - 64px); }
+  }
+  /* Infinite Mac's embedded screen is a 640x480 Macintosh display.  Keep that
+     as the base size and scale it as one piece, so the whole desktop fits the
+     viewport instead of being cropped by a fixed-height frame. */
+  .mac-zoom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 640px;
+    height: 480px;
+    transform-origin: top left;
+  }
+  .mac-zoom iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .mac-hint {
+    max-width: 1180px;
+    margin: 10px auto 0;
+    padding: 0 20px;
+    color: var(--dim);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .mac-hint strong { color: var(--ink); }
+
+  .mac-about {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 30px 20px 46px;
+    border-top: 1px solid var(--line);
+  }
+  .mac-about h2 { margin: 0 0 12px; }
+  .mac-lead { max-width: 760px; color: var(--dim); line-height: 1.7; }
+  .mac-facts { max-width: 760px; margin: 18px 0 0; }
+  .mac-facts dt { color: var(--ink); font-weight: 600; }
+  .mac-facts dd { margin: 0 0 8px; color: var(--dim); }
+  @media (min-width: 720px) {
+    .mac-facts { display: grid; grid-template-columns: 150px 1fr; gap: 8px 18px; }
+    .mac-facts dd { margin: 0; }
+  }
+  @media (max-width: 650px) {
+    .mac-top { height: 56px; }
+    .mac-screen { height: calc(100vh - 56px); }
+    @supports (height: 100dvh) {
+      .mac-screen { height: calc(100dvh - 56px); }
+    }
+    .mac-machine { display: none; }
+    .mac-hint, .mac-about { padding-left: 16px; padding-right: 16px; }
+    .mac-top-inner { padding: 0 16px; gap: 10px; }
+    .mac-top .btn { font-size: 11px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="mac-top">
+  <div class="mac-top-inner">
+    <a class="btn mac-back" href="../">&larr; All ports</a>
+    <div class="mac-id">
+      <p class="eyebrow">Time Pilot &middot; Macintosh 68K</p>
+      <strong>System&nbsp;7.5 on a Quadra 650</strong>
+    </div>
+    <span class="mac-machine">Quadra 650 &middot; 8&nbsp;MB &middot; Time.Pilot mounted</span>
+    <a class="btn primary" id="mac-full-tab" href="https://infinitemac.org/" target="_blank" rel="noopener">Open full tab &nearr;</a>
+  </div>
+</header>
+
+<main class="mac-play">
+  <div class="mac-screen">
+    <div class="mac-zoom">
+      <iframe
+        id="mac-frame"
+        title="Time Pilot running on an emulated Macintosh under System 7.5"
+        allow="cross-origin-isolated"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+  <p class="mac-hint"><strong>The Mac is already booting.</strong> Wait for the
+    System&nbsp;7.5 desktop, open <strong>Time.Pilot</strong> if needed, then
+    double-click <strong>TimePilot</strong>. Click the screen once to give the
+    emulator focus. If the picture is cut off in a narrow window, use
+    <strong>Open full tab</strong>.</p>
+</main>
+
+<section class="mac-about">
+  <h2>Machine profile</h2>
+  <p class="mac-lead">Infinite Mac boots System&nbsp;7.5 and mounts the hosted
+    <code>Time.Pilot-m68k.dsk</code> as a second drive. No download and no local
+    emulator install is required; the first boot takes a few seconds while the
+    runtime and disk chunks download.</p>
+  <dl class="mac-facts">
+    <dt>Machine</dt><dd>Macintosh Quadra 650 (Basilisk II), 68040</dd>
+    <dt>System</dt><dd>System 7.5, 640&times;480, 8&nbsp;MB RAM</dd>
+    <dt>Game disk</dt><dd><code>Time.Pilot-m68k.dsk</code> from the TimePilot-Mac68k V1.9 release</dd>
+    <dt>Emulator</dt><dd>Infinite Mac (external, WebAssembly)</dd>
+  </dl>
+  <p class="mac-lead">The emulator is <a href="https://infinitemac.org/">Infinite Mac</a>;
+    this page only supplies the 800&nbsp;KB game floppy and the URL parameters.
+    The disk is fetched from raw.githubusercontent.com for the same repository,
+    because Infinite Mac needs a HEAD with `Content-Length` plus byte-range
+    GETs. The build stamps the repository slug, so a fork fetches its own copy.</p>
+</section>
+
+<script>
+  (() => {
+    const frame = document.getElementById('mac-frame');
+    const fullTab = document.getElementById('mac-full-tab');
+    if (frame) {
+      const repo = document.documentElement.dataset.timepilotRepo || 'anomixer/Time-Pilot';
+      const ref = document.documentElement.dataset.timepilotRef || 'master';
+      const diskUrl = `https://raw.githubusercontent.com/${repo}/${ref}/web/mac/Time.Pilot-m68k.dsk`;
+      const embedUrl = 'https://infinitemac.org/embed?disk=System%207.5'
+        + '&disk_url=' + encodeURIComponent(diskUrl)
+        + '&ram=8M&screen_scale=1';
+      frame.src = embedUrl;
+      if (fullTab) fullTab.href = embedUrl;
+    }
+
+    const stage = document.querySelector('.mac-screen');
+    const zoom = document.querySelector('.mac-zoom');
+    if (!stage || !zoom) return;
+    const BASE_W = 640;
+    const BASE_H = 480;
+    const fit = () => {
+      const rect = stage.getBoundingClientRect();
+      const scale = Math.min(rect.width / BASE_W, rect.height / BASE_H);
+      const x = (rect.width - BASE_W * scale) / 2;
+      const y = (rect.height - BASE_H * scale) / 2;
+      zoom.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    };
+    fit();
+    addEventListener('resize', fit, { passive: true });
+    addEventListener('orientationchange', fit, { passive: true });
+    if ('ResizeObserver' in window) new ResizeObserver(fit).observe(stage);
+  })();
+</script>
+
+</body>
+</html>

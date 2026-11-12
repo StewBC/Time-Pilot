@@ -86,6 +86,12 @@ int tigrClosed(Tigr *bmp);
 // Displays a window's contents on-screen and updates input.
 void tigrUpdate(Tigr *bmp);
 
+#ifdef __EMSCRIPTEN__
+// Web build only: present and wait for the next 60 Hz frame slot.
+// The browser port is a synchronous C loop that yields with Asyncify.
+void tigrUpdatePaced(Tigr *bmp);
+#endif
+
 // Called before doing direct OpenGL calls and before tigrUpdate.
 // Returns non-zero if OpenGL is available.
 int tigrBeginOpenGL(Tigr *bmp);

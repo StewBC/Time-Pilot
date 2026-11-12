@@ -81,7 +81,12 @@ fill:
         if(audioCurrentBank != audioEndBank)
             range += 8192;
         // While not full, add data
+#ifdef TP_CX16_AUDIO_NONBLOCKING
+        uint16_t attempts = 0;
+        while(range && !(VERA.audio.control & 0b10000000) && attempts++ < 4096) {
+#else
         while(range && !(VERA.audio.control & 0b10000000)) {
+#endif
             VERA.audio.data = RAM_BANK_RAM[audioIndex];
             if(++audioIndex == 8192) {
                 RAM_RAM_BANK = ++audioCurrentBank;

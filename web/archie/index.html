@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Pilot on an Acorn Archimedes &mdash; RISC OS 3.11 in the browser</title>
+<meta name="description" content="TimePilot-Archie running on an emulated Acorn A3020 under RISC OS 3.11 in Archimedes Live, with the RISC OS archive mounted automatically on HostFS.">
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="apple-touch-icon" href="../assets/favicon-180.png">
+<link rel="alternate icon" href="../favicon.ico">
+<link rel="stylesheet" href="../style.css">
+<style>
+  html, body { min-height: 100%; }
+  body { margin: 0; }
+
+  .arc-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 64px;
+    background: rgba(7, 8, 13, .96);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(10px);
+  }
+  .arc-top-inner {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    max-width: 1180px;
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .arc-id { min-width: 0; }
+  .arc-id .eyebrow { margin: 0 0 3px; font-size: 10px; }
+  .arc-id strong {
+    display: block;
+    color: var(--ink);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .arc-machine {
+    margin-left: auto;
+    color: var(--dim);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .arc-top .btn { flex: none; }
+  .arc-top .arc-back { flex: none; }
+
+  .arc-play {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .arc-screen {
+    width: 100%;
+    height: calc(100vh - 64px);
+    min-height: 0;
+    background: #000;
+    overflow: hidden;
+  }
+  @supports (height: 100dvh) {
+    .arc-screen { height: calc(100dvh - 64px); }
+  }
+  .arc-screen {
+    position: relative;
+  }
+  .arc-zoom {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 860px;
+    height: 700px;
+    transform-origin: top left;
+  }
+  .arc-zoom iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .arc-hint {
+    max-width: 1180px;
+    margin: 10px auto 0;
+    padding: 0 20px;
+    color: var(--dim);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .arc-hint strong { color: var(--ink); }
+
+  .arc-about {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 30px 20px 46px;
+    border-top: 1px solid var(--line);
+  }
+  .arc-about h2 { margin: 0 0 12px; }
+  .arc-lead { max-width: 760px; color: var(--dim); line-height: 1.7; }
+  .arc-facts { max-width: 760px; margin: 18px 0 0; }
+  .arc-facts dt { color: var(--ink); font-weight: 600; }
+  .arc-facts dd { margin: 0 0 8px; color: var(--dim); }
+  @media (min-width: 720px) {
+    .arc-facts { display: grid; grid-template-columns: 170px 1fr; gap: 8px 18px; }
+    .arc-facts dd { margin: 0; }
+  }
+  @media (max-width: 650px) {
+    .arc-top { height: 56px; }
+    .arc-screen { height: calc(100vh - 56px); }
+    @supports (height: 100dvh) {
+      .arc-screen { height: calc(100dvh - 56px); }
+    }
+    .arc-machine { display: none; }
+    .arc-hint, .arc-about { padding-left: 16px; padding-right: 16px; }
+    .arc-top-inner { padding: 0 16px; gap: 10px; }
+    .arc-top .btn { font-size: 11px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="arc-top">
+  <div class="arc-top-inner">
+    <a class="btn arc-back" href="../">&larr; All ports</a>
+    <div class="arc-id">
+      <p class="eyebrow">Time Pilot &middot; Acorn Archimedes</p>
+      <strong>RISC&nbsp;OS 3.11 on an A3020</strong>
+    </div>
+    <span class="arc-machine">A3020 &middot; 4&nbsp;MB &middot; auto-boots !TimePilot</span>
+    <a class="btn primary" id="arc-full-tab" href="https://archi.medes.live/" target="_blank" rel="noopener">Open full tab &nearr;</a>
+  </div>
+</header>
+
+<main class="arc-play">
+  <div class="arc-screen">
+    <div class="arc-zoom">
+      <iframe
+        id="arc-frame"
+        title="Time Pilot running on an emulated Acorn A3020 under RISC OS 3.11"
+        allow="cross-origin-isolated"
+        allowfullscreen></iframe>
+    </div>
+  </div>
+  <p class="arc-hint"><strong>It starts itself.</strong> Archimedes Live unpacks
+    the HostFS archive and boots <code>!TimePilot</code>. Click the emulator
+    once to give it focus, then press <strong>1</strong> or
+    <strong>2</strong> on the title screen to start. If the toolbar is cut off
+    in a narrow window, use <strong>Open full tab</strong>.</p>
+</main>
+
+<section class="arc-about">
+  <h2>Machine profile</h2>
+  <p class="arc-lead">This page embeds Archimedes Live with a share URL that
+    loads the emulator-ready HostFS archive over CORS, unpacks it into HostFS,
+    and runs <code>filer_run HostFS:$.!TimePilot</code> from the autoboot
+    <code>!Boot</code> file. No local emulator or manual file drop is needed.</p>
+  <dl class="arc-facts">
+    <dt>Machine</dt><dd>Acorn A3020, ARM250 @ 12&nbsp;MHz, 4&nbsp;MB RAM</dd>
+    <dt>System</dt><dd>RISC OS 3.11</dd>
+    <dt>Game archive</dt><dd><code>TimePilot-RISCOS-HostFS.zip</code> from the TimePilot-Archie V1.9 release</dd>
+    <dt>Emulator</dt><dd>Archimedes Live (external, WebAssembly / Arculator)</dd>
+  </dl>
+  <p class="arc-lead">The HostFS archive is used because Archimedes Live unpacks
+    that variant with RISC OS file types intact (<code>!Run,feb</code>,
+    <code>!RunImage,ff8</code>). The plain hardware archive
+    <code>TimePilot-RISCOS.zip</code> has no comma file-type metadata, so it
+    cannot be turned into a running application by the emulator.</p>
+</section>
+
+<script>
+  (() => {
+    const frame = document.getElementById('arc-frame');
+    const fullTab = document.getElementById('arc-full-tab');
+    if (frame) {
+      const zipUrl = new URL('TimePilot-RISCOS-HostFS.zip', document.baseURI).href;
+      const embedUrl = 'https://archi.medes.live/#disc='
+        + encodeURIComponent(zipUrl)
+        + '&autoboot=' + encodeURIComponent('filer_run HostFS:$.!TimePilot')
+        + '&preset=a3020';
+      frame.src = embedUrl;
+      if (fullTab) fullTab.href = embedUrl;
+    }
+
+    const stage = document.querySelector('.arc-screen');
+    const zoom = document.querySelector('.arc-zoom');
+    if (!stage || !zoom) return;
+    const BASE_W = 860;
+    const BASE_H = 700;
+    const fit = () => {
+      const rect = stage.getBoundingClientRect();
+      const scale = Math.min(rect.width / BASE_W, rect.height / BASE_H);
+      const x = (rect.width - BASE_W * scale) / 2;
+      const y = (rect.height - BASE_H * scale) / 2;
+      zoom.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    };
+    fit();
+    addEventListener('resize', fit, { passive: true });
+    addEventListener('orientationchange', fit, { passive: true });
+    if ('ResizeObserver' in window) new ResizeObserver(fit).observe(stage);
+  })();
+</script>
+
+</body>
+</html>

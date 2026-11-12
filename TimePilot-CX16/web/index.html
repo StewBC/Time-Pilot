@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Pilot — Commander X16</title>
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="back" href="../index.html">← Time Pilot</a>
+  <span class="tag">Commander X16 · the llvm-mos port running on the official WebAssembly emulator</span>
+</header>
+
+<main>
+  <section id="screen">
+    <canvas id="canvas" width="640" height="480" tabindex="0" aria-label="Commander X16 screen"></canvas>
+    <div id="boot">
+      <h1><img src="assets/timepilot-logo.png" alt="TIME PILOT"></h1>
+      <p>The real Commander X16 binary from <code>TimePilot-CX16/</code> boots the
+        X16 KERNAL and the game in your browser: title screen, all five time
+        zones and VERA sprites.</p>
+      <button id="play" type="button">▶ Boot the X16</button>
+      <p class="hint">Arrows move · <kbd>[</kbd> <kbd>]</kbd> rotate · <kbd>1</kbd> / <kbd>Space</kbd> fire ·
+        <kbd>P</kbd> pause</p>
+      <p class="err" id="bootError" hidden></p>
+    </div>
+    <div id="error" hidden></div>
+  </section>
+
+  <div class="bar">
+    <span id="status" role="status">Ready. Click “Boot the X16”.</span>
+    <span class="buttons">
+      <button id="sound" type="button" disabled title="The official r49 WebAssembly build does not enable VERA PCM audio">No audio</button>
+      <button id="fullscreen" type="button" disabled>Fullscreen</button>
+      <button id="restart" type="button" disabled>Restart</button>
+    </span>
+  </div>
+
+  <details class="notes">
+    <summary>What this is, the controls, and the notices</summary>
+    <h2>What you are running</h2>
+    <p>The actual <code>TimePilot-CX16</code> PRG, cross-compiled with
+      <a href="https://github.com/llvm-mos/llvm-mos-sdk">llvm-mos</a> and loaded into the
+      emulator's HostFS virtual drive with <code>-prg time_pilot.prg -run</code>. The 43
+      audio banks, sprite VRAM and font VRAM are copied alongside it. The emulator is the
+      official X16Community WebAssembly release r49, fetched and checksum-checked at build
+      time; it is not vendored in this repository.</p>
+
+    <h2>Controls (keyboard)</h2>
+    <table>
+      <tr><th>Keys</th><th>Action</th></tr>
+      <tr><td>Arrow keys</td><td>Move left / right / up / down</td></tr>
+      <tr><td><kbd>[</kbd> / <kbd>]</kbd></td><td>Rotate left / right</td></tr>
+      <tr><td><kbd>1</kbd> / <kbd>Space</kbd></td><td>Fire</td></tr>
+      <tr><td><kbd>2</kbd></td><td>Two-player game</td></tr>
+      <tr><td><kbd>P</kbd> / <kbd>Esc</kbd></td><td>Pause / quit</td></tr>
+    </table>
+    <p>The emulator keeps the X16 <code>en-us</code> keyboard layout, so physical key
+      positions are what the KERNAL sees. The browser build runs with the joystick scan
+      disabled; the keyboard path is fully wired.</p>
+
+    <h2>Notes</h2>
+    <p>The official r49 WebAssembly build used here does not enable VERA PCM audio, so
+      this player is silent. The native WebAssembly port on the front page has audio.
+      “Fullscreen” scales the 640×480 VERA screen. The first boot takes a few seconds while
+      the 46 game files are copied into the emulator's memory.</p>
+
+    <h2>Licences</h2>
+    <p>The emulator is 2-clause BSD (© 2019 Michael Steil); its bundled X16 ROM mixes
+      Commodore/Microsoft-licensed KERNAL and BASIC code with BSD-licensed additions. The
+      Time Pilot code and assets are covered by this repository's
+      <a href="https://github.com/anomixer/Time-Pilot">source repository</a>.</p>
+  </details>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

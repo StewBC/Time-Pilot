@@ -21,6 +21,11 @@
 #include "things.h"
 #include "ui.h"
 
+#ifdef __EMSCRIPTEN__
+// Lets the browser shell tell a running game from the title screen.
+extern void tpSetGameActive(int active);
+#endif
+
 #ifdef RECORD_REPLAY
 #include <stdio.h>
 #endif
@@ -137,7 +142,11 @@ void gamePostFrame() {
         printXY(0, 0, PF_RIGHT, colors[TP_COLOR_CYAN], "%d", fps);
     #endif
 
+#ifdef __EMSCRIPTEN__
+    tigrUpdatePaced(screen);
+#else
     tigrUpdate(screen);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -356,6 +365,9 @@ void gameStageInit() {
 //-----------------------------------------------------------------------------
 void gameStart() {
     uint16_t rasterLine = 0;
+#ifdef __EMSCRIPTEN__
+    tpSetGameActive(1);
+#endif
     gameInit();
     while(!(exitGameMask & EXIT_USER_QUIT)) {
         gameStageInit();
@@ -404,6 +416,9 @@ void gameStart() {
     drawBackgroundColor = colors[TP_COLOR_BLACK];
     screenClearSection(PLAYFIELDW, SROW-9, SCOL-PLAYFIELDW, 9, drawBackgroundColor);
     screenWipe();
+#ifdef __EMSCRIPTEN__
+    tpSetGameActive(0);
+#endif
 }
 
 

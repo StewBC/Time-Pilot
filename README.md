@@ -2,7 +2,86 @@
 Remake of the Time Pilot arcade game, released in 1982 by Konami.  
 
 Video of Windows/Linux/macOS and Commander X16 versions on YouTube: https://youtu.be/EGAHTqTvGlY  
-    
+
+## Play in a browser
+
+The repository now builds a static GitHub Pages site that runs four of the ports
+directly in the browser, with links to the emulated Apple II versions:
+
+**https://stewbc.github.io/Time-Pilot/**
+
+| Version | Link | What runs |
+| --- | --- | --- |
+| Native WebAssembly (`TimePilot-16bit-C`) | [Play](https://stewbc.github.io/Time-Pilot/wasm/) | The 16-bit C port compiled with Emscripten, custom `tigr` canvas backend, WebAudio, keyboard/touch controls, gamepad support |
+| Commander X16 (`TimePilot-CX16`) | [Play](https://stewbc.github.io/Time-Pilot/x16/) | The real llvm-mos PRG loaded into the official X16Community WebAssembly emulator r49 |
+| Apple II + VERA (`TimePilot-IIvera`) | [a2vera](https://apple2ts.com/?theme=dark&slot2=vera&tab=vera#https://github.com/anomixer/Time-Pilot/releases/latest/download/TimePilot-IIvera.hdv) | External emulator, loads the latest `TimePilot-IIvera.hdv` release asset |
+| Apple IIgs (`TimePilot-IIgs`) | [a2gsemu](https://a2gsemu-ia.pages.dev/?lang=en&core=gs2&game=https%3A%2F%2Fgithub.com%2FStewBC%2FTime-Pilot) | External emulator with the supplied TimePilot IIgs game URL |
+| Macintosh 68k (`TimePilot-Mac68k`) | [Play](https://stewbc.github.io/Time-Pilot/mac/) | Infinite Mac boots System 7.5 at 640×480 with 8 MB RAM and mounts the hosted `Time.Pilot-m68k.dsk` as a second disk |
+| Acorn Archimedes (`TimePilot-Archie`) | [Play](https://stewbc.github.io/Time-Pilot/archie/) | Archimedes Live boots an A3020 (ARM250 @ 12 MHz, 4 MB RAM) with RISC OS 3.11, unpacks the hosted `TimePilot-RISCOS-HostFS.zip` onto HostFS, and autoboots `!TimePilot` |
+
+The a2vera link intentionally uses the `TimePilot-IIvera.hdv` release asset from
+the `anomixer/Time-Pilot` releases; that asset is not part of the upstream
+release set.
+
+The Mac player is a small `web/mac/` page around Infinite Mac. Its
+`Time.Pilot-m68k.dsk` comes from the TimePilot-Mac68k V1.9 release and is tracked
+in the repository. Infinite Mac needs a HEAD with `Content-Length` plus
+byte-range GETs, which cross-origin GitHub Pages responses do not expose, so the
+player reads the disk from `raw.githubusercontent.com` for the repository that
+builds the site. `GITHUB_REPOSITORY` and `GITHUB_REF_NAME` are stamped into the
+deployed page, so a fork fetches its own copy. Keep the file byte-for-byte intact
+when updating it.
+
+The Archimedes player is a small `web/archie/` page around Archimedes Live. Its
+`TimePilot-RISCOS-HostFS.zip` is the emulator-friendly release archive (the plain
+`TimePilot-RISCOS.zip` lacks the comma file-type metadata HostFS needs). The page
+passes the zip through the `disc` hash parameter and an `autoboot` command for
+`HostFS:$.!TimePilot`; Archimedes Live fetches the zip over CORS, unpacks it, and
+starts the app. Keep the archive byte-for-byte intact when updating it.
+
+The Commander X16 player uses the official X16Community wasm build; that build
+does not currently enable VERA PCM audio, so it is silent. The native
+WebAssembly port has audio.
+
+### Building the browser versions
+
+Both browser ports self-fetch their toolchains and are independent of any
+toolchain installed in this repository. A fresh clone needs only `git`,
+Python 3, Node.js, `curl` and `tar`; the Emscripten, llvm-mos and X16 emulator
+downloads go into caches outside the repository. All source art and the shared
+favicon are tracked, so no generated `dist/` or `_site/` directory is required:
+
+```sh
+# Native WebAssembly port -> TimePilot-web/dist
+bash TimePilot-web/build.sh
+
+# Commander X16 PRG -> TimePilot-CX16/web/dist/time_pilot.prg
+bash TimePilot-CX16/web/build.sh
+
+# Assemble the static site -> web/_site
+node web/build-site.mjs
+```
+
+To preview the result locally, serve the assembled directory over HTTP (the
+WebAssembly and emulator players need HTTP, not `file://`):
+
+```sh
+python -m http.server 8000 --directory web/_site
+```
+
+Then open `http://localhost:8000/`.
+
+On Windows use `TimePilot-web/build.ps1` and
+`TimePilot-CX16/web/build.ps1`. Set `TIMEPILOT_EMSDK` / `LLVM_MOS_SDK` to use an
+existing SDK, or `TIMEPILOT_TOOLS` to choose the cache directory. The x16
+emulator archive is pinned and SHA-256 checked by
+`TimePilot-CX16/web/assemble.mjs`.
+
+GitHub Actions rebuilds all of the above on every push to `master` and deploys
+`web/_site` to Pages using `.github/workflows/deploy-web.yml`. In the repository
+settings, set **Pages → Build and deployment → Source** to **GitHub Actions**
+once; the workflow does the rest.
+
 ## Versions  
 [Acorn Archimedes Readme](TimePilot-Archie/README.md)  
 [Apple //e & IIgs Vera Readme - port by anomixer](TimePilot-IIvera/README.md)  

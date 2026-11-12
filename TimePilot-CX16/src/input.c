@@ -25,6 +25,15 @@
 void inputCheckForJoy(int8_t stickNum) {
     inputUsingJoystick = 0;
 
+#ifdef TP_CX16_NO_JOYSTICK
+    // The browser emulator has no SNES-port hardware to scan.  Keep the
+    // keyboard path and report "no joystick" instead of probing the SMC.
+    (void)stickNum;
+    inputUsingJoystick = -1;
+    sprintf(TEXT_CONTROLSN, "%d", inputUsingJoystick);
+    return;
+#endif
+
     for(; stickNum < 4; stickNum++)
     {
         if(!(cx16_k_joystick_get(stickNum) & 0xFFFF0000)) {
@@ -134,6 +143,11 @@ void inputInUI() {
 //-----------------------------------------------------------------------------
 uint16_t inputReadJoystick() {
     uint16_t joyMask = 0;
+#ifdef TP_CX16_NO_JOYSTICK
+    if(inputUsingJoystick < 0) {
+        return 0;
+    }
+#endif
     uint16_t joy = cx16_k_joystick_get(inputUsingJoystick) ^ 0xFFFF;
 
     joyMask |= joy & TP_GAMEPAD_LEFT ? INPUT_LEFT : 0;

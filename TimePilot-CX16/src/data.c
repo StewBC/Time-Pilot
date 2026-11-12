@@ -927,6 +927,14 @@ void dataCleanup() {
 }
 
 //-----------------------------------------------------------------------------
+// The native/SD-card build keeps its assets in an assets/ directory.  The
+// browser build puts them at the root of the HostFS drive instead, because the
+// X16 web player copies only flat files into the emulator.
+#ifndef TP_CX16_ASSET_PREFIX
+#define TP_CX16_ASSET_PREFIX "assets/"
+#endif
+
+//-----------------------------------------------------------------------------
 int8_t dataInit() {
     uint8_t h, i;
     char fileName[18];
@@ -934,14 +942,14 @@ int8_t dataInit() {
 
     // Load the sprites ($13000)
     cbm_k_setlfs(0, 8, 1);
-    cbm_k_setnam("assets/tpspr.vrm");
+    cbm_k_setnam(TP_CX16_ASSET_PREFIX "tpspr.vrm");
     h = cbm_k_open();
     cbm_k_load(3, 0);
     cbm_k_close(h);
 
     // Load the font (from char 16 - $1F080)
     cbm_k_setlfs(0, 8, 1);
-    cbm_k_setnam("assets/tpfont.vrm");
+    cbm_k_setnam(TP_CX16_ASSET_PREFIX "tpfont.vrm");
     h = cbm_k_open();
     cbm_k_load(3, 0);
     cbm_k_close(h);
@@ -974,7 +982,7 @@ int8_t dataInit() {
     // Load the sounds
     for(i = 0; i < audioData[NUM_AUDIO_SOURCES-1].end_bank; i++) {
         printXY(0, 11, 6, 0, i & 15, "LOADING");
-        sprintf(fileName, "assets/bank%03d.au", i);
+        sprintf(fileName, TP_CX16_ASSET_PREFIX "bank%03d.au", i);
         cbm_k_setlfs(0, 8, 1);
         cbm_k_setnam(fileName);
         h = cbm_k_open();

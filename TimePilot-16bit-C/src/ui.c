@@ -47,7 +47,11 @@ void uiGameOver() {
                 break;
             }
         }
+#ifdef __EMSCRIPTEN__
+        tigrUpdatePaced(screen);
+#else
         tigrUpdate(screen);
+#endif
     }
     x = 4;
     while (x >= 0 && playerScore >= highScore[x]){
@@ -79,7 +83,11 @@ void uiGameOver() {
         tigrReadChar(screen); // Clear the kbd buffer
         while(x && uiLetterIndex < 3) {
             while(uiTimer--) {
+#ifdef __EMSCRIPTEN__
+                tigrUpdatePaced(screen);
+#else
                 tigrUpdate(screen);
+#endif
                 // Check for direct keyboard entry of initials
                 int16_t key = tigrReadChar(screen);
                 if(key) {
@@ -210,7 +218,11 @@ int16_t uiMain() {
             if((tigrReadChar(screen) & 0x5F) == 'J') {
                 uiJoyScan();
             }
+#ifdef __EMSCRIPTEN__
+            tigrUpdatePaced(screen);
+#else
             tigrUpdate(screen);
+#endif
         }
     }
     return 1;
@@ -222,7 +234,11 @@ void uiPause() {
 
     printXY(11, 8, 0, colors[TP_COLOR_RED], TEXT_PAUSE);
     while(1) {
+#ifdef __EMSCRIPTEN__
+        tigrUpdatePaced(screen);
+#else
         tigrUpdate(screen);
+#endif
         inputInUI();
         if(inputMaskDebounced & (INPUT_PAUSE | INPUT_QUIT)) {
             break;

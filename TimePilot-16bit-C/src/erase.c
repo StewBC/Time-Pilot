@@ -19,21 +19,25 @@ void erase16x16TimeWarpAt(int16_t x) {
 //-----------------------------------------------------------------------------
 void eraseThing(int16_t X)
 {
-    if(!(activeFlags[X] & ACTIVEFLAGS_CLIPMASK)) {
-        tigrFill(screen,
-            activeOldX[X] , activeOldY[X]  ,
-            activeWidth[X], activeHeight[X],
-            colors[TP_COLOR_SKY]);
-    } else if ((activeFlags[X] & ACTIVEFLAGS_CLIPMASK) != ACTIVEFLAGS_CLIPMASK) {
-        int16_t T, B, L, R;
-        T = activeFlags[X] & ACTIVEFLAGS_CLIPTY ? -activeOldY[X] : 0;
-        B = activeFlags[X] & ACTIVEFLAGS_CLIPBY ? activeOldY[X] + activeHeight[X] - SCREEN_PLAYAREA_BOTTOM : 0;
-        L = activeFlags[X] & ACTIVEFLAGS_CLIPLX ? -activeOldX[X] : 0;
-        R = activeFlags[X] & ACTIVEFLAGS_CLIPRX ? activeOldX[X] + activeWidth[X] - SCREEN_PLAYAREA_RIGHT : 0;
+    // The erase rectangle is based on the previous position, which can be
+    // outside the playfield just after a wrap.  Clip the previous rectangle
+    // itself rather than trusting the flags calculated from the current
+    // position, otherwise a cloud wrapping at the right edge paints its old
+    // sky-coloured rectangle into the score panel.
+    int16_t x = activeOldX[X];
+    int16_t y = activeOldY[X];
+    int16_t w = activeWidth[X];
+    int16_t h = activeHeight[X];
 
+    int16_t L = x < 0 ? -x : 0;
+    int16_t T = y < 0 ? -y : 0;
+    int16_t R = x + w > SCREEN_PLAYAREA_RIGHT ? x + w - SCREEN_PLAYAREA_RIGHT : 0;
+    int16_t B = y + h > SCREEN_PLAYAREA_BOTTOM ? y + h - SCREEN_PLAYAREA_BOTTOM : 0;
+
+    if(w - L - R > 0 && h - T - B > 0) {
         tigrFill(screen,
-            activeOldX[X]  + L    , activeOldY[X]   + T    ,
-            activeWidth[X] - L - R, activeHeight[X] - T - B,
+            x + L, y + T,
+            w - L - R, h - T - B,
             colors[TP_COLOR_SKY]);
     }
     activeFlags[X] |= ACTIVEFLAGS_ERASED;

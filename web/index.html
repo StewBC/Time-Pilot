@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time Pilot — play the 1982 arcade classic in your browser</title>
+<meta name="description" content="Time Pilot, the 1982 Konami arcade game, ported to the Commander X16 and Apple II, and playable in a browser through a native WebAssembly build and the official X16 emulator.">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="alternate icon" href="favicon.ico">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="stars" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">Konami · 1982 · a fan port for old and new machines</p>
+    <h1>
+      <img src="assets/timepilot-logo.png" alt="Time Pilot" width="544" height="76">
+    </h1>
+    <p class="lede">The arcade classic about a lone fighter lost in time, rebuilt for the
+      Commander X16, Apple II, Apple IIgs, Macintosh and Archimedes — and running here,
+      in your browser, from real source code rather than a video stream.</p>
+    <div class="actions">
+      <a class="btn primary" href="wasm/">▶ Play the native WebAssembly port</a>
+    </div>
+  </div>
+  <figure class="hero-art">
+    <img src="assets/timepilot-splash.png" alt="Time Pilot splash screen: a fighter jet crossing a field of clouds" width="320" height="200">
+    <figcaption>Time Pilot, five eras at a time</figcaption>
+  </figure>
+</header>
+
+<main>
+  <section class="section" id="ports">
+    <div class="section-head">
+      <p class="eyebrow">Play now</p>
+      <h2>Six ports, one game</h2>
+      <p class="section-note">Every machine gets the same card. The native
+        WebAssembly build and the X16 player run on this page; the Apple II
+        machines open in their own emulators in a new tab; the Macintosh and
+        Archimedes cards open embedded machines that boot the game for you.</p>
+    </div>
+
+    <div class="cards six">
+      <article class="card">
+        <span class="badge">Native · WebAssembly</span>
+        <h3>TimePilot-16bit-C</h3>
+        <p>The original 16-bit C port compiled to WebAssembly with Emscripten. The game
+          runs at its own 60&nbsp;Hz, draws through a custom <code>tigr</code> canvas
+          backend, and plays through WebAudio. No emulator in the middle.</p>
+        <p class="meta">Keyboard · gamepad · fullscreen</p>
+        <a class="btn primary" href="wasm/">Play the native port</a>
+      </article>
+
+      <article class="card">
+        <span class="badge">Emulated · Commander X16</span>
+        <h3>TimePilot-CX16</h3>
+        <p>The real llvm-mos CX16 PRG, loaded from HostFS into the official
+          X16Community WebAssembly emulator r49. VERA sprites, 512&nbsp;KB of banked
+          RAM, and the original KERNAL boot.</p>
+        <p class="meta">Keyboard · gamepad · 640×480 VERA screen · no audio in this wasm build</p>
+        <a class="btn primary" href="x16/">Boot the X16</a>
+      </article>
+
+      <article class="card">
+        <span class="badge">Apple II + VERA</span>
+        <h3>TimePilot-IIvera</h3>
+        <p>An Apple IIe/II+ build driving the VERA video and audio board. Loaded into
+          a2vera from the latest GitHub release asset.</p>
+        <p class="meta">TimePilot-IIvera.hdv</p>
+        <a class="btn primary" href="https://apple2ts.com/?theme=dark&amp;slot2=vera&amp;tab=vera#https://github.com/anomixer/Time-Pilot/releases/latest/download/TimePilot-IIvera.hdv" target="_blank" rel="noopener">Open a2vera ↗</a>
+      </article>
+
+      <article class="card">
+        <span class="badge">Apple IIgs</span>
+        <h3>TimePilot-IIgs</h3>
+        <p>The IIgs port, built for the Apple IIgs's 2.8&nbsp;MHz 65816 and its
+          bitmap graphics. Opens the a2gsemu Apple IIgs emulator with the hosted
+          TimePilot game URL loaded.</p>
+        <p class="meta">core=gs2 · 2 MB RAM</p>
+        <a class="btn primary" href="https://a2gsemu-ia.pages.dev/?lang=en&amp;core=gs2&amp;game=https%3A%2F%2Fgithub.com%2FStewBC%2FTime-Pilot" target="_blank" rel="noopener">Open a2gsemu ↗</a>
+      </article>
+
+      <article class="card">
+        <span class="badge">Macintosh 68k</span>
+        <h3>TimePilot-Mac68k</h3>
+        <p>The 68K Macintosh build, running on an emulated Macintosh under
+          System&nbsp;7.5. This page embeds Infinite Mac with the TimePilot disk
+          image mounted as a second drive, so there is nothing to install.</p>
+        <p class="meta">System 7.5 &middot; 640&times;480 &middot; 8 MB RAM &middot; Infinite Mac</p>
+        <a class="btn primary" href="mac/">Open the Macintosh</a>
+      </article>
+
+      <article class="card">
+        <span class="badge">Acorn Archimedes</span>
+        <h3>TimePilot-Archie</h3>
+        <p>The native Archimedes build, running on an emulated A3020 under
+          RISC&nbsp;OS 3.11. Archimedes Live unpacks the HostFS archive and
+          autoboots <strong>!TimePilot</strong> from the URL &mdash; no local
+          emulator and no manual file drop.</p>
+        <p class="meta">RISC OS 3.11 &middot; A3020 &middot; 4 MB RAM &middot; Archimedes Live</p>
+        <a class="btn primary" href="archie/">Open the Archimedes</a>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <p class="eyebrow">Under the hood</p>
+      <h2>What is running</h2>
+    </div>
+    <div class="details">
+      <div>
+        <h3>Native WebAssembly port</h3>
+        <p><code>TimePilot-16bit-C</code> is compiled by Emscripten against a small
+          headless <code>tigr</code> platform layer. The game's synchronous main loop
+          is paced with Asyncify at logical frame boundaries, and the OpenAL/ALUT calls
+          are mapped to WebAudio. The whole game and its sprites, fonts and audio banks
+          are preloaded into MEMFS, so the page runs from static files — no server-side
+          game logic.</p>
+      </div>
+      <div>
+        <h3>Commander X16</h3>
+        <p><code>TimePilot-CX16</code> is cross-compiled with llvm-mos to a PRG with a
+          <code>SYS</code> start address, then loaded into the official X16Community
+          WebAssembly emulator (r49). The player fetches the PRG, sprite VRAM, font VRAM
+          and 43 audio banks into the emulator's HostFS drive and starts it with
+          <code>-prg time_pilot.prg -run</code>. The emulator binary is downloaded and
+          checksum-verified at build time; it is not vendored here.</p>
+      </div>
+      <div>
+        <h3>Apple II, Macintosh and Archimedes links</h3>
+        <p>The Apple II + VERA build is hosted as a GitHub release asset and loaded
+          straight into a2vera. The IIgs card opens a2gsemu's Apple IIgs core with the
+          TimePilot game URL passed to the emulator. Both are external links, not
+          iframes, so the emulators' own keyboard and audio handling stays intact.</p>
+        <p>The Macintosh card opens a page with Infinite Mac embedded. Infinite Mac
+          boots System&nbsp;7.5 and fetches <code>mac/Time.Pilot-m68k.dsk</code> as a
+          second disk; the disk and the emulator are both external to the WASM/X16
+          players.</p>
+        <p>The Archimedes card embeds Archimedes Live. Its hash carries the
+          <code>disc</code> URL for <code>archie/TimePilot-RISCOS-HostFS.zip</code>
+          and an <code>autoboot</code> command, so the archive is unpacked onto
+          HostFS and the game starts without a local file picker.</p>
+      </div>
+      <div>
+        <h3>Build and deploy</h3>
+        <p>GitHub Actions rebuilds both local players from source on every push to
+          <code>master</code>, assembles this static site, and deploys it to GitHub
+          Pages. The Emscripten SDK, llvm-mos SDK and x16-emulator archive are fetched
+          by the build scripts into caches outside the repository, so the checkout stays
+          small and reproducible.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <p class="eyebrow">Source</p>
+      <h2>The whole thing is in the repository</h2>
+    </div>
+    <p class="source-links">
+      <a href="https://github.com/anomixer/Time-Pilot">github.com/anomixer/Time-Pilot ↗</a>
+      <span>·</span>
+      <a href="https://github.com/anomixer/Time-Pilot/releases">releases ↗</a>
+      <span>·</span>
+      <a href="https://github.com/anomixer/Time-Pilot#readme">README ↗</a>
+    </p>
+  </section>
+</main>
+
+<footer>
+  <p>Time Pilot is a 1982 Konami arcade game. This is a fan port; the original
+    remains the property of its rights holders.</p>
+  <p>Site built from <a href="https://github.com/anomixer/Time-Pilot">anomixer/Time-Pilot</a>.
+    The emulator builds keep their own licences.</p>
+</footer>
+
+</body>
+</html>

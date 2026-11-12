@@ -1,0 +1,73 @@
+name: Deploy browser players
+
+# Rebuilds both in-browser ports from source, assembles the static site and
+# publishes web/_site to GitHub Pages. The toolchains and emulator archive are
+# fetched by the build scripts themselves. The one committed binary is the
+# Macintosh game floppy, which Infinite Mac fetches from the deployed site.
+#
+# The repository must have Pages enabled with "GitHub Actions" as the source
+# (Settings -> Pages). A fork needs this one-time setting; GITHUB_TOKEN cannot
+# enable Pages by itself, so the workflow does not try to do that for you.
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build WASM + X16 + site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Cache self-fetched toolchains
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/timepilot-toolchain
+            TimePilot-CX16/web/.cache
+          key: timepilot-toolchain-${{ runner.os }}-emsdk-7.0.0-llvm-mos-23.4.0-r49
+
+      - name: Build native WebAssembly port
+        run: bash TimePilot-web/build.sh
+
+      - name: Build Commander X16 PRG
+        run: bash TimePilot-CX16/web/build.sh
+
+      - name: Assemble the site
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node web/build-site.mjs
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/_site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
